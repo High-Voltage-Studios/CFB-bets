@@ -259,8 +259,7 @@ select option{background:var(--surface)}
     <button class="tab" onclick="switchTab('mybets')">🎲 My Bets</button>
     <button class="tab" onclick="switchTab('history')">📊 History</button>
     <button class="tab" onclick="switchTab('profile')">👤 Participant</button>
-    <button class="tab" onclick="switchTab('rules')">📋 Rules</button>
-    <button class="tab" onclick="switchTab('updates')">📢 Updates</button>
+    <button class="tab" onclick="switchTab('updates')">📢 Updates & Ideas</button>
     <button class="tab" onclick="switchTab('admin')">🔐 Admin</button>
   </div>
 
@@ -464,100 +463,17 @@ select option{background:var(--surface)}
     <!-- PLAYOFF -->
     <div id="view-playoff" style="display:none"><!-- rendered dynamically if data exists --></div>
 
-    <!-- RULES -->
-    <div id="view-rules" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title">📋 Rules</div>
-          <div class="sec-sub">Read these before placing bets</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
-        <div class="card"><div class="card-title" style="color:var(--gold);margin-bottom:10px">💵 Basics</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px">
-            <li>🪙 You bet with the fake currency you're given — no real money involved.</li>
-            <li>📧 To join, email or talk to the commissioner.</li>
-            <li>🚫 Mess with the slides and you'll be permanently banned.</li>
-            <li>🏈 Football only.</li>
-            <li>📅 New bets every week.</li>
-          </ul>
-        </div>
-        <div class="card"><div class="card-title" style="color:var(--gold);margin-bottom:10px">⏰ Deadlines</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px">
-            <li>🔒 All bets lock <strong>Fridays at 7:00 PM</strong> before Indian Creek kickoff.</li>
-            <li>📝 You must place <strong>at least 2 bets per week</strong> or you lose <strong>$10,000</strong>.</li>
-            <li>💸 Each bet has a minimum entry amount listed on the bet card.</li>
-          </ul>
-        </div>
-        <div class="card"><div class="card-title" style="color:var(--gold);margin-bottom:10px">🎯 Special Rules</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px">
-            <li>⚔️ <strong>Rival Week (Rule 10):</strong> Any rival game has a <strong>×2 payout</strong>.</li>
-            <li>🏠 <strong>Home Sweet Home (Rule 11):</strong> Get 3 home games right in a row → win <strong>$15,000</strong>.</li>
-            <li>🌟 <strong>Perfect Saturday (Rule 13):</strong> Get 5 bets right in a week → win <strong>$50,000</strong>.</li>
-            <li>🎯 <strong>Exact Score (Rule 14):</strong> Guess the exact score → get <strong>×5 your bet amount</strong>.</li>
-          </ul>
-        </div>
-        <div class="card" style="border-color:rgba(255,71,87,.3)">
-          <div class="card-title" style="color:var(--loss);margin-bottom:10px">⚠️ Disclaimer</div>
-          <p style="font-size:13px;color:var(--muted)">This is <strong style="color:var(--white)">not illegal</strong> because we don't use real money. This is for entertainment purposes only among friends.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- UPDATES -->
+    <!-- UPDATES & IDEAS -->
     <div id="view-updates" class="view">
       <div class="sec-hdr">
         <div>
-          <div class="sec-title">📢 Updates</div>
-          <div class="sec-sub">Latest changes to the league</div>
+          <div class="sec-title">📢 Updates &amp; Ideas</div>
+          <div class="sec-sub">Latest changes and community bet ideas — pulled live from the sheet</div>
         </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadUpdates(true)">⟳ Refresh</button>
       </div>
-      <div style="max-width:600px">
-        <div class="card mb16">
-          <div class="card-title" style="color:var(--gold);margin-bottom:14px">Week 9 Updates</div>
-          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">01</span>
-              <div><strong>Rival Week</strong> is now active — rival game payouts are ×2. <span class="badge b-win" style="margin-left:6px">Rule 10</span></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">02</span>
-              <div><strong>Home Sweet Home</strong> — 3 home games correct in a row wins $15,000. <span class="badge b-win" style="margin-left:6px">Rule 11</span></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">03</span>
-              <div><strong>Bet entry minimums</strong> are now enforced on certain bets. <span class="badge b-pending" style="margin-left:6px">Rule 12</span></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">04</span>
-              <div>You must place <strong>at least 2 bets per week</strong> to qualify. Miss = −$10,000. <span class="badge b-loss" style="margin-left:6px">Rule 9</span></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">05</span>
-              <div><strong>Perfect Saturday</strong> — get 5 bets right in a week to win $50,000. <span class="badge b-win" style="margin-left:6px">Rule 13</span></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">06</span>
-              <div><strong>Exact Score</strong> — guess the exact game score for ×5 your bet. <span class="badge b-bonus" style="margin-left:6px">Rule 14</span></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">07</span>
-              <div>New tab added: <strong>Bet Ideas</strong> — submit your suggestions to make the league better.</div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--gold-bg);border-radius:4px;border:1px solid rgba(240,180,41,.25)">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">🎉</span>
-              <div style="color:var(--gold)"><strong>Heisman Ceremony Party</strong> — we'll most likely have a party at the commissioner's house for the Heisman ceremony. Stay tuned!</div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title" style="color:var(--gold);margin-bottom:10px">💡 Bet Ideas</div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Submit your ideas in the Google Sheet under "Bet Ideas" tab.</p>
-          <div style="padding:10px;background:var(--raised);border-radius:4px;font-size:13px">
-            <strong>Evan S.</strong> — <span class="muted-c">Problem: No live Heisman tracking</span><br>
-            <span style="color:var(--white);margin-top:4px;display:block">💡 Live Heisman tracking on the website ← <em style="color:var(--gold)">done!</em></span>
-          </div>
-        </div>
+      <div id="updates-content" style="max-width:680px">
+        <div class="loading"><div class="spinner"></div>Loading updates...</div>
       </div>
     </div>
 
@@ -761,17 +677,20 @@ select option{background:var(--surface)}
             <div id="a-participant-msg" class="mt8"></div>
           </div>
 
-          <!-- Reset Participant PIN -->
+          <!-- PIN Management -->
           <div class="admin-card">
-            <div class="admin-card-title">🔑 RESET PARTICIPANT PIN</div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:10px">
-              Clears a participant's PIN so they can set a new one. Use this if they forget it.
+            <div class="admin-card-title">🔑 PIN MANAGEMENT</div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
+              Each participant uses a 4-digit PIN to log in to "My Bets". They set their own PIN the first time they log in. Use <strong style="color:var(--white)">Reset PIN</strong> below if someone forgets theirs — it clears it so they can pick a new one next time they log in.
             </p>
             <div class="fg">
               <label>Participant</label>
               <select id="a-resetpin-who"></select>
             </div>
-            <button class="btn btn-danger btn-full" onclick="submitResetPin()">Clear PIN</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" onclick="checkPinStatus()" style="flex:1">🔍 Check PIN Status</button>
+              <button class="btn btn-danger btn-sm" onclick="submitResetPin()" style="flex:1">🗑 Reset PIN</button>
+            </div>
             <div id="a-resetpin-msg" class="mt8"></div>
           </div>
 
@@ -1035,6 +954,7 @@ function renderAll() {
   populateFilters();
   populateProfiles();
   populateAdminDropdowns();
+  mbPopulateNames();
   if (state.adminOk) populateAdminBets();
   switchTab(state.tab || 'money');
 }
@@ -1342,7 +1262,7 @@ function renderProfile() {
 // ================================================================
 function switchTab(tab) {
   state.tab = tab;
-  const tabNames = ['money','heisman','week','mybets','history','profile','rules','updates','admin'];
+  const tabNames = ['money','heisman','week','mybets','history','profile','updates','admin'];
   document.querySelectorAll('.tab').forEach((t,i) => {
     t.classList.toggle('active', tabNames[i] === tab);
   });
@@ -1350,6 +1270,8 @@ function switchTab(tab) {
   document.getElementById(`view-${tab}`)?.classList.add('active');
   if (tab === 'history') renderHistory();
   if (tab === 'profile') renderProfile();
+  if (tab === 'mybets') mbPopulateNames();
+  if (tab === 'updates') loadUpdates();
 }
 
 // ================================================================
@@ -1409,6 +1331,19 @@ async function submitResetPin() {
     const res = await apiPost('resetPin', { participant: who });
     if (res.error) throw new Error(res.error);
     setMsg('a-resetpin-msg', '✅ ' + (res.message || 'PIN cleared.'), 'ok');
+  } catch(e) { setMsg('a-resetpin-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function checkPinStatus() {
+  const who = document.getElementById('a-resetpin-who').value;
+  if (!who) { setMsg('a-resetpin-msg','Select a participant.','err'); return; }
+  try {
+    const res = await apiGet(`hasPin&participant=${encodeURIComponent(who)}`);
+    if (res.hasPin) {
+      setMsg('a-resetpin-msg', `🔐 ${who} has a PIN set.`, 'ok');
+    } else {
+      setMsg('a-resetpin-msg', `⚠️ ${who} has no PIN yet — they'll set one on first login.`, 'info');
+    }
   } catch(e) { setMsg('a-resetpin-msg', 'Error: ' + e.message, 'err'); }
 }
 
@@ -1964,6 +1899,99 @@ function setMsg(id, msg, type) {
   if (!el) return;
   const cls = type === 'ok' ? 'alert-ok' : type === 'info' ? 'alert-info' : 'alert-err';
   el.innerHTML = `<div class="alert ${cls}">${msg}</div>`;
+}
+
+// ================================================================
+// UPDATES & IDEAS — live from Google Sheet
+// ================================================================
+let _updatesLoaded = false;
+
+async function loadUpdates(force) {
+  if (_updatesLoaded && !force) return;
+  const cont = document.getElementById('updates-content');
+  if (!cont) return;
+  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Loading updates...</div>';
+  try {
+    const data = await apiGet('getUpdates');
+    if (data.error) throw new Error(data.error);
+    _updatesLoaded = true;
+    renderUpdates(data);
+  } catch(e) {
+    cont.innerHTML = `<div class="alert alert-err">Could not load updates: ${e.message}<br><small style="opacity:.7">Make sure your Apps Script is updated with the getUpdates action.</small></div>`;
+  }
+}
+
+function renderUpdates(data) {
+  const cont = document.getElementById('updates-content');
+  if (!cont) return;
+  const { updates = [], ideas = [] } = data;
+
+  // ── Updates section ──
+  // Group rows by their "section" field (col B). Rows with no section go into
+  // whatever the last named group was, or a default "Updates" group.
+  let updatesHtml = '';
+  if (!updates.length) {
+    updatesHtml = '<div class="card mb16"><p class="muted-c" style="font-size:13px">No updates yet — add rows to the "Updates" tab in your Google Sheet. Column A = the update text, Column B = section heading (optional).</p></div>';
+  } else {
+    const groups = [];
+    let cur = null;
+    updates.forEach((row, idx) => {
+      const section = row.section || '';
+      if (!cur || (section && section !== cur.heading)) {
+        cur = { heading: section || 'Updates', items: [] };
+        groups.push(cur);
+      }
+      cur.items.push(row);
+    });
+
+    updatesHtml = groups.map(g => `
+      <div class="card mb16">
+        <div class="card-title" style="color:var(--gold);margin-bottom:14px">${escHtml(g.heading)}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          ${g.items.map((item, idx) => {
+            const num = String(idx + 1).padStart(2, '0');
+            const bStyle = item.badge_style || 'b-pending';
+            const badge  = item.badge ? `<span class="badge ${bStyle}" style="margin-left:6px">${escHtml(item.badge)}</span>` : '';
+            const icon   = item.icon  || num;
+            return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:28px">${icon}</span>
+              <div>${escHtml(item.text)}${badge}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Ideas section ──
+  let ideasHtml = '';
+  if (!ideas.length) {
+    ideasHtml = `<div class="card">
+      <div class="card-title" style="color:var(--gold);margin-bottom:10px">💡 Bet Ideas</div>
+      <p class="muted-c" style="font-size:13px">No ideas yet — add rows to the "Bets ideas" tab. Column A = name, Column B = idea/problem, Column C = status.</p>
+    </div>`;
+  } else {
+    const ideaCards = ideas.map(idea => {
+      const s = (idea.status || '').toLowerCase();
+      const isDone = s.includes('done') || s.includes('complete') || s.includes('✓') || s.includes('added');
+      const statusBadge = idea.status
+        ? `<span class="badge ${isDone ? 'b-win' : 'b-pending'}" style="margin-left:6px">${escHtml(idea.status)}</span>` : '';
+      return `<div style="padding:10px;background:var(--raised);border-radius:4px;font-size:13px;margin-bottom:8px">
+        <strong>${escHtml(idea.name || 'Anonymous')}</strong>${statusBadge}
+        ${idea.problem ? `<div class="muted-c" style="margin-top:4px">${escHtml(idea.problem)}</div>` : ''}
+        ${idea.idea    ? `<div style="color:var(--white);margin-top:4px">💡 ${escHtml(idea.idea)}</div>` : ''}
+      </div>`;
+    }).join('');
+    ideasHtml = `<div class="card">
+      <div class="card-title" style="color:var(--gold);margin-bottom:10px">💡 Bet Ideas</div>
+      ${ideaCards}
+    </div>`;
+  }
+
+  cont.innerHTML = updatesHtml + ideasHtml;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ================================================================
