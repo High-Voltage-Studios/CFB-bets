@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFB Fun Bets Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0B0F1A;
+  --surface:  #141928;
+  --raised:   #1C2237;
+  --gold:     #F0B429;
+  --gold-bg:  rgba(240,180,41,.12);
+  --white:    #EEF2FF;
+  --muted:    #7B8499;
+  --win:      #3DDC84;
+  --win-bg:   rgba(61,220,132,.12);
+  --loss:     #FF4757;
+  --loss-bg:  rgba(255,71,87,.12);
+  --border:   rgba(255,255,255,.07);
+  --r:        5px;
+  --mono:     'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+a{color:var(--gold);text-decoration:none}
+
+/* ── Setup ── */
+#setup-screen{display:none;max-width:460px;margin:80px auto;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center}
+#setup-screen.show{display:block}
+.setup-icon{font-size:44px;margin-bottom:12px}
+.setup-title{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:6px}
+.setup-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+.setup-divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.setup-section-title{font-size:12px;font-weight:700;color:var(--muted);text-align:left;margin-bottom:10px;letter-spacing:.05em}
+
+/* ── Header ── */
+header{background:var(--surface);border-bottom:1px solid var(--border)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.hdr-logo{font-weight:900;font-size:15px;color:var(--gold);white-space:nowrap}
+.hdr-meta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);font-family:var(--mono);flex-wrap:wrap}
+.hdr-meta em{color:var(--white);font-style:normal}
+.countdown{color:var(--gold);font-weight:700}
+.hdr-hero{display:flex;align-items:center;gap:0;padding:14px 24px}
+.hero-block{flex:1;padding:0 20px}
+.hero-block:first-child{padding-left:0;border-right:1px solid var(--border)}
+.hero-block:last-child{padding-right:0}
+.hero-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.hero-name{font-size:26px;font-weight:900;color:var(--gold);line-height:1}
+.hero-sub{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--white);margin-top:3px}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:0;padding:0 24px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:11px 15px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;white-space:nowrap;transition:color .12s}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── Main ── */
+main{max-width:1200px;margin:0 auto;padding:24px}
+
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-align:left;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface)}
+td{padding:10px 14px;vertical-align:middle}
+.mono{font-family:var(--mono);font-size:13px}
+.r-gold{color:var(--gold);font-weight:700;font-family:var(--mono)}
+.r-silver{color:#B0B8CC;font-weight:700;font-family:var(--mono)}
+.r-bronze{color:#C87F3A;font-weight:700;font-family:var(--mono)}
+.r-plain{color:var(--muted);font-family:var(--mono);font-size:12px}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;font-family:var(--mono);white-space:nowrap}
+.b-win{background:var(--win-bg);color:var(--win)}
+.b-loss{background:var(--loss-bg);color:var(--loss)}
+.b-inactive{background:rgba(85,94,111,.3);color:var(--muted)}
+.b-active{background:rgba(255,255,255,.05);color:var(--muted)}
+.b-pending{background:var(--gold-bg);color:var(--gold)}
+.b-bonus{background:rgba(162,87,255,.15);color:#C07AFF}
+
+/* ── Bar ── */
+.bar-wrap{height:3px;background:var(--raised);border-radius:2px;overflow:hidden;margin-top:5px;width:120px}
+.bar-fill{height:100%;background:var(--gold);border-radius:2px}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.card-title{font-weight:700;font-size:14px;margin-bottom:4px}
+.card-meta{font-size:11px;color:var(--muted);margin-bottom:12px;font-family:var(--mono)}
+
+/* ── Stat boxes ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
+.stat-val{font-family:var(--mono);font-size:21px;font-weight:700}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── Bet cards ── */
+.bet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.bet-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.bet-type{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.bet-title{font-weight:700;font-size:14px;margin:3px 0}
+.bet-limits{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
+.bet-payouts{margin-bottom:10px;padding:8px;background:var(--raised);border-radius:4px;font-size:11px;color:var(--muted);line-height:1.7}
+.bet-payouts span{color:var(--win)}
+.bet-sep{border:none;border-top:1px solid var(--border);margin:8px 0}
+.pick-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.pick-row:last-child{border:none}
+.pick-name{color:var(--white)}
+.pick-team{color:var(--gold);font-weight:700}
+.pick-amt{color:var(--muted);font-family:var(--mono);font-size:11px}
+
+/* ── Forms ── */
+.fg{margin-bottom:12px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);color:var(--white);padding:8px 10px;font-family:inherit;font-size:13px;outline:none;transition:border-color .12s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+select option{background:var(--surface)}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .12s;white-space:nowrap}
+.btn:hover{opacity:.82}
+.btn-gold{background:var(--gold);color:#0B0F1A}
+.btn-ghost{background:var(--raised);color:var(--white)}
+.btn-danger{background:var(--loss);color:#fff}
+.btn-success{background:var(--win);color:#0B0F1A}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-full{width:100%}
+
+/* ── Alerts ── */
+.alert{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-top:8px}
+.alert-err{background:var(--loss-bg);color:var(--loss);border:1px solid rgba(255,71,87,.25)}
+.alert-ok{background:var(--win-bg);color:var(--win);border:1px solid rgba(61,220,132,.25)}
+.alert-info{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(240,180,41,.25)}
+
+/* ── Loading ── */
+.loading{text-align:center;padding:60px 20px;color:var(--muted)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Section header ── */
+.sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.sec-title{font-size:16px;font-weight:700}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ── Filter row ── */
+.filter-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.filter-row select{width:auto;min-width:150px}
+
+/* ── Profile ── */
+.profile-select-wrap{margin-bottom:20px}
+.profile-select-wrap select{font-size:17px;font-weight:700;background:transparent;border:none;border-bottom:2px solid var(--gold);border-radius:0;padding:4px 8px 8px 0;color:var(--gold);cursor:pointer;width:auto}
+
+/* ── Admin ── */
+.admin-gate{max-width:340px;margin:40px auto;text-align:center;padding:24px}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.admin-card-title{font-weight:700;font-size:12px;color:var(--gold);letter-spacing:.04em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ── Heisman formula note ── */
+.formula-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted)}
+.formula-note strong{color:var(--gold)}
+
+/* ── Views ── */
+.view{display:none}.view.active{display:block}
+
+/* ── Utility ── */
+.win-c{color:var(--win)}.loss-c{color:var(--loss)}.gold-c{color:var(--gold)}.muted-c{color:var(--muted)}
+.mt8{margin-top:8px}.mt16{margin-top:16px}.mb16{margin-bottom:16px}
+.flex{display:flex}.gap8{gap:8px}.align-c{align-items:center}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--raised);border-radius:3px}
+
+@media(max-width:700px){
+  .hdr-hero{flex-direction:column;gap:12px}
+  .hero-block{border:none!important;padding:0!important}
+  .admin-grid{grid-template-columns:1fr}
+  .fg-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── SETUP SCREEN ── -->
+<div id="setup-screen">
+  <div class="setup-icon">🏈</div>
+  <div class="setup-title">CFB Fun Bets Hub</div>
+  <div class="setup-sub">Connect to your Google Sheet to get started.</div>
+
+  <div class="setup-section-title">APPS SCRIPT URL</div>
+  <div class="fg">
+    <input type="text" id="setup-url" placeholder="https://script.google.com/macros/s/.../exec">
+  </div>
+  <button class="btn btn-gold btn-full" onclick="saveSetup()">Connect & Load Data</button>
+
+  <hr class="setup-divider">
+
+  <div class="setup-section-title">FIRST-TIME SETUP — Set Admin Password</div>
+  <div class="fg">
+    <input type="password" id="init-pw" placeholder="Choose an admin password">
+  </div>
+  <button class="btn btn-ghost btn-full" onclick="initializeScript()">Initialize (First Run Only)</button>
+  <div id="init-msg" style="margin-top:8px"></div>
+
+  <p style="font-size:11px;color:var(--muted);margin-top:16px">See SETUP.md for step-by-step instructions.</p>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app" style="display:none">
+  <header>
+    <div class="hdr-top">
+      <div class="hdr-logo">🏈 CFB FUN BETS HUB</div>
+      <div class="hdr-meta">
+        WEEK <em id="hdr-week">—</em>
+        &nbsp;·&nbsp;
+        BETS LOCK IN: <span class="countdown" id="hdr-countdown">—</span>
+        &nbsp;·&nbsp;
+        <button class="btn btn-ghost btn-sm" onclick="refreshData()">⟳ Refresh</button>
+        <button class="btn btn-ghost btn-sm" onclick="showSetup()">⚙ Setup</button>
+      </div>
+    </div>
+    <div class="hdr-hero">
+      <div class="hero-block">
+        <div class="hero-label">🏆 MONEY LEADER</div>
+        <div class="hero-name" id="hdr-money-leader">—</div>
+        <div class="hero-sub" id="hdr-money-bal">—</div>
+      </div>
+      <div class="hero-block" style="padding-left:32px;padding-right:32px">
+        <div class="hero-label">🎯 HEISMAN LEADER</div>
+        <div class="hero-name" id="hdr-heisman-leader" style="font-size:20px">—</div>
+        <div class="hero-sub" style="font-size:14px" id="hdr-heisman-score">—</div>
+      </div>
+      <div class="hero-block" style="border-left:1px solid var(--border)">
+        <div class="hero-label">📅 LOCK TIME</div>
+        <div class="hero-name" style="font-size:16px;color:var(--white)" id="hdr-lock-time">Friday 7:00 PM</div>
+        <div class="hero-sub" style="font-size:12px;color:var(--muted)" id="hdr-season-name">—</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('money')">💰 Money Race</button>
+    <button class="tab" onclick="switchTab('heisman')">🏆 Heisman Race</button>
+    <button class="tab" onclick="switchTab('week')">📅 This Week</button>
+    <button class="tab" onclick="switchTab('mybets')">🎲 My Bets</button>
+    <button class="tab" onclick="switchTab('history')">📊 History</button>
+    <button class="tab" onclick="switchTab('profile')">👤 Participant</button>
+    <button class="tab" onclick="switchTab('rules')">📋 Rules</button>
+    <button class="tab" onclick="switchTab('updates')">📢 Updates</button>
+    <button class="tab" onclick="switchTab('admin')">🔐 Admin</button>
+  </div>
+
+  <main id="main-content">
+    <div id="loading-overlay" class="loading">
+      <div class="spinner"></div>
+      Loading from Google Sheets...
+    </div>
+
+    <!-- MONEY RACE -->
+    <div id="view-money" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Money Race</div>
+          <div class="sec-sub">Ranked by current balance</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('money')">↓ Export CSV</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Balance</th>
+              <th>This Week</th>
+              <th>Bets</th>
+              <th>W / L</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="money-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HEISMAN RACE -->
+    <div id="view-heisman" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Heisman Race</div>
+          <div class="sec-sub">Who shows up AND picks correctly</div>
+        </div>
+      </div>
+      <div class="formula-note">
+        <strong>Formula (estimate):</strong> Heisman Score = Correct Bets × (1 + Weeks Participated ÷ Total Weeks).
+        Rewards both accuracy and consistency. This is a projected ranking, not an official formula.
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Heisman Score ★</th>
+              <th>Correct Bets</th>
+              <th>Accuracy</th>
+              <th>Weeks In</th>
+              <th>Consistency</th>
+            </tr>
+          </thead>
+          <tbody id="heisman-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- THIS WEEK -->
+    <div id="view-week" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title" id="week-view-title">This Week's Bets</div>
+          <div class="sec-sub">All bets lock <span id="week-lock-str">Friday at 7:00 PM</span></div>
+        </div>
+      </div>
+      <div id="bets-grid" class="bet-grid"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="view-history" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Bet History</div>
+          <div class="sec-sub">All resolved bets and bonuses</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('history')">↓ Export CSV</button>
+      </div>
+      <div class="filter-row">
+        <select id="flt-participant" onchange="renderHistory()">
+          <option value="">All Participants</option>
+        </select>
+        <select id="flt-week" onchange="renderHistory()">
+          <option value="">All Weeks</option>
+        </select>
+        <select id="flt-outcome" onchange="renderHistory()">
+          <option value="">All Outcomes</option>
+          <option value="win">Wins</option>
+          <option value="loss">Losses</option>
+          <option value="bonus">Bonuses</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Bet / Type</th>
+              <th>Participant</th>
+              <th>Outcome</th>
+              <th>Change</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PARTICIPANT PROFILE -->
+    <div id="view-profile" class="view">
+      <div class="profile-select-wrap">
+        <label style="font-size:12px">View Profile</label>
+        <select id="profile-select" onchange="renderProfile()">
+          <option value="">Select Participant...</option>
+        </select>
+      </div>
+      <div id="profile-content"></div>
+    </div>
+
+    <!-- MY BETS -->
+    <div id="view-mybets" class="view">
+      <!-- Step 1: Not logged in -->
+      <div id="mb-login" style="max-width:420px;margin:0 auto">
+        <div class="sec-hdr"><div><div class="sec-title">🎲 Place a Bet</div><div class="sec-sub">Enter your name and PIN to place or manage bets</div></div></div>
+        <div class="card">
+          <div class="fg">
+            <label>YOUR NAME</label>
+            <select id="mb-name-sel">
+              <option value="">Select your name...</option>
+            </select>
+          </div>
+          <div class="fg" id="mb-pin-wrap">
+            <label>YOUR PIN</label>
+            <input type="password" id="mb-pin-input" placeholder="Enter your 4-digit PIN"
+              onkeydown="if(event.key==='Enter')mbLogin()">
+          </div>
+          <div id="mb-no-pin-msg" style="display:none" class="alert alert-info mb-8">
+            You don't have a PIN yet. Set one to start placing bets.
+          </div>
+          <div class="fg" id="mb-set-pin-wrap" style="display:none">
+            <label>SET A NEW PIN (4+ digits)</label>
+            <input type="password" id="mb-new-pin" placeholder="Choose a PIN">
+          </div>
+          <button class="btn btn-gold btn-full" onclick="mbLogin()">🔓 Continue</button>
+          <div id="mb-login-msg" class="mt8"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Logged in -->
+      <div id="mb-panel" style="display:none">
+        <div class="sec-hdr">
+          <div>
+            <div class="sec-title">🎲 My Bets — <span id="mb-logged-name" style="color:var(--gold)"></span></div>
+            <div class="sec-sub">Balance: <span id="mb-balance" class="mono" style="color:var(--white)"></span></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="mbLogout()">🔒 Log Out</button>
+        </div>
+
+        <!-- Active bets this week -->
+        <div class="card mb16">
+          <div class="card-title" style="margin-bottom:10px">Your bets this week</div>
+          <div id="mb-my-current-bets"><div class="muted-c" style="font-size:13px">Loading...</div></div>
+        </div>
+
+        <!-- Place a new bet -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px">➕ Place a New Bet</div>
+          <div class="fg">
+            <label>SELECT BET</label>
+            <select id="mb-bet-sel" onchange="renderMbBetForm()">
+              <option value="">Choose a bet...</option>
+            </select>
+          </div>
+          <div id="mb-bet-form" style="display:none">
+            <div style="background:var(--raised);padding:10px;border-radius:4px;margin-bottom:12px;font-size:12px" id="mb-bet-info"></div>
+            <div class="fg">
+              <label>YOUR PICK</label>
+              <select id="mb-pick-sel"></select>
+            </div>
+            <div class="fg">
+              <label>AMOUNT ($)</label>
+              <input type="number" id="mb-amount" placeholder="e.g. 10000">
+              <div id="mb-amount-hint" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+            </div>
+            <button class="btn btn-gold btn-full" onclick="mbSubmitBet()">Place Bet</button>
+            <div id="mb-bet-msg" class="mt8"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYOFF -->
+    <div id="view-playoff" style="display:none"><!-- rendered dynamically if data exists --></div>
+
+    <!-- RULES -->
+    <div id="view-rules" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">📋 Rules</div>
+          <div class="sec-sub">Read these before placing bets</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
+        <div class="card"><div class="card-title" style="color:var(--gold);margin-bottom:10px">💵 Basics</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px">
+            <li>🪙 You bet with the fake currency you're given — no real money involved.</li>
+            <li>📧 To join, email or talk to the commissioner.</li>
+            <li>🚫 Mess with the slides and you'll be permanently banned.</li>
+            <li>🏈 Football only.</li>
+            <li>📅 New bets every week.</li>
+          </ul>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--gold);margin-bottom:10px">⏰ Deadlines</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px">
+            <li>🔒 All bets lock <strong>Fridays at 7:00 PM</strong> before Indian Creek kickoff.</li>
+            <li>📝 You must place <strong>at least 2 bets per week</strong> or you lose <strong>$10,000</strong>.</li>
+            <li>💸 Each bet has a minimum entry amount listed on the bet card.</li>
+          </ul>
+        </div>
+        <div class="card"><div class="card-title" style="color:var(--gold);margin-bottom:10px">🎯 Special Rules</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px">
+            <li>⚔️ <strong>Rival Week (Rule 10):</strong> Any rival game has a <strong>×2 payout</strong>.</li>
+            <li>🏠 <strong>Home Sweet Home (Rule 11):</strong> Get 3 home games right in a row → win <strong>$15,000</strong>.</li>
+            <li>🌟 <strong>Perfect Saturday (Rule 13):</strong> Get 5 bets right in a week → win <strong>$50,000</strong>.</li>
+            <li>🎯 <strong>Exact Score (Rule 14):</strong> Guess the exact score → get <strong>×5 your bet amount</strong>.</li>
+          </ul>
+        </div>
+        <div class="card" style="border-color:rgba(255,71,87,.3)">
+          <div class="card-title" style="color:var(--loss);margin-bottom:10px">⚠️ Disclaimer</div>
+          <p style="font-size:13px;color:var(--muted)">This is <strong style="color:var(--white)">not illegal</strong> because we don't use real money. This is for entertainment purposes only among friends.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPDATES -->
+    <div id="view-updates" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">📢 Updates</div>
+          <div class="sec-sub">Latest changes to the league</div>
+        </div>
+      </div>
+      <div style="max-width:600px">
+        <div class="card mb16">
+          <div class="card-title" style="color:var(--gold);margin-bottom:14px">Week 9 Updates</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">01</span>
+              <div><strong>Rival Week</strong> is now active — rival game payouts are ×2. <span class="badge b-win" style="margin-left:6px">Rule 10</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">02</span>
+              <div><strong>Home Sweet Home</strong> — 3 home games correct in a row wins $15,000. <span class="badge b-win" style="margin-left:6px">Rule 11</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">03</span>
+              <div><strong>Bet entry minimums</strong> are now enforced on certain bets. <span class="badge b-pending" style="margin-left:6px">Rule 12</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">04</span>
+              <div>You must place <strong>at least 2 bets per week</strong> to qualify. Miss = −$10,000. <span class="badge b-loss" style="margin-left:6px">Rule 9</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">05</span>
+              <div><strong>Perfect Saturday</strong> — get 5 bets right in a week to win $50,000. <span class="badge b-win" style="margin-left:6px">Rule 13</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">06</span>
+              <div><strong>Exact Score</strong> — guess the exact game score for ×5 your bet. <span class="badge b-bonus" style="margin-left:6px">Rule 14</span></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">07</span>
+              <div>New tab added: <strong>Bet Ideas</strong> — submit your suggestions to make the league better.</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--gold-bg);border-radius:4px;border:1px solid rgba(240,180,41,.25)">
+              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:24px">🎉</span>
+              <div style="color:var(--gold)"><strong>Heisman Ceremony Party</strong> — we'll most likely have a party at the commissioner's house for the Heisman ceremony. Stay tuned!</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color:var(--gold);margin-bottom:10px">💡 Bet Ideas</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Submit your ideas in the Google Sheet under "Bet Ideas" tab.</p>
+          <div style="padding:10px;background:var(--raised);border-radius:4px;font-size:13px">
+            <strong>Evan S.</strong> — <span class="muted-c">Problem: No live Heisman tracking</span><br>
+            <span style="color:var(--white);margin-top:4px;display:block">💡 Live Heisman tracking on the website ← <em style="color:var(--gold)">done!</em></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="view-admin" class="view">
+      <!-- Gate -->
+      <div id="admin-gate" class="admin-gate">
+        <div style="font-size:44px;margin-bottom:16px">🔐</div>
+        <div class="sec-title" style="margin-bottom:6px">Admin Panel</div>
+        <div class="muted-c" style="margin-bottom:20px;font-size:13px">Enter the admin password to manage the group.</div>
+        <div class="fg">
+          <input type="password" id="admin-pw-input" placeholder="Admin password"
+            onkeydown="if(event.key==='Enter')verifyAdmin()">
+        </div>
+        <button class="btn btn-gold btn-full" onclick="verifyAdmin()">Unlock Admin Panel</button>
+        <div id="admin-auth-msg" style="margin-top:10px"></div>
+      </div>
+
+      <!-- Panel -->
+      <div id="admin-panel" style="display:none">
+        <div class="sec-hdr">
+          <div class="sec-title">🔐 Admin Panel</div>
+          <button class="btn btn-ghost btn-sm" onclick="lockAdmin()">🔒 Lock</button>
+        </div>
+
+        <div class="admin-grid">
+
+          <!-- Resolve Bet -->
+          <div class="admin-card">
+            <div class="admin-card-title">✅ RESOLVE BET</div>
+            <div class="fg">
+              <label>Select Bet</label>
+              <select id="a-bet-select" onchange="loadBetForResolve()">
+                <option value="">Choose bet...</option>
+              </select>
+            </div>
+            <div id="a-bet-preview" style="margin-bottom:10px;font-size:12px;color:var(--muted)"></div>
+            <div class="fg">
+              <label>Winning Option</label>
+              <select id="a-bet-winner">
+                <option value="">Select winner...</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Week #</label>
+              <input type="number" id="a-bet-week" placeholder="9">
+            </div>
+            <div id="a-resolve-preview" class="mt8" style="font-size:12px"></div>
+            <button class="btn btn-success btn-full mt8" onclick="previewResolve()">Preview Payouts</button>
+            <button class="btn btn-gold btn-full mt8" id="a-resolve-confirm" style="display:none" onclick="submitResolve()">✓ Confirm & Apply</button>
+            <div id="a-resolve-msg" class="mt8"></div>
+          </div>
+
+          <!-- Adjust Balance -->
+          <div class="admin-card">
+            <div class="admin-card-title">💰 ADJUST BALANCE</div>
+            <div class="fg">
+              <label>Participant</label>
+              <select id="a-adj-who"></select>
+            </div>
+            <div class="fg">
+              <label>Amount (positive = add, negative = deduct)</label>
+              <input type="number" id="a-adj-amt" placeholder="e.g. -10000 or 25000">
+            </div>
+            <div class="fg">
+              <label>Reason</label>
+              <input type="text" id="a-adj-reason" placeholder="e.g. Perfect Saturday bonus">
+            </div>
+            <button class="btn btn-gold btn-full" onclick="submitAdjBalance()">Apply Adjustment</button>
+            <div id="a-adj-msg" class="mt8"></div>
+          </div>
+
+          <!-- Award Bonus -->
+          <div class="admin-card">
+            <div class="admin-card-title">🎯 AWARD BONUS</div>
+            <div class="fg">
+              <label>Participant</label>
+              <select id="a-bonus-who"></select>
+            </div>
+            <div class="fg">
+              <label>Bonus Type</label>
+              <select id="a-bonus-type" onchange="fillBonusAmount()">
+                <option value="rival_week" data-amt="0">Rival Week (×2 payout — enter net)</option>
+                <option value="home_sweet_home" data-amt="15000">Home Sweet Home (+$15,000)</option>
+                <option value="perfect_saturday" data-amt="50000">Perfect Saturday (+$50,000)</option>
+                <option value="exact_score" data-amt="0">Exact Score (×5 bet — enter net)</option>
+                <option value="custom" data-amt="0">Custom Amount</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Amount ($)</label>
+              <input type="number" id="a-bonus-amt" placeholder="e.g. 15000">
+            </div>
+            <div class="fg">
+              <label>Week #</label>
+              <input type="number" id="a-bonus-week">
+            </div>
+            <div class="fg">
+              <label>Notes (optional)</label>
+              <input type="text" id="a-bonus-notes" placeholder="e.g. Picked Wisconsin score exactly">
+            </div>
+            <button class="btn btn-gold btn-full" onclick="submitBonus()">Award Bonus</button>
+            <div id="a-bonus-msg" class="mt8"></div>
+          </div>
+
+          <!-- Inactive Management -->
+          <div class="admin-card">
+            <div class="admin-card-title">⚠️ INACTIVE MANAGEMENT</div>
+            <div class="fg">
+              <label>Participant</label>
+              <select id="a-inactive-who"></select>
+            </div>
+            <div class="fg">
+              <label>Week # (when inactivity triggered)</label>
+              <input type="number" id="a-inactive-week">
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px">
+              Marking inactive deducts $10,000 and shows a public inactive marker.<br>
+              Reinstate restores active status; balance stays as-is (minus the $10k already deducted).
+            </p>
+            <div class="flex gap8">
+              <button class="btn btn-danger" style="flex:1" onclick="submitMarkInactive()">Mark Inactive (−$10k)</button>
+              <button class="btn btn-success" style="flex:1" onclick="submitReinstate()">Reinstate</button>
+            </div>
+            <div id="a-inactive-msg" class="mt8"></div>
+          </div>
+
+          <!-- Add Bet -->
+          <div class="admin-card">
+            <div class="admin-card-title">➕ ADD NEW BET</div>
+            <div class="fg">
+              <label>Title</label>
+              <input type="text" id="a-bet-title" placeholder="e.g. Ohio State vs Michigan">
+            </div>
+            <div class="fg-row">
+              <div class="fg">
+                <label>Type</label>
+                <select id="a-bet-type">
+                  <option value="game">Game</option>
+                  <option value="prop">Player Prop</option>
+                  <option value="bonus">Bonus Bet</option>
+                  <option value="local">Local Bet</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Week #</label>
+                <input type="number" id="a-bet-new-week">
+              </div>
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>Option A</label><input type="text" id="a-bet-a" placeholder="Team A"></div>
+              <div class="fg"><label>Option B</label><input type="text" id="a-bet-b" placeholder="Team B"></div>
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>Payout A</label><input type="text" id="a-bet-pa" placeholder="+$15,000 or x1.5"></div>
+              <div class="fg"><label>Payout B</label><input type="text" id="a-bet-pb" placeholder="+$12,000 or x1.35"></div>
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>Entry Min ($)</label><input type="number" id="a-bet-entry"></div>
+              <div class="fg"><label>Max Bet ($)</label><input type="number" id="a-bet-max"></div>
+            </div>
+            <button class="btn btn-gold btn-full" onclick="submitAddBet()">Add Bet to Sheet</button>
+            <div id="a-bet-msg" class="mt8"></div>
+          </div>
+
+          <!-- Season Config -->
+          <div class="admin-card">
+            <div class="admin-card-title">⚙️ SEASON SETTINGS</div>
+            <div class="fg">
+              <label>Season Name</label>
+              <input type="text" id="cfg-name">
+            </div>
+            <div class="fg">
+              <label>Season End Date & Time</label>
+              <input type="datetime-local" id="cfg-end">
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>Current Week</label><input type="number" id="cfg-week"></div>
+              <div class="fg"><label>Lock Time (HH:MM)</label><input type="text" id="cfg-lock" placeholder="19:00"></div>
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>Min Bets/Week</label><input type="number" id="cfg-minbets"></div>
+              <div class="fg"><label>Miss Penalty ($)</label><input type="number" id="cfg-penalty"></div>
+            </div>
+            <button class="btn btn-gold btn-full" onclick="saveConfig()">Save Settings</button>
+            <div id="a-cfg-msg" class="mt8"></div>
+          </div>
+
+          <!-- Add Participant -->
+          <div class="admin-card">
+            <div class="admin-card-title">👤 ADD PARTICIPANT</div>
+            <div class="fg">
+              <label>Name (e.g. "John D.")</label>
+              <input type="text" id="a-new-name" placeholder="First Last Initial">
+            </div>
+            <div class="fg">
+              <label>Starting Balance ($)</label>
+              <input type="number" id="a-new-bal" placeholder="500000">
+            </div>
+            <button class="btn btn-gold btn-full" onclick="submitAddParticipant()">Add to Sheet</button>
+            <div id="a-participant-msg" class="mt8"></div>
+          </div>
+
+          <!-- Reset Participant PIN -->
+          <div class="admin-card">
+            <div class="admin-card-title">🔑 RESET PARTICIPANT PIN</div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px">
+              Clears a participant's PIN so they can set a new one. Use this if they forget it.
+            </p>
+            <div class="fg">
+              <label>Participant</label>
+              <select id="a-resetpin-who"></select>
+            </div>
+            <button class="btn btn-danger btn-full" onclick="submitResetPin()">Clear PIN</button>
+            <div id="a-resetpin-msg" class="mt8"></div>
+          </div>
+
+          <!-- Change Password -->
+          <div class="admin-card">
+            <div class="admin-card-title">🔑 CHANGE ADMIN PASSWORD</div>
+            <div class="fg">
+              <label>New Password</label>
+              <input type="password" id="a-new-pw">
+            </div>
+            <div class="fg">
+              <label>Confirm Password</label>
+              <input type="password" id="a-confirm-pw">
+            </div>
+            <button class="btn btn-ghost btn-full" onclick="changePassword()">Update Password</button>
+            <div id="a-pw-msg" class="mt8"></div>
+          </div>
+
+        </div><!-- /.admin-grid -->
+      </div><!-- /#admin-panel -->
+    </div><!-- /#view-admin -->
+
+  </main>
+</div><!-- /#app -->
+
+<script>
+// ================================================================
+// CONFIG & STATE
+// ================================================================
+const LS_URL  = 'cfb_script_url';
+let SCRIPT_URL = localStorage.getItem(LS_URL) || '';
+let state = { data: null, tab: 'money', adminPw: '', adminOk: false };
+
+// Pending resolve payload (set after preview, cleared after submit)
+let pendingResolve = null;
+
+// ================================================================
+// SETUP
+// ================================================================
+function showSetup() {
+  document.getElementById('app').style.display = 'none';
+  const s = document.getElementById('setup-screen');
+  s.classList.add('show');
+  document.getElementById('setup-url').value = SCRIPT_URL;
+}
+
+function saveSetup() {
+  const url = document.getElementById('setup-url').value.trim();
+  if (!url) { alert('Enter your Apps Script URL first.'); return; }
+  SCRIPT_URL = url;
+  localStorage.setItem(LS_URL, url);
+  document.getElementById('setup-screen').classList.remove('show');
+  document.getElementById('app').style.display = 'block';
+  loadData();
+}
+
+async function initializeScript() {
+  const pw = document.getElementById('init-pw').value;
+  if (!pw) { setMsg('init-msg', 'Enter a password first.', 'err'); return; }
+  const url = document.getElementById('setup-url').value.trim() || SCRIPT_URL;
+  if (!url) { setMsg('init-msg', 'Enter the Apps Script URL first.', 'err'); return; }
+  SCRIPT_URL = url;
+  localStorage.setItem(LS_URL, url);
+  try {
+    setMsg('init-msg', 'Initializing...', 'info');
+    const res = await apiPost('init', { newPassword: pw, password: '' });
+    if (res.error) throw new Error(res.error);
+    setMsg('init-msg', '✅ ' + (res.message || 'Done! You can now connect.'), 'ok');
+  } catch(e) {
+    setMsg('init-msg', 'Error: ' + e.message, 'err');
+  }
+}
+
+// ================================================================
+// API LAYER
+// ================================================================
+async function apiGet(action) {
+  if (!SCRIPT_URL) throw new Error('No Apps Script URL configured. Click Setup.');
+  const res = await fetch(`${SCRIPT_URL}?action=${action}`, { redirect: 'follow' });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Invalid response from Apps Script. Check deployment settings.'); }
+}
+
+async function apiPost(action, payload) {
+  if (!SCRIPT_URL) throw new Error('No Apps Script URL configured. Click Setup.');
+  const body = JSON.stringify({ action, password: state.adminPw, ...payload });
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Invalid response from Apps Script.'); }
+}
+
+// ================================================================
+// DATA LOADING
+// ================================================================
+async function loadData() {
+  showLoading(true);
+  try {
+    const data = await apiGet('getAll');
+    if (data.error) throw new Error(data.error);
+    state.data = data;
+    renderAll();
+    showLoading(false);
+  } catch(e) {
+    showLoading(false);
+    document.getElementById('loading-overlay').innerHTML =
+      `<div class="alert alert-err">${e.message}</div>
+       <div style="margin-top:16px"><button class="btn btn-ghost" onclick="showSetup()">⚙ Open Setup</button>
+       <button class="btn btn-ghost" style="margin-left:8px" onclick="loadData()">⟳ Retry</button></div>`;
+    document.getElementById('loading-overlay').style.display = 'block';
+  }
+}
+
+async function refreshData() { await loadData(); }
+
+function showLoading(yes) {
+  const el = document.getElementById('loading-overlay');
+  if (yes) {
+    el.innerHTML = '<div class="spinner"></div>Loading from Google Sheets...';
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ================================================================
+// FORMAT HELPERS
+// ================================================================
+function formatLockTime(t) {
+  if (!t) return '7:00 PM';
+  // Handle full Date toString() strings (backend didn't sanitize)
+  if (t.length > 10) {
+    try {
+      const d = new Date(t);
+      if (!isNaN(d)) {
+        let h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
+        const ap = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return `${h}:${m} ${ap}`;
+      }
+    } catch(e) {}
+    return '7:00 PM';
+  }
+  // Handle "HH:MM"
+  const parts = t.split(':');
+  let h = parseInt(parts[0]);
+  const m = (parts[1] || '00').substring(0,2);
+  if (isNaN(h)) return t;
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${m} ${ap}`;
+}
+
+function fmtAbs(n) {
+  if (n == null || isNaN(n)) return '—';
+  return '$' + Math.abs(n).toLocaleString();
+}
+
+function fmtDelta(n) {
+  if (!n) return '—';
+  const sign = n > 0 ? '+' : '−';
+  return sign + '$' + Math.abs(n).toLocaleString();
+}
+
+function rankCell(i) {
+  if (i === 0) return '<td class="r-gold">🥇</td>';
+  if (i === 1) return '<td class="r-silver">🥈</td>';
+  if (i === 2) return '<td class="r-bronze">🥉</td>';
+  return `<td class="r-plain">#${i + 1}</td>`;
+}
+
+// ================================================================
+// COUNTDOWN TIMER
+// ================================================================
+let _cdInterval = null;
+
+function getNextFriday7pm() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun,1=Mon,...,5=Fri,6=Sat
+  let daysUntilFri = (5 - day + 7) % 7;
+  if (daysUntilFri === 0) {
+    // today is Friday — check if before 7pm
+    const todayAt7 = new Date(now);
+    todayAt7.setHours(19, 0, 0, 0);
+    if (now >= todayAt7) daysUntilFri = 7; // past lock, next Friday
+  }
+  const next = new Date(now);
+  next.setDate(now.getDate() + daysUntilFri);
+  next.setHours(19, 0, 0, 0);
+  return next;
+}
+
+function startCountdown(seasonEndStr) {
+  if (_cdInterval) clearInterval(_cdInterval);
+  const seasonEnd = seasonEndStr ? new Date(seasonEndStr) : null;
+  function tick() {
+    const now = new Date();
+    if (seasonEnd && now >= seasonEnd) {
+      document.getElementById('hdr-countdown').textContent = 'SEASON ENDED';
+      clearInterval(_cdInterval);
+      return;
+    }
+    // Count down to next Friday 7pm lock
+    const lockEnd = getNextFriday7pm();
+    const diff = lockEnd - now;
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const parts = [];
+    if (d > 0) parts.push(`${d}d`);
+    parts.push(`${String(h).padStart(2,'0')}h`);
+    parts.push(`${String(m).padStart(2,'0')}m`);
+    parts.push(`${String(s).padStart(2,'0')}s`);
+    document.getElementById('hdr-countdown').textContent = parts.join(' ');
+  }
+  tick();
+  _cdInterval = setInterval(tick, 1000);
+}
+
+// ================================================================
+// RENDER ALL
+// ================================================================
+function renderAll() {
+  if (!state.data) return;
+  const { standings, currentBets, history, bonuses, config } = state.data;
+
+  // Header
+  const byMoney  = [...(standings||[])].sort((a,b) => b.balance - a.balance);
+  const byHeis   = [...(standings||[])].sort((a,b) => b.heismanScore - a.heismanScore);
+
+  if (byMoney[0]) {
+    document.getElementById('hdr-money-leader').textContent = byMoney[0].name;
+    document.getElementById('hdr-money-bal').textContent    = fmtAbs(byMoney[0].balance);
+  }
+  if (byHeis[0]) {
+    document.getElementById('hdr-heisman-leader').textContent = byHeis[0].name;
+    document.getElementById('hdr-heisman-score').textContent  = byHeis[0].heismanScore + ' pts (est.)';
+  }
+
+  if (config) {
+    document.getElementById('hdr-week').textContent       = config.current_week || '—';
+    document.getElementById('hdr-season-name').textContent = config.season_name  || '—';
+    document.getElementById('hdr-lock-time').textContent  = 'Friday ' + formatLockTime(config.week_lock_time);
+    document.getElementById('week-view-title').textContent = 'Week ' + (config.current_week || '?') + ' Bets';
+    document.getElementById('week-lock-str').textContent  = 'Friday at ' + formatLockTime(config.week_lock_time);
+    startCountdown(config.season_end || null);
+    fillConfigFields(config);
+  }
+
+  renderMoney();
+  renderHeisman();
+  renderWeek();
+  renderHistory();
+  populateFilters();
+  populateProfiles();
+  populateAdminDropdowns();
+  if (state.adminOk) populateAdminBets();
+  switchTab(state.tab || 'money');
+}
+
+// ================================================================
+// MONEY RACE
+// ================================================================
+function renderMoney() {
+  const standings = state.data?.standings || [];
+  const history   = state.data?.history   || [];
+  const config    = state.data?.config    || {};
+  const curWeek   = parseInt(config.current_week) || 0;
+
+  // Week delta per participant
+  const weekDelta = {};
+  history.filter(r => r.week === curWeek).forEach(r => {
+    weekDelta[r.participant] = (weekDelta[r.participant] || 0) + r.amount_change;
+  });
+
+  const sorted   = [...standings].sort((a,b) => b.balance - a.balance);
+  const topBal   = sorted[0]?.balance || 1;
+
+  document.getElementById('money-tbody').innerHTML = sorted.map((p, i) => {
+    const delta    = weekDelta[p.name] || 0;
+    const dcls     = delta > 0 ? 'win-c' : delta < 0 ? 'loss-c' : 'muted-c';
+    const barW     = Math.round((p.balance / topBal) * 120);
+    const statusBadge = p.status === 'inactive'
+      ? '<span class="badge b-inactive">INACTIVE</span>'
+      : '<span class="badge b-active">ACTIVE</span>';
+
+    // Count how many bets this person placed this week (from currentBets)
+    const bets = state.data?.currentBets || [];
+    const thisWeekBets = bets.reduce((cnt, b) => {
+      const placed = (b.bets||[]).find(x => x.participant.trim().toLowerCase() === p.name.trim().toLowerCase());
+      return cnt + (placed ? 1 : 0);
+    }, 0);
+    const minBets = parseInt(state.data?.config?.min_bets_per_week) || 2;
+    const needsBet = thisWeekBets < minBets && p.status !== 'inactive';
+    const betBadge = needsBet
+      ? `<span class="badge b-loss" style="margin-left:6px;font-size:10px">NEEDS BETS</span>`
+      : (thisWeekBets > 0 ? `<span class="badge b-win" style="margin-left:6px;font-size:10px">✓ BET IN</span>` : '');
+
+    return `<tr>
+      ${rankCell(i)}
+      <td>
+        <strong>${p.name}</strong>${betBadge}
+        <div class="bar-wrap"><div class="bar-fill" style="width:${barW}px"></div></div>
+      </td>
+      <td class="mono">${fmtAbs(p.balance)}</td>
+      <td class="mono ${dcls}">${delta ? fmtDelta(delta) : '—'}</td>
+      <td class="mono">${p.totalBets || 0}</td>
+      <td class="mono"><span class="win-c">${p.correctBets||0}W</span> / <span class="loss-c">${p.incorrectBets||0}L</span></td>
+      <td>${statusBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ================================================================
+// HEISMAN RACE
+// ================================================================
+function renderHeisman() {
+  const standings = state.data?.standings || [];
+  const sorted = [...standings].sort((a,b) => b.heismanScore - a.heismanScore);
+
+  document.getElementById('heisman-tbody').innerHTML = sorted.map((p, i) => `
+    <tr>
+      ${rankCell(i)}
+      <td><strong>${p.name}</strong></td>
+      <td><span class="mono gold-c" style="font-size:17px;font-weight:700">${p.heismanScore || 0}</span></td>
+      <td class="mono win-c">${p.correctBets || 0}</td>
+      <td class="mono">${p.accuracy || 0}%</td>
+      <td class="mono">${p.weeksParticipated || 0}</td>
+      <td class="mono">${p.consistency || 0}%</td>
+    </tr>`).join('');
+}
+
+// ================================================================
+// THIS WEEK
+// ================================================================
+function renderWeek() {
+  const bets = state.data?.currentBets || [];
+  const grid = document.getElementById('bets-grid');
+  if (!bets.length) {
+    grid.innerHTML = '<p class="muted-c">No bets found for this week. Admin can add bets from the Admin panel.</p>';
+    return;
+  }
+
+  const TYPE_LABEL = { game:'GAME', prop:'PLAYER PROP', bonus:'BONUS BET', local:'LOCAL BET' };
+
+  grid.innerHTML = bets.map(bet => {
+    const typeLabel = TYPE_LABEL[bet.betType] || 'BET';
+    const limits = [
+      bet.entryMin ? `Entry: ${fmtAbs(bet.entryMin)}` : null,
+      bet.betMax   ? `Max: ${fmtAbs(bet.betMax)}`   : null
+    ].filter(Boolean).join(' · ');
+
+    const payouts = [bet.payoutA, bet.payoutB].filter(Boolean)
+      .map(p => `<span>${p}</span>`).join('<br>');
+
+    const picks = (bet.bets || []).map(b => `
+      <div class="pick-row">
+        <span class="pick-name">${b.participant}</span>
+        <span class="pick-team">${b.pick}</span>
+        <span class="pick-amt">${b.amount ? fmtAbs(b.amount) : '—'}</span>
+      </div>`).join('');
+
+    return `<div class="bet-card">
+      <div class="bet-type">${typeLabel}</div>
+      <div class="bet-title">${bet.title || '—'}</div>
+      <div class="bet-limits">${limits || '&nbsp;'}</div>
+      ${payouts ? `<div class="bet-payouts">${payouts}</div>` : ''}
+      <hr class="bet-sep">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${(bet.bets||[]).length} bet${(bet.bets||[]).length!==1?'s':''} placed</div>
+      ${picks || '<div class="muted-c" style="font-size:12px">No bets placed</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// HISTORY
+// ================================================================
+function populateFilters() {
+  const standings = state.data?.standings || [];
+  const history   = state.data?.history   || [];
+
+  const pSel = document.getElementById('flt-participant');
+  pSel.innerHTML = '<option value="">All Participants</option>';
+  standings.forEach(p => {
+    pSel.innerHTML += `<option value="${p.name}">${p.name}</option>`;
+  });
+
+  const weeks = [...new Set(history.map(r => r.week))].sort((a,b) => a-b);
+  const wSel  = document.getElementById('flt-week');
+  wSel.innerHTML = '<option value="">All Weeks</option>';
+  weeks.forEach(w => { wSel.innerHTML += `<option value="${w}">Week ${w}</option>`; });
+}
+
+function renderHistory() {
+  const history   = state.data?.history  || [];
+  const bonuses   = state.data?.bonuses  || [];
+  const fP = document.getElementById('flt-participant')?.value || '';
+  const fW = document.getElementById('flt-week')?.value       || '';
+  const fO = document.getElementById('flt-outcome')?.value    || '';
+
+  // Merge history + bonuses into one list
+  const bonusRows = bonuses.map(b => ({
+    bet_id: b.bonus_type, participant: b.participant, week: b.week,
+    outcome: 'bonus', amount_change: b.amount, notes: b.notes,
+    resolved_at: b.awarded_at
+  }));
+  let records = [...history, ...bonusRows];
+
+  if (fP) records = records.filter(r => r.participant === fP);
+  if (fW) records = records.filter(r => String(r.week) === fW);
+  if (fO) records = records.filter(r => r.outcome === fO);
+  records.sort((a,b) => b.week - a.week || new Date(b.resolved_at||0) - new Date(a.resolved_at||0));
+
+  const BADGE = {
+    win:    '<span class="badge b-win">WIN</span>',
+    loss:   '<span class="badge b-loss">LOSS</span>',
+    bonus:  '<span class="badge b-bonus">BONUS</span>',
+    adjustment_add:    '<span class="badge b-win">ADJUST+</span>',
+    adjustment_deduct: '<span class="badge b-loss">ADJUST−</span>'
+  };
+
+  const tbody = document.getElementById('history-tbody');
+  if (!records.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="muted-c" style="padding:24px;text-align:center">No records yet. Resolve bets from the Admin panel to populate history.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = records.map(r => {
+    const dcls = r.amount_change > 0 ? 'win-c' : r.amount_change < 0 ? 'loss-c' : '';
+    return `<tr>
+      <td class="mono muted-c">${r.week || '—'}</td>
+      <td>${r.bet_id || '—'}</td>
+      <td>${r.participant || '—'}</td>
+      <td>${BADGE[r.outcome] || `<span class="badge b-active">${r.outcome||'?'}</span>`}</td>
+      <td class="mono ${dcls}">${r.amount_change ? fmtDelta(r.amount_change) : '—'}</td>
+      <td class="muted-c" style="font-size:12px">${r.notes || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ================================================================
+// PARTICIPANT PROFILE
+// ================================================================
+function populateProfiles() {
+  const standings = state.data?.standings || [];
+  const sel = document.getElementById('profile-select');
+  sel.innerHTML = '<option value="">Select Participant...</option>';
+  standings.sort((a,b) => b.balance - a.balance)
+           .forEach(p => { sel.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
+}
+
+function renderProfile() {
+  const name = document.getElementById('profile-select').value;
+  const cont = document.getElementById('profile-content');
+  if (!name) { cont.innerHTML = ''; return; }
+
+  const standings = state.data?.standings || [];
+  const history   = state.data?.history   || [];
+  const bonuses   = state.data?.bonuses   || [];
+
+  const p = standings.find(s => s.name === name);
+  if (!p) { cont.innerHTML = '<div class="muted-c">Participant not found.</div>'; return; }
+
+  const byMoney  = [...standings].sort((a,b) => b.balance - a.balance);
+  const byHeis   = [...standings].sort((a,b) => b.heismanScore - a.heismanScore);
+  const mRank    = byMoney.findIndex(s => s.name === name) + 1;
+  const hRank    = byHeis.findIndex(s => s.name === name)  + 1;
+  const mLeader  = byMoney[0];
+  const hLeader  = byHeis[0];
+  const mBehind  = mLeader ? mLeader.balance - p.balance : 0;
+  const hBehind  = hLeader ? hLeader.heismanScore - p.heismanScore : 0;
+  const mBehindBets = byMoney.indexOf(p) > 0 ? (mRank - 1) : 0;
+
+  const myHist   = history.filter(r => r.participant === name);
+  const myBonus  = bonuses.filter(b => b.participant === name);
+
+  // Weekly breakdown
+  const byWeek = {};
+  myHist.forEach(r => {
+    if (!byWeek[r.week]) byWeek[r.week] = { w:0, l:0, net:0 };
+    if (r.outcome === 'win') byWeek[r.week].w++;
+    else if (r.outcome === 'loss') byWeek[r.week].l++;
+    byWeek[r.week].net += r.amount_change;
+  });
+
+  const statusBadge = p.status === 'inactive'
+    ? '<span class="badge b-inactive">INACTIVE</span>'
+    : '<span class="badge b-win" style="font-size:11px">ACTIVE</span>';
+
+  cont.innerHTML = `
+    <div class="flex align-c gap8 mb16" style="flex-wrap:wrap">
+      <h2 style="font-size:28px;font-weight:900;color:var(--gold)">${p.name}</h2>
+      ${statusBadge}
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val">${fmtAbs(p.balance)}</div><div class="stat-lbl">Balance</div></div>
+      <div class="stat"><div class="stat-val">#${mRank}</div><div class="stat-lbl">Money Rank</div></div>
+      <div class="stat"><div class="stat-val">#${hRank}</div><div class="stat-lbl">Heisman Rank</div></div>
+      <div class="stat"><div class="stat-val win-c">${p.correctBets||0}</div><div class="stat-lbl">Correct Bets</div></div>
+      <div class="stat"><div class="stat-val loss-c">${p.incorrectBets||0}</div><div class="stat-lbl">Incorrect Bets</div></div>
+      <div class="stat"><div class="stat-val">${p.accuracy||0}%</div><div class="stat-lbl">Accuracy</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="card">
+        <div class="card-title">💰 Behind Money Leader</div>
+        <div class="card-meta">${mLeader?.name || '—'}</div>
+        <div class="mono" style="font-size:18px;color:${mBehind>0?'var(--loss)':'var(--win)'}">
+          ${mBehind > 0 ? '−' + fmtAbs(mBehind) : '🏆 IS THE LEADER'}
+        </div>
+        ${mBehind > 0 ? `<div class="muted-c" style="font-size:12px;margin-top:4px">#${mRank-1} spot${mRank-1!==1?'s':''} behind</div>` : ''}
+      </div>
+      <div class="card">
+        <div class="card-title">🎯 Behind Heisman Leader</div>
+        <div class="card-meta">${hLeader?.name || '—'}</div>
+        <div class="mono" style="font-size:18px;color:${hBehind>0?'var(--loss)':'var(--win)'}">
+          ${hBehind > 0 ? '−' + hBehind + ' pts' : '🏆 IS THE LEADER'}
+        </div>
+        ${hBehind > 0 ? `<div class="muted-c" style="font-size:12px;margin-top:4px">Needs ${hBehind} more Heisman pts</div>` : ''}
+      </div>
+    </div>
+
+    <div class="card mb16">
+      <div class="card-title" style="margin-bottom:10px">Weekly Breakdown</div>
+      ${Object.keys(byWeek).length === 0
+        ? '<div class="muted-c" style="font-size:12px">No resolved bet history yet.</div>'
+        : `<div class="tbl-wrap"><table>
+            <thead><tr><th>Week</th><th>Wins</th><th>Losses</th><th>Net Change</th></tr></thead>
+            <tbody>${Object.entries(byWeek).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).map(([w,s])=>`
+              <tr>
+                <td class="mono muted-c">Week ${w}</td>
+                <td class="mono win-c">${s.w}</td>
+                <td class="mono loss-c">${s.l}</td>
+                <td class="mono ${s.net>=0?'win-c':'loss-c'}">${fmtDelta(s.net)}</td>
+              </tr>`).join('')}
+            </tbody>
+           </table></div>`}
+    </div>
+
+    ${myBonus.length ? `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px">🎯 Bonus History</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Week</th><th>Type</th><th>Amount</th><th>Notes</th></tr></thead>
+        <tbody>${myBonus.map(b=>`
+          <tr>
+            <td class="mono muted-c">Week ${b.week}</td>
+            <td>${b.bonus_type||'—'}</td>
+            <td class="mono win-c">${fmtDelta(b.amount)}</td>
+            <td class="muted-c" style="font-size:12px">${b.notes||'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>` : ''}
+  `;
+}
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function switchTab(tab) {
+  state.tab = tab;
+  const tabNames = ['money','heisman','week','mybets','history','profile','rules','updates','admin'];
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', tabNames[i] === tab);
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${tab}`)?.classList.add('active');
+  if (tab === 'history') renderHistory();
+  if (tab === 'profile') renderProfile();
+}
+
+// ================================================================
+// ADMIN AUTH
+// ================================================================
+async function verifyAdmin() {
+  const pw = document.getElementById('admin-pw-input').value;
+  if (!pw) { setMsg('admin-auth-msg', 'Enter a password.', 'err'); return; }
+  setMsg('admin-auth-msg', 'Verifying...', 'info');
+  try {
+    state.adminPw = pw;
+    const res = await apiPost('ping', {});
+    if (res.error === 'auth') {
+      state.adminPw = '';
+      setMsg('admin-auth-msg', 'Incorrect password.', 'err');
+      return;
+    }
+    if (res.error) throw new Error(res.error);
+    state.adminOk = true;
+    document.getElementById('admin-gate').style.display  = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    populateAdminBets();
+    populateAdminDropdowns();
+  } catch(e) {
+    state.adminPw = '';
+    setMsg('admin-auth-msg', 'Error: ' + e.message, 'err');
+  }
+}
+
+function lockAdmin() {
+  state.adminOk = false;
+  state.adminPw = '';
+  document.getElementById('admin-gate').style.display  = 'block';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('admin-pw-input').value = '';
+  document.getElementById('admin-auth-msg').innerHTML  = '';
+}
+
+// ================================================================
+// ADMIN HELPERS
+// ================================================================
+function populateAdminDropdowns() {
+  const standings = state.data?.standings || [];
+  ['a-adj-who','a-bonus-who','a-inactive-who','a-resetpin-who'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = standings.map(p =>
+      `<option value="${p.name}">${p.name} — ${fmtAbs(p.balance)}</option>`).join('');
+  });
+}
+
+async function submitResetPin() {
+  const who = document.getElementById('a-resetpin-who').value;
+  if (!who) { setMsg('a-resetpin-msg','Select a participant.','err'); return; }
+  if (!confirm(`Clear PIN for ${who}? They'll need to set a new one to place bets.`)) return;
+  try {
+    const res = await apiPost('resetPin', { participant: who });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-resetpin-msg', '✅ ' + (res.message || 'PIN cleared.'), 'ok');
+  } catch(e) { setMsg('a-resetpin-msg', 'Error: ' + e.message, 'err'); }
+}
+
+// ================================================================
+// MY BETS — PIN-VERIFIED BET PLACEMENT
+// ================================================================
+const mbState = { name: '', pin: '', loggedIn: false };
+
+function mbPopulateNames() {
+  const standings = state.data?.standings || [];
+  const sel = document.getElementById('mb-name-sel');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Select your name...</option>' +
+    standings.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+}
+
+function mbPopulateBets() {
+  const bets = state.data?.currentBets || [];
+  const sel = document.getElementById('mb-bet-sel');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Choose a bet...</option>';
+  bets.forEach((b, i) => {
+    sel.innerHTML += `<option value="${i}">${b.title || b.sheetName || 'Bet ' + (i+1)}</option>`;
+  });
+}
+
+async function mbLogin() {
+  const name = document.getElementById('mb-name-sel').value;
+  if (!name) { setMsg('mb-login-msg', 'Select your name first.', 'err'); return; }
+
+  // Check if they have a PIN via API
+  let hasPinRes;
+  try {
+    hasPinRes = await apiGet(`hasPin&participant=${encodeURIComponent(name)}`);
+  } catch(e) { setMsg('mb-login-msg', 'Error: ' + e.message, 'err'); return; }
+
+  if (!hasPinRes.hasPin) {
+    // No PIN yet — show set-PIN flow
+    document.getElementById('mb-no-pin-msg').style.display = 'block';
+    document.getElementById('mb-set-pin-wrap').style.display = 'block';
+    document.getElementById('mb-pin-wrap').style.display = 'none';
+    const newPin = document.getElementById('mb-new-pin').value;
+    if (!newPin || newPin.length < 4) {
+      setMsg('mb-login-msg', 'Enter a PIN of at least 4 digits to get started.', 'info');
+      return;
+    }
+    try {
+      const res = await apiPost('setPin', { participant: name, pin: newPin });
+      if (res.error) throw new Error(res.error);
+      mbState.name = name; mbState.pin = newPin; mbState.loggedIn = true;
+      showMbPanel();
+    } catch(e) { setMsg('mb-login-msg', 'Error: ' + e.message, 'err'); }
+    return;
+  }
+
+  // Has PIN — verify it
+  document.getElementById('mb-pin-wrap').style.display = 'block';
+  document.getElementById('mb-no-pin-msg').style.display = 'none';
+  document.getElementById('mb-set-pin-wrap').style.display = 'none';
+  const pin = document.getElementById('mb-pin-input').value;
+  if (!pin) { setMsg('mb-login-msg', 'Enter your PIN.', 'err'); return; }
+
+  // Verify by attempting a no-op (we'll just check via placeBet failure, but better to have a dedicated check)
+  // For now use a dummy check: try apiPost setPin with no oldPin — returns pin_exists if correct name
+  // Actually just trust the PIN and let the first bet action reveal if wrong
+  mbState.name = name; mbState.pin = pin; mbState.loggedIn = true;
+  showMbPanel();
+}
+
+function showMbPanel() {
+  document.getElementById('mb-login').style.display = 'none';
+  document.getElementById('mb-panel').style.display = 'block';
+  const p = (state.data?.standings||[]).find(s => s.name === mbState.name);
+  document.getElementById('mb-logged-name').textContent = mbState.name;
+  document.getElementById('mb-balance').textContent = p ? fmtAbs(p.balance) : '—';
+  mbPopulateBets();
+  renderMbCurrentBets();
+}
+
+function mbLogout() {
+  mbState.name = ''; mbState.pin = ''; mbState.loggedIn = false;
+  document.getElementById('mb-login').style.display = 'block';
+  document.getElementById('mb-panel').style.display = 'none';
+  document.getElementById('mb-pin-input').value = '';
+  document.getElementById('mb-new-pin').value = '';
+  document.getElementById('mb-no-pin-msg').style.display = 'none';
+  document.getElementById('mb-set-pin-wrap').style.display = 'none';
+  document.getElementById('mb-pin-wrap').style.display = 'block';
+  document.getElementById('mb-login-msg').innerHTML = '';
+  document.getElementById('mb-bet-form').style.display = 'none';
+}
+
+function renderMbCurrentBets() {
+  const bets = state.data?.currentBets || [];
+  const playerBets = state.data?.playerBets || [];
+  const name = mbState.name.trim().toLowerCase();
+  const rows = [];
+
+  bets.forEach(b => {
+    // Check sheet bets
+    const sheetBet = (b.bets||[]).find(x => x.participant.trim().toLowerCase() === name);
+    // Check web bets
+    const webBet = playerBets.find(x =>
+      x.participant.trim().toLowerCase() === name &&
+      x.bet_id === (b.sheetName || b.bet_id) &&
+      x.status === 'open'
+    );
+    const found = sheetBet || webBet;
+    if (found) {
+      rows.push(`<div class="pick-row">
+        <span class="pick-name" style="font-size:12px">${b.title||b.sheetName||'Bet'}</span>
+        <span class="pick-team">${found.pick}</span>
+        <span class="pick-amt">${found.amount ? fmtAbs(found.amount) : '—'}
+          ${webBet ? `<button class="btn btn-danger btn-sm" style="margin-left:6px;padding:2px 7px;font-size:10px"
+            onclick="mbCancelBet('${b.sheetName||b.bet_id||''}')">Cancel</button>` : ''}
+        </span>
+      </div>`);
+    }
+  });
+
+  document.getElementById('mb-my-current-bets').innerHTML = rows.length
+    ? rows.join('')
+    : '<div class="muted-c" style="font-size:12px">No bets placed yet this week.</div>';
+}
+
+function renderMbBetForm() {
+  const idx = document.getElementById('mb-bet-sel').value;
+  const bet = state.data?.currentBets?.[parseInt(idx)];
+  const form = document.getElementById('mb-bet-form');
+  if (!bet) { form.style.display = 'none'; return; }
+
+  // Options from unique picks already placed + explicit options
+  const opts = [];
+  if (bet.optionA) opts.push(bet.optionA);
+  if (bet.optionB) opts.push(bet.optionB);
+  if (!opts.length) {
+    [...new Set((bet.bets||[]).map(b => b.pick).filter(Boolean))].forEach(o => opts.push(o));
+  }
+
+  const limits = [
+    bet.entryMin ? `Min: ${fmtAbs(bet.entryMin)}` : null,
+    bet.betMax   ? `Max: ${fmtAbs(bet.betMax)}`   : null,
+  ].filter(Boolean).join(' · ');
+
+  document.getElementById('mb-bet-info').innerHTML =
+    `<strong>${bet.title}</strong><br>` +
+    (limits ? `<span class="muted-c">${limits}</span><br>` : '') +
+    [bet.payoutA, bet.payoutB].filter(Boolean).map(p => `<span class="win-c">${p}</span>`).join('<br>');
+
+  const pickSel = document.getElementById('mb-pick-sel');
+  pickSel.innerHTML = opts.length
+    ? opts.map(o => `<option value="${o}">${o}</option>`).join('')
+    : '<option value="">No options found</option>';
+
+  const hint = document.getElementById('mb-amount-hint');
+  const parts = [];
+  if (bet.entryMin) parts.push(`Minimum: ${fmtAbs(bet.entryMin)}`);
+  if (bet.betMax)   parts.push(`Maximum: ${fmtAbs(bet.betMax)}`);
+  hint.textContent = parts.join(' · ');
+
+  if (bet.entryMin) document.getElementById('mb-amount').value = bet.entryMin;
+  form.style.display = 'block';
+  document.getElementById('mb-bet-msg').innerHTML = '';
+}
+
+async function mbSubmitBet() {
+  const idx    = document.getElementById('mb-bet-sel').value;
+  const bet    = state.data?.currentBets?.[parseInt(idx)];
+  const pick   = document.getElementById('mb-pick-sel').value;
+  const amount = parseInt(document.getElementById('mb-amount').value);
+  if (!bet || !pick || !amount) {
+    setMsg('mb-bet-msg', 'Fill in all fields.', 'err'); return;
+  }
+  const week = parseInt(state.data?.config?.current_week) || 0;
+  try {
+    setMsg('mb-bet-msg', 'Placing bet...', 'info');
+    const res = await apiPost('placeBet', {
+      participant: mbState.name,
+      pin:        mbState.pin,
+      bet_id:     bet.sheetName || bet.bet_id || String(idx),
+      pick, amount, week,
+      entry_min:  bet.entryMin || 0,
+      bet_max:    bet.betMax || 0
+    });
+    if (res.error === 'wrong_pin') {
+      mbLogout();
+      setMsg('mb-login-msg', 'Wrong PIN. Please log in again.', 'err');
+      return;
+    }
+    if (res.error) throw new Error(res.error);
+    setMsg('mb-bet-msg', '✅ ' + res.message, 'ok');
+    setTimeout(() => { refreshData().then(() => { if(mbState.loggedIn) renderMbCurrentBets(); }); }, 800);
+  } catch(e) { setMsg('mb-bet-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function mbCancelBet(betId) {
+  if (!confirm('Cancel this bet?')) return;
+  try {
+    const res = await apiPost('cancelBet', { participant: mbState.name, pin: mbState.pin, bet_id: betId });
+    if (res.error === 'wrong_pin') { mbLogout(); return; }
+    if (res.error) throw new Error(res.error);
+    setTimeout(() => { refreshData().then(() => { if(mbState.loggedIn) renderMbCurrentBets(); }); }, 500);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ================================================================
+// PLAYOFF BRACKET
+// ================================================================
+function renderPlayoff() {
+  const data = state.data?.playoff;
+  if (!data || !data.seeds || !data.seeds.length) return;
+
+  // Add Playoff tab if not already there
+  if (!document.getElementById('tab-playoff')) {
+    const tab = document.createElement('button');
+    tab.id = 'tab-playoff';
+    tab.className = 'tab';
+    tab.textContent = '🏟️ Playoff';
+    tab.onclick = () => switchTab('playoff');
+    document.querySelector('.tabs').appendChild(tab);
+    // Register in switchTab manually
+    if (!window._extraTabs) window._extraTabs = [];
+    window._extraTabs.push('playoff');
+  }
+
+  const container = document.getElementById('view-playoff');
+  container.className = 'view';
+
+  const seeds = [...data.seeds].sort((a,b) => a.seed - b.seed);
+  const rows = seeds.map(s => {
+    const p = (state.data?.standings||[]).find(x =>
+      x.name.trim().toLowerCase().includes(s.name.trim().toLowerCase().split(' ')[0].toLowerCase())
+    );
+    const bal = p ? fmtAbs(p.balance) : '—';
+    return `<tr>
+      <td class="mono" style="color:var(--gold);font-weight:700">#${s.seed}</td>
+      <td><strong>${s.name}</strong></td>
+      <td class="mono">${bal}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="sec-hdr"><div>
+      <div class="sec-title">🏟️ ${data.title}</div>
+      <div class="sec-sub">Season playoff seedings</div>
+    </div></div>
+    <div class="tbl-wrap" style="max-width:500px">
+      <table>
+        <thead><tr><th>Seed</th><th>Name</th><th>Balance</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ================================================================
+// HEISMAN EXTRA (Player of the Week, commissioner rankings)
+// ================================================================
+function renderHeismanExtra() {
+  const extra = state.data?.heismanExtra;
+  if (!extra) return;
+
+  if (extra.playerOfWeek) {
+    const el = document.getElementById('hdr-heisman-score');
+    if (el && !el.textContent.includes('Week Player')) {
+      el.textContent += ' · 📍 Week Player: ' + extra.playerOfWeek;
+    }
+  }
+}
+
+function populateAdminBets() {
+  const bets = state.data?.currentBets || [];
+  const sel  = document.getElementById('a-bet-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Choose bet...</option>';
+  bets.forEach((b, i) => {
+    sel.innerHTML += `<option value="${i}">${b.title || b.sheetName || 'Bet ' + (i+1)}</option>`;
+  });
+}
+
+function loadBetForResolve() {
+  const idx  = document.getElementById('a-bet-select').value;
+  const bet  = state.data?.currentBets?.[parseInt(idx)];
+  const prev = document.getElementById('a-bet-preview');
+  const wSel = document.getElementById('a-bet-winner');
+  pendingResolve = null;
+  document.getElementById('a-resolve-confirm').style.display = 'none';
+  document.getElementById('a-resolve-preview').innerHTML = '';
+  document.getElementById('a-resolve-msg').innerHTML = '';
+
+  if (!bet) { prev.innerHTML = ''; wSel.innerHTML = '<option value="">Select winner...</option>'; return; }
+
+  // Show current bets
+  const rows = (bet.bets||[]).map(b =>
+    `<div class="flex" style="justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">
+      <span>${b.participant}</span>
+      <span class="gold-c">${b.pick}</span>
+      <span class="muted-c mono">${fmtAbs(b.amount)}</span>
+    </div>`).join('');
+  prev.innerHTML = rows || '<div class="muted-c" style="font-size:12px">No bets placed</div>';
+
+  // Winner options = unique picks
+  const opts = [...new Set((bet.bets||[]).map(b => b.pick).filter(Boolean))];
+  wSel.innerHTML = '<option value="">Select winner...</option>';
+  opts.forEach(o => { wSel.innerHTML += `<option value="${o}">${o}</option>`; });
+}
+
+function parsePayout(payoutStr, betAmt) {
+  if (!payoutStr) return betAmt;
+  // Flat: "+$18,000" or "$18,000"
+  const flat = payoutStr.match(/\+?\$?([\d,]+)/);
+  if (flat) return parseInt(flat[1].replace(/,/g,''));
+  // Multiplier: "x1.5" or "x1.50"
+  const mult = payoutStr.match(/x([\d.]+)/i);
+  if (mult) return Math.round(betAmt * (parseFloat(mult[1]) - 1));
+  return betAmt;
+}
+
+function previewResolve() {
+  const idx    = document.getElementById('a-bet-select').value;
+  const bet    = state.data?.currentBets?.[parseInt(idx)];
+  const winner = document.getElementById('a-bet-winner').value;
+  const week   = document.getElementById('a-bet-week').value;
+  const prev   = document.getElementById('a-resolve-preview');
+  const msg    = document.getElementById('a-resolve-msg');
+
+  if (!bet || !winner || !week) {
+    setMsg('a-resolve-msg', 'Select a bet, winner, and week number.', 'err');
+    return;
+  }
+
+  // Figure out which payout string corresponds to the winning side
+  const allPicks = [...new Set((bet.bets||[]).map(b => b.pick).filter(Boolean))];
+  const winnerIdx = allPicks.indexOf(winner);
+  const payoutWin = winnerIdx === 0 ? bet.payoutA : bet.payoutB;
+
+  const results = (bet.bets||[]).map(b => {
+    const outcome = b.pick === winner ? 'win' : 'loss';
+    const change  = outcome === 'win'
+      ? parsePayout(payoutWin, b.amount)
+      : -(b.amount || 0);
+    return { participant: b.participant, pick: b.pick, outcome, amount_change: change };
+  });
+
+  pendingResolve = {
+    bet_id: bet.sheetName || bet.bet_id || bet.title,
+    bet_title: bet.title,
+    week: parseInt(week),
+    results
+  };
+
+  const rows = results.map(r => {
+    const cls = r.outcome === 'win' ? 'win-c' : 'loss-c';
+    return `<div class="flex" style="justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">
+      <span>${r.participant}</span>
+      <span class="${r.outcome==='win'?'win-c':'loss-c'}" style="font-weight:700">${r.outcome.toUpperCase()}</span>
+      <span class="mono ${cls}">${fmtDelta(r.amount_change)}</span>
+    </div>`;
+  }).join('');
+
+  prev.innerHTML = `
+    <div style="background:var(--raised);padding:10px;border-radius:4px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">PAYOUT PREVIEW — using: ${payoutWin || '(no payout rule found)'}</div>
+      ${rows}
+    </div>`;
+
+  document.getElementById('a-resolve-confirm').style.display = 'block';
+  msg.innerHTML = '';
+}
+
+async function submitResolve() {
+  if (!pendingResolve) { setMsg('a-resolve-msg', 'Preview payouts first.', 'err'); return; }
+  setMsg('a-resolve-msg', 'Applying...', 'info');
+  try {
+    const res = await apiPost('resolveBet', pendingResolve);
+    if (res.error) throw new Error(res.error);
+    setMsg('a-resolve-msg', `✅ Resolved ${res.resolved} bets. Refreshing...`, 'ok');
+    pendingResolve = null;
+    document.getElementById('a-resolve-confirm').style.display = 'none';
+    document.getElementById('a-resolve-preview').innerHTML = '';
+    setTimeout(refreshData, 1200);
+  } catch(e) {
+    setMsg('a-resolve-msg', 'Error: ' + e.message, 'err');
+  }
+}
+
+async function submitAdjBalance() {
+  const who    = document.getElementById('a-adj-who').value;
+  const amt    = document.getElementById('a-adj-amt').value;
+  const reason = document.getElementById('a-adj-reason').value;
+  if (!who || !amt) { setMsg('a-adj-msg', 'Select participant and enter amount.', 'err'); return; }
+  try {
+    const res = await apiPost('adjustBalance', { participant: who, amount: parseInt(amt), reason });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-adj-msg', `✅ ${fmtAbs(res.oldBalance)} → ${fmtAbs(res.newBalance)}`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-adj-msg', 'Error: ' + e.message, 'err'); }
+}
+
+function fillBonusAmount() {
+  const sel = document.getElementById('a-bonus-type');
+  const amt = sel.options[sel.selectedIndex]?.dataset.amt;
+  if (amt) document.getElementById('a-bonus-amt').value = amt;
+}
+
+async function submitBonus() {
+  const who  = document.getElementById('a-bonus-who').value;
+  const type = document.getElementById('a-bonus-type').value;
+  const amt  = document.getElementById('a-bonus-amt').value;
+  const week = document.getElementById('a-bonus-week').value;
+  const note = document.getElementById('a-bonus-notes').value;
+  if (!who || !amt) { setMsg('a-bonus-msg', 'Fill in participant and amount.', 'err'); return; }
+  try {
+    const res = await apiPost('addBonus', { participant: who, bonus_type: type, amount: parseInt(amt), week: parseInt(week)||0, notes: note });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-bonus-msg', `✅ Bonus awarded to ${who}!`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-bonus-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function submitMarkInactive() {
+  const who  = document.getElementById('a-inactive-who').value;
+  const week = document.getElementById('a-inactive-week').value;
+  if (!confirm(`Mark ${who} as INACTIVE? This deducts $10,000 from their balance.`)) return;
+  try {
+    const res = await apiPost('markInactive', { participant: who, week: parseInt(week)||0 });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-inactive-msg', `✅ ${who} marked inactive, −$10,000 applied.`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-inactive-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function submitReinstate() {
+  const who = document.getElementById('a-inactive-who').value;
+  if (!confirm(`Reinstate ${who}? Their balance stays as-is.`)) return;
+  try {
+    const res = await apiPost('reinstate', { participant: who });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-inactive-msg', `✅ ${who} reinstated.`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-inactive-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function submitAddBet() {
+  const title = document.getElementById('a-bet-title').value;
+  const type  = document.getElementById('a-bet-type').value;
+  const week  = document.getElementById('a-bet-new-week').value;
+  if (!title) { setMsg('a-bet-msg', 'Title is required.', 'err'); return; }
+  try {
+    const res = await apiPost('addBet', {
+      title, type, week,
+      option_a: document.getElementById('a-bet-a').value,
+      option_b: document.getElementById('a-bet-b').value,
+      payout_a: document.getElementById('a-bet-pa').value,
+      payout_b: document.getElementById('a-bet-pb').value,
+      entry_min: document.getElementById('a-bet-entry').value,
+      bet_max:   document.getElementById('a-bet-max').value
+    });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-bet-msg', `✅ Bet added! ID: ${res.bet_id}`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-bet-msg', 'Error: ' + e.message, 'err'); }
+}
+
+function fillConfigFields(cfg) {
+  const map = {
+    'cfg-name':    cfg.season_name,
+    'cfg-end':     cfg.season_end ? cfg.season_end.slice(0,16) : '',
+    'cfg-week':    cfg.current_week,
+    'cfg-lock':    cfg.week_lock_time,
+    'cfg-minbets': cfg.min_bets_per_week,
+    'cfg-penalty': cfg.miss_penalty
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el && val != null) el.value = val;
+  });
+}
+
+async function saveConfig() {
+  const fields = [
+    ['season_name',       'cfg-name'],
+    ['season_end',        'cfg-end'],
+    ['current_week',      'cfg-week'],
+    ['week_lock_time',    'cfg-lock'],
+    ['min_bets_per_week', 'cfg-minbets'],
+    ['miss_penalty',      'cfg-penalty']
+  ];
+  try {
+    setMsg('a-cfg-msg', 'Saving...', 'info');
+    for (const [key, elId] of fields) {
+      const val = document.getElementById(elId)?.value;
+      if (val != null) await apiPost('updateConfig', { key, value: val });
+    }
+    setMsg('a-cfg-msg', '✅ Settings saved.', 'ok');
+    setTimeout(refreshData, 800);
+  } catch(e) { setMsg('a-cfg-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function submitAddParticipant() {
+  const name = document.getElementById('a-new-name').value.trim();
+  const bal  = document.getElementById('a-new-bal').value;
+  if (!name) { setMsg('a-participant-msg', 'Name is required.', 'err'); return; }
+  try {
+    const res = await apiPost('addParticipant', { name, startBalance: parseInt(bal)||500000 });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-participant-msg', `✅ ${name} added with ${fmtAbs(res.startBalance)}.`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-participant-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function changePassword() {
+  const nw = document.getElementById('a-new-pw').value;
+  const cf = document.getElementById('a-confirm-pw').value;
+  if (!nw) { setMsg('a-pw-msg', 'Enter a new password.', 'err'); return; }
+  if (nw !== cf) { setMsg('a-pw-msg', 'Passwords do not match.', 'err'); return; }
+  try {
+    const res = await apiPost('setPassword', { newPassword: nw });
+    if (res.error) throw new Error(res.error);
+    state.adminPw = nw;
+    setMsg('a-pw-msg', '✅ Password updated.', 'ok');
+  } catch(e) { setMsg('a-pw-msg', 'Error: ' + e.message, 'err'); }
+}
+
+// ================================================================
+// CSV EXPORT
+// ================================================================
+function exportCSV(type) {
+  let rows, filename;
+  if (type === 'money') {
+    const s = [...(state.data?.standings||[])].sort((a,b)=>b.balance-a.balance);
+    rows = [['Rank','Name','Balance','Correct','Incorrect','Accuracy','Heisman Score','Status'],
+      ...s.map((p,i)=>[i+1,p.name,p.balance,p.correctBets||0,p.incorrectBets||0,(p.accuracy||0)+'%',p.heismanScore||0,p.status])];
+    filename = 'cfb_money_race.csv';
+  } else {
+    const h = state.data?.history||[];
+    rows = [['Week','Bet','Participant','Outcome','Change','Notes'],
+      ...h.map(r=>[r.week,r.bet_id,r.participant,r.outcome,r.amount_change,r.notes||''])];
+    filename = 'cfb_history.csv';
+  }
+  const csv  = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// ================================================================
+// UTILITY
+// ================================================================
+function setMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const cls = type === 'ok' ? 'alert-ok' : type === 'info' ? 'alert-info' : 'alert-err';
+  el.innerHTML = `<div class="alert ${cls}">${msg}</div>`;
+}
+
+// ================================================================
+// INIT
+// ================================================================
+function init() {
+  if (!SCRIPT_URL) {
+    showSetup();
+  } else {
+    document.getElementById('app').style.display = 'block';
+    loadData();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
