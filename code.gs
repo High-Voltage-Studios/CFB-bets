@@ -45,6 +45,7 @@ function doGet(e) {
       case 'getConfig':    out = getConfig();                                              break;
       case 'hasPin':       out = { hasPin: hasPin(e.parameter.participant || '') };        break;
       case 'getPlayoff':   out = getPlayoffData();                                         break;
+      case 'getUpdates':   out = getUpdatesData();                                         break;
       default:             out = { error: 'Unknown action: ' + action };
     }
   } catch (err) {
@@ -884,6 +885,96 @@ getCurrentBets = function() {
   });
   return result;
 };
+
+// ── Updates & Ideas ───────────────────────────────────────────────
+// Reads from two existing sheets (tab names must match exactly):
+//
+//   "Updates" — flexible format, reads row by row from column A onward.
+//     If the first row looks like a header (contains "text" or "update"),
+//     it uses named columns. Otherwise treats each row as free-form:
+//       Col A = text/content  (required — blank rows skipped)
+//       Col B = section heading label (optional — if present on a row, starts a new group)
+//       Col C = badge label  (optional, e.g. "Rule 10")
+//       Col D = badge style  (optional: b-win, b-loss, b-pending, b-bonus)
+//       Col E = icon/emoji   (optional)
+//
+//   "Bets ideas" — flexible format:
+//     Auto-detects columns by scanning the header row for keywords
+//     (name, problem, idea/suggestion, status/done).
+//     If no header row found, reads: A=name, B=problem/idea, C=status.
+function getUpdatesData() {
+  var ss = getSS();
+  var updates = [];
+  var ideas   = [];
+
+  // ── Updates sheet ──
+  var updSheet = ss.getSheetByName('Updates');
+  if (updSheet && updSheet.getLastRow() >= 1) {
+    var updRows = updSheet.getDataRange().getValues();
+    var startRow = 0;
+    var iText = 0, iSection = 1, iBadge = 2, iBStyle = 3, iIcon = 4;
+
+    // Check if first row is a header
+    var firstRowStr = updRows[0].map(function(c){ return String(c||'').trim().toLowerCase(); }).join('|');
+    if (firstRowStr.indexOf('text') >= 0 || firstRowStr.indexOf('update') >= 0 || firstRowStr.indexOf('content') >= 0) {
+      var hdrs = updRows[0].map(function(c){ return String(c||'').trim().toLowerCase(); });
+      iText    = Math.max(hdrs.indexOf('text'), hdrs.indexOf('update'), hdrs.indexOf('content'), 0);
+      iSection = hdrs.indexOf('section') >= 0 ? hdrs.indexOf('section') : hdrs.indexOf('heading') >= 0 ? hdrs.indexOf('heading') : 1;
+      iBadge   = hdrs.indexOf('badge') >= 0 ? hdrs.indexOf('badge') : 2;
+      iBStyle  = hdrs.indexOf('badgestyle') >= 0 ? hdrs.indexOf('badgestyle') : hdrs.indexOf('style') >= 0 ? hdrs.indexOf('style') : 3;
+      iIcon    = hdrs.indexOf('icon') >= 0 ? hdrs.indexOf('icon') : 4;
+      startRow = 1;
+    }
+
+    for (var r = startRow; r < updRows.length; r++) {
+      var row = updRows[r];
+      var text = String(row[iText] || '').trim();
+      if (!text) continue;
+      updates.push({
+        type:        'item',
+        section:     iSection < row.length ? String(row[iSection] || '').trim() : '',
+        text:        text,
+        badge:       iBadge  < row.length ? String(row[iBadge]  || '').trim() : '',
+        badge_style: iBStyle < row.length ? String(row[iBStyle] || '').trim() : '',
+        icon:        iIcon   < row.length ? String(row[iIcon]   || '').trim() : ''
+      });
+    }
+  }
+
+  // ── Bets ideas sheet (tab is named "Bets ideas") ──
+  var ideasSheet = ss.getSheetByName('Bets ideas');
+  if (!ideasSheet) ideasSheet = ss.getSheetByName('Bet Ideas'); // fallback spelling
+  if (ideasSheet && ideasSheet.getLastRow() >= 1) {
+    var ideaRows = ideasSheet.getDataRange().getValues();
+    var iName = 0, iProb = 1, iIdea = 2, iStatus = 3;
+    var ideaStart = 0;
+
+    // Try to detect a header row
+    var fh = ideaRows[0].map(function(c){ return String(c||'').trim().toLowerCase(); });
+    var hasHeader = fh.some(function(h){ return h === 'name' || h === 'idea' || h === 'problem' || h === 'status'; });
+    if (hasHeader) {
+      iName   = Math.max(fh.indexOf('name'), 0);
+      iProb   = fh.indexOf('problem') >= 0 ? fh.indexOf('problem') : fh.indexOf('issue') >= 0 ? fh.indexOf('issue') : 1;
+      iIdea   = fh.indexOf('idea') >= 0 ? fh.indexOf('idea') : fh.indexOf('suggestion') >= 0 ? fh.indexOf('suggestion') : 2;
+      iStatus = fh.indexOf('status') >= 0 ? fh.indexOf('status') : fh.indexOf('done') >= 0 ? fh.indexOf('done') : 3;
+      ideaStart = 1;
+    }
+
+    for (var ri = ideaStart; ri < ideaRows.length; ri++) {
+      var ir = ideaRows[ri];
+      var name    = String(ir[iName]   || '').trim();
+      var problem = iProb   < ir.length ? String(ir[iProb]   || '').trim() : '';
+      var idea    = iIdea   < ir.length ? String(ir[iIdea]   || '').trim() : '';
+      var status  = iStatus < ir.length ? String(ir[iStatus] || '').trim() : '';
+      // If col B looks like the actual idea (no separate problem col), shift
+      if (!idea && problem) { idea = problem; problem = ''; }
+      if (!name && !idea) continue;
+      ideas.push({ name: name, problem: problem, idea: idea, status: status });
+    }
+  }
+
+  return { updates: updates, ideas: ideas };
+}
 
 // ── Aggregated ────────────────────────────────────────────────────
 function getAllData() {
