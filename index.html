@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CFB Fun Bets Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
   --bg:       #0B0F1A;
@@ -164,6 +165,41 @@ select option{background:var(--surface)}
 .formula-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted)}
 .formula-note strong{color:var(--gold)}
 
+/* ── Charts ── */
+.chart-wrap{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.chart-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:16px}
+.chart-canvas-wrap{position:relative;height:280px}
+.chart-canvas-wrap.sm{height:180px}
+.chart-filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.chart-filters select{width:auto;min-width:130px}
+.no-data-msg{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px}
+.bet-card-history{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bch-left{flex:1;min-width:0}
+.bch-bet{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bch-pick{font-size:11px;color:var(--muted);margin-top:2px}
+.bch-wk{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.bch-right{text-align:right;flex-shrink:0}
+.bch-change{font-family:var(--mono);font-size:14px;font-weight:700}
+
+/* ── Bet Ends / Lock ── */
+.bet-ends{display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:6px;flex-wrap:wrap}
+.ends-label{font-weight:700;color:var(--muted);letter-spacing:.04em}
+.ends-time{color:var(--white);font-family:var(--mono)}
+.ends-cd{color:var(--gold);font-family:var(--mono);font-weight:700}
+.ends-cd.expired{color:var(--loss)}
+.bet-locked-banner{display:flex;align-items:center;gap:6px;background:rgba(85,94,111,.2);border:1px solid rgba(85,94,111,.4);border-radius:3px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}
+
+/* ── Admin Log ── */
+.log-table-wrap{max-height:360px;overflow-y:auto;border-radius:var(--r);border:1px solid var(--border);margin-top:12px}
+.log-type{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 6px;border-radius:3px}
+.lt-result{background:var(--win-bg);color:var(--win)}
+.lt-bonus{background:rgba(162,87,255,.15);color:#C07AFF}
+.lt-lock{background:rgba(240,180,41,.12);color:var(--gold)}
+.lt-inactive{background:var(--loss-bg);color:var(--loss)}
+.lt-reinstate{background:var(--win-bg);color:var(--win)}
+.lt-adjust{background:rgba(255,255,255,.06);color:var(--muted)}
+.lt-other{background:rgba(255,255,255,.04);color:var(--muted)}
+
 /* ── Views ── */
 .view{display:none}.view.active{display:block}
 
@@ -171,6 +207,17 @@ select option{background:var(--surface)}
 .win-c{color:var(--win)}.loss-c{color:var(--loss)}.gold-c{color:var(--gold)}.muted-c{color:var(--muted)}
 .mt8{margin-top:8px}.mt16{margin-top:16px}.mb16{margin-bottom:16px}
 .flex{display:flex}.gap8{gap:8px}.align-c{align-items:center}
+
+/* ── Sync indicator ── */
+#sync-status{font-size:11px;font-family:var(--mono);transition:opacity .3s}
+.sync-refreshing{color:var(--gold);display:inline-flex;align-items:center;gap:5px}
+.sync-refreshing::before{content:'';width:7px;height:7px;border:1.5px solid var(--gold);border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite}
+.sync-stale{color:var(--muted)}
+.sync-err{color:var(--loss)}
+
+/* ── Cache warning banner ── */
+.cache-banner{background:rgba(240,180,41,.08);border-bottom:1px solid rgba(240,180,41,.2);padding:6px 24px;font-size:11px;color:var(--gold);display:flex;align-items:center;gap:8px}
+.cache-banner button{background:none;border:none;color:var(--gold);cursor:pointer;text-decoration:underline;font-size:11px;padding:0}
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -184,40 +231,8 @@ select option{background:var(--surface)}
   .fg-row{grid-template-columns:1fr}
 }
 </style>
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script>
-  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
-
-<!-- ── SETUP SCREEN ── -->
-<div id="setup-screen">
-  <div class="setup-icon">🏈</div>
-  <div class="setup-title">CFB Fun Bets Hub</div>
-  <div class="setup-sub">Connect to your Google Sheet to get started.</div>
-
-  <div class="setup-section-title">APPS SCRIPT URL</div>
-  <div class="fg">
-    <input type="text" id="setup-url" placeholder="https://script.google.com/macros/s/.../exec">
-  </div>
-  <button class="btn btn-gold btn-full" onclick="saveSetup()">Connect & Load Data</button>
-
-  <hr class="setup-divider">
-
-  <div class="setup-section-title">FIRST-TIME SETUP — Set Admin Password</div>
-  <div class="fg">
-    <input type="password" id="init-pw" placeholder="Choose an admin password">
-  </div>
-  <button class="btn btn-ghost btn-full" onclick="initializeScript()">Initialize (First Run Only)</button>
-  <div id="init-msg" style="margin-top:8px"></div>
-
-  <p style="font-size:11px;color:var(--muted);margin-top:16px">See SETUP.md for step-by-step instructions.</p>
-</div>
 
 <!-- ── MAIN APP ── -->
 <div id="app" style="display:none">
@@ -227,12 +242,13 @@ select option{background:var(--surface)}
       <div class="hdr-meta">
         WEEK <em id="hdr-week">—</em>
         &nbsp;·&nbsp;
-        BETS LOCK IN: <span class="countdown" id="hdr-countdown">—</span>
+        ENDS IN: <span class="countdown" id="hdr-countdown">—</span>
         &nbsp;·&nbsp;
+        <span id="sync-status"></span>
         <button class="btn btn-ghost btn-sm" onclick="refreshData()">⟳ Refresh</button>
-        <button class="btn btn-ghost btn-sm" onclick="showSetup()">⚙ Setup</button>
       </div>
     </div>
+    <div id="cache-banner" style="display:none" class="cache-banner"></div>
     <div class="hdr-hero">
       <div class="hero-block">
         <div class="hero-label">🏆 MONEY LEADER</div>
@@ -256,10 +272,9 @@ select option{background:var(--surface)}
     <button class="tab active" onclick="switchTab('money')">💰 Money Race</button>
     <button class="tab" onclick="switchTab('heisman')">🏆 Heisman Race</button>
     <button class="tab" onclick="switchTab('week')">📅 This Week</button>
-    <button class="tab" onclick="switchTab('mybets')">🎲 My Bets</button>
     <button class="tab" onclick="switchTab('history')">📊 History</button>
+    <button class="tab" onclick="switchTab('charts')">📈 Charts</button>
     <button class="tab" onclick="switchTab('profile')">👤 Participant</button>
-    <button class="tab" onclick="switchTab('updates')">📢 Updates & Ideas</button>
     <button class="tab" onclick="switchTab('admin')">🔐 Admin</button>
   </div>
 
@@ -377,6 +392,33 @@ select option{background:var(--surface)}
       </div>
     </div>
 
+    <!-- CHARTS -->
+    <div id="view-charts" class="view">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Balance Over Time</div>
+          <div class="sec-sub">Week-by-week balances — save a snapshot at the end of each week from Admin</div>
+        </div>
+      </div>
+      <div class="chart-filters">
+        <select id="chart-filter-status" onchange="renderCharts()">
+          <option value="active">Active only</option>
+          <option value="all">Everyone</option>
+        </select>
+        <select id="chart-filter-participants" multiple style="min-width:180px;height:80px" onchange="renderCharts()">
+        </select>
+        <div style="font-size:11px;color:var(--muted);align-self:flex-end;padding-bottom:6px">Hold Ctrl/Cmd to select multiple</div>
+      </div>
+      <div id="no-snapshot-msg" class="no-data-msg" style="display:none">
+        No snapshot data yet.<br>
+        <span style="font-size:12px">Admin → Save Week Snapshot at the end of each week to start tracking.</span>
+      </div>
+      <div class="chart-wrap" id="balance-chart-wrap">
+        <div class="chart-title">💰 Balance Trends</div>
+        <div class="chart-canvas-wrap"><canvas id="balance-chart"></canvas></div>
+      </div>
+    </div>
+
     <!-- PARTICIPANT PROFILE -->
     <div id="view-profile" class="view">
       <div class="profile-select-wrap">
@@ -386,95 +428,18 @@ select option{background:var(--surface)}
         </select>
       </div>
       <div id="profile-content"></div>
-    </div>
-
-    <!-- MY BETS -->
-    <div id="view-mybets" class="view">
-      <!-- Step 1: Not logged in -->
-      <div id="mb-login" style="max-width:420px;margin:0 auto">
-        <div class="sec-hdr"><div><div class="sec-title">🎲 Place a Bet</div><div class="sec-sub">Enter your name and PIN to place or manage bets</div></div></div>
-        <div class="card">
-          <div class="fg">
-            <label>YOUR NAME</label>
-            <select id="mb-name-sel">
-              <option value="">Select your name...</option>
-            </select>
-          </div>
-          <div class="fg" id="mb-pin-wrap">
-            <label>YOUR PIN</label>
-            <input type="password" id="mb-pin-input" placeholder="Enter your 4-digit PIN"
-              onkeydown="if(event.key==='Enter')mbLogin()">
-          </div>
-          <div id="mb-no-pin-msg" style="display:none" class="alert alert-info mb-8">
-            You don't have a PIN yet. Set one to start placing bets.
-          </div>
-          <div class="fg" id="mb-set-pin-wrap" style="display:none">
-            <label>SET A NEW PIN (4+ digits)</label>
-            <input type="password" id="mb-new-pin" placeholder="Choose a PIN">
-          </div>
-          <button class="btn btn-gold btn-full" onclick="mbLogin()">🔓 Continue</button>
-          <div id="mb-login-msg" class="mt8"></div>
+      <!-- Charts rendered here by renderProfile() -->
+      <div id="profile-charts" style="display:none">
+        <div class="chart-wrap" style="margin-top:16px">
+          <div class="chart-title">💰 Balance History</div>
+          <div class="chart-canvas-wrap sm"><canvas id="profile-balance-chart"></canvas></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">📊 Weekly Net Gain / Loss</div>
+          <div class="chart-canvas-wrap sm"><canvas id="profile-weekly-chart"></canvas></div>
         </div>
       </div>
-
-      <!-- Step 2: Logged in -->
-      <div id="mb-panel" style="display:none">
-        <div class="sec-hdr">
-          <div>
-            <div class="sec-title">🎲 My Bets — <span id="mb-logged-name" style="color:var(--gold)"></span></div>
-            <div class="sec-sub">Balance: <span id="mb-balance" class="mono" style="color:var(--white)"></span></div>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="mbLogout()">🔒 Log Out</button>
-        </div>
-
-        <!-- Active bets this week -->
-        <div class="card mb16">
-          <div class="card-title" style="margin-bottom:10px">Your bets this week</div>
-          <div id="mb-my-current-bets"><div class="muted-c" style="font-size:13px">Loading...</div></div>
-        </div>
-
-        <!-- Place a new bet -->
-        <div class="card">
-          <div class="card-title" style="margin-bottom:12px">➕ Place a New Bet</div>
-          <div class="fg">
-            <label>SELECT BET</label>
-            <select id="mb-bet-sel" onchange="renderMbBetForm()">
-              <option value="">Choose a bet...</option>
-            </select>
-          </div>
-          <div id="mb-bet-form" style="display:none">
-            <div style="background:var(--raised);padding:10px;border-radius:4px;margin-bottom:12px;font-size:12px" id="mb-bet-info"></div>
-            <div class="fg">
-              <label>YOUR PICK</label>
-              <select id="mb-pick-sel"></select>
-            </div>
-            <div class="fg">
-              <label>AMOUNT ($)</label>
-              <input type="number" id="mb-amount" placeholder="e.g. 10000">
-              <div id="mb-amount-hint" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
-            </div>
-            <button class="btn btn-gold btn-full" onclick="mbSubmitBet()">Place Bet</button>
-            <div id="mb-bet-msg" class="mt8"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PLAYOFF -->
-    <div id="view-playoff" style="display:none"><!-- rendered dynamically if data exists --></div>
-
-    <!-- UPDATES & IDEAS -->
-    <div id="view-updates" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title">📢 Updates &amp; Ideas</div>
-          <div class="sec-sub">Latest changes and community bet ideas — pulled live from the sheet</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="loadUpdates(true)">⟳ Refresh</button>
-      </div>
-      <div id="updates-content" style="max-width:680px">
-        <div class="loading"><div class="spinner"></div>Loading updates...</div>
-      </div>
+      <div id="profile-bet-history" style="margin-top:16px"></div>
     </div>
 
     <!-- ADMIN -->
@@ -639,6 +604,70 @@ select option{background:var(--surface)}
             <div id="a-bet-msg" class="mt8"></div>
           </div>
 
+          <!-- Save Weekly Snapshot -->
+          <div class="admin-card">
+            <div class="admin-card-title">📸 SAVE WEEK SNAPSHOT</div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+              Records everyone's current balance for the selected week.
+              Run this at the end of each week to build the balance-over-time graph.
+            </p>
+            <div class="fg">
+              <label>Week # to Snapshot</label>
+              <input type="number" id="a-snap-week" placeholder="9">
+            </div>
+            <div class="fg">
+              <label>Notes (optional)</label>
+              <input type="text" id="a-snap-notes" placeholder="e.g. End of Week 9">
+            </div>
+            <button class="btn btn-gold btn-full" onclick="submitSaveSnapshot()">📸 Save Snapshot</button>
+            <div id="a-snap-msg" class="mt8"></div>
+          </div>
+
+          <!-- Edit Past Snapshot -->
+          <div class="admin-card">
+            <div class="admin-card-title">✏️ EDIT PAST SNAPSHOT</div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+              Correct a specific participant's balance for a past week.
+              Updates the graph entry for that week.
+            </p>
+            <div class="fg">
+              <label>Week #</label>
+              <input type="number" id="a-editsnap-week" placeholder="8">
+            </div>
+            <div class="fg">
+              <label>Participant</label>
+              <select id="a-editsnap-who"></select>
+            </div>
+            <div class="fg">
+              <label>Corrected Balance ($)</label>
+              <input type="number" id="a-editsnap-bal" placeholder="1200000">
+            </div>
+            <div class="fg">
+              <label>Reason</label>
+              <input type="text" id="a-editsnap-notes" placeholder="e.g. Missed bonus resolution">
+            </div>
+            <button class="btn btn-ghost btn-full" onclick="submitEditSnapshot()">Save Correction</button>
+            <div id="a-editsnap-msg" class="mt8"></div>
+          </div>
+
+          <!-- Finalize / Lock Bet -->
+          <div class="admin-card">
+            <div class="admin-card-title">🔒 FINALIZE BET</div>
+            <div class="fg">
+              <label>Select Bet to Lock</label>
+              <select id="a-lock-bet">
+                <option value="">Choose bet...</option>
+              </select>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+              Locks the Google Sheet tab so nobody can change their pick.
+              The auto-lock trigger does this automatically when the Ends time passes.
+              Use this to lock manually ahead of time.
+            </p>
+            <button class="btn btn-danger btn-full" onclick="submitFinalizeBet()">🔒 Finalize & Lock</button>
+            <div id="a-lock-msg" class="mt8"></div>
+          </div>
+
           <!-- Season Config -->
           <div class="admin-card">
             <div class="admin-card-title">⚙️ SEASON SETTINGS</div>
@@ -660,6 +689,12 @@ select option{background:var(--surface)}
             </div>
             <button class="btn btn-gold btn-full" onclick="saveConfig()">Save Settings</button>
             <div id="a-cfg-msg" class="mt8"></div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+            <p style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+              Run once to activate hourly auto-lock. Bets lock automatically when their Ends time passes.
+            </p>
+            <button class="btn btn-ghost btn-full" onclick="submitInstallTrigger()">⏰ Install Auto-Lock Trigger</button>
+            <div id="a-trigger-msg" class="mt8"></div>
           </div>
 
           <!-- Add Participant -->
@@ -675,23 +710,6 @@ select option{background:var(--surface)}
             </div>
             <button class="btn btn-gold btn-full" onclick="submitAddParticipant()">Add to Sheet</button>
             <div id="a-participant-msg" class="mt8"></div>
-          </div>
-
-          <!-- PIN Management -->
-          <div class="admin-card">
-            <div class="admin-card-title">🔑 PIN MANAGEMENT</div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
-              Each participant uses a 4-digit PIN to log in to "My Bets". They set their own PIN the first time they log in. Use <strong style="color:var(--white)">Reset PIN</strong> below if someone forgets theirs — it clears it so they can pick a new one next time they log in.
-            </p>
-            <div class="fg">
-              <label>Participant</label>
-              <select id="a-resetpin-who"></select>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn btn-ghost btn-sm" onclick="checkPinStatus()" style="flex:1">🔍 Check PIN Status</button>
-              <button class="btn btn-danger btn-sm" onclick="submitResetPin()" style="flex:1">🗑 Reset PIN</button>
-            </div>
-            <div id="a-resetpin-msg" class="mt8"></div>
           </div>
 
           <!-- Change Password -->
@@ -710,6 +728,24 @@ select option{background:var(--surface)}
           </div>
 
         </div><!-- /.admin-grid -->
+
+        <!-- ── Admin Log — single unified view of everything ── -->
+        <div style="margin-top:28px">
+          <div class="sec-hdr">
+            <div>
+              <div class="sec-title" style="font-size:15px">📋 Admin Log</div>
+              <div class="sec-sub">Every action in one place — newest first</div>
+            </div>
+            <div class="flex gap8">
+              <button class="btn btn-ghost btn-sm" onclick="exportCSV('log')">↓ Export</button>
+              <button class="btn btn-ghost btn-sm" onclick="loadAdminLog()">⟳ Load Log</button>
+            </div>
+          </div>
+          <div id="admin-log-wrap">
+            <div class="muted-c" style="font-size:12px;padding:12px 0">Click Load Log to pull the latest entries from the sheet.</div>
+          </div>
+        </div>
+
       </div><!-- /#admin-panel -->
     </div><!-- /#view-admin -->
 
@@ -720,97 +756,190 @@ select option{background:var(--surface)}
 // ================================================================
 // CONFIG & STATE
 // ================================================================
-const LS_URL  = 'cfb_script_url';
-let SCRIPT_URL = localStorage.getItem(LS_URL) || '';
-let state = { data: null, tab: 'money', adminPw: '', adminOk: false };
+// SCRIPT URL — hard-coded so the site loads for everyone automatically.
+// To change: update this line, redeploy to Vercel.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2JrGe-6rI3bUVuOzGJAUEViTKafYyoYeAY11ZJeTjEFDEakDJBceXGKWn-utGRNJlFg/exec';
 
-// Pending resolve payload (set after preview, cleared after submit)
+// Cache settings
+const CACHE_KEY        = 'cfb_data_v1';
+const CACHE_FRESH_MS   = 2  * 60 * 1000; // under 2 min → no background refresh
+const CACHE_MAX_MS     = 30 * 60 * 1000; // over 30 min → treat as expired, show spinner
+
+let state = { data: null, tab: 'money', adminPw: '', adminOk: false, adminLog: null };
 let pendingResolve = null;
 
 // ================================================================
-// SETUP
+// CACHE
 // ================================================================
-function showSetup() {
-  document.getElementById('app').style.display = 'none';
-  const s = document.getElementById('setup-screen');
-  s.classList.add('show');
-  document.getElementById('setup-url').value = SCRIPT_URL;
-}
-
-function saveSetup() {
-  const url = document.getElementById('setup-url').value.trim();
-  if (!url) { alert('Enter your Apps Script URL first.'); return; }
-  SCRIPT_URL = url;
-  localStorage.setItem(LS_URL, url);
-  document.getElementById('setup-screen').classList.remove('show');
-  document.getElementById('app').style.display = 'block';
-  loadData();
-}
-
-async function initializeScript() {
-  const pw = document.getElementById('init-pw').value;
-  if (!pw) { setMsg('init-msg', 'Enter a password first.', 'err'); return; }
-  const url = document.getElementById('setup-url').value.trim() || SCRIPT_URL;
-  if (!url) { setMsg('init-msg', 'Enter the Apps Script URL first.', 'err'); return; }
-  SCRIPT_URL = url;
-  localStorage.setItem(LS_URL, url);
-  try {
-    setMsg('init-msg', 'Initializing...', 'info');
-    const res = await apiPost('init', { newPassword: pw, password: '' });
-    if (res.error) throw new Error(res.error);
-    setMsg('init-msg', '✅ ' + (res.message || 'Done! You can now connect.'), 'ok');
-  } catch(e) {
-    setMsg('init-msg', 'Error: ' + e.message, 'err');
+const Cache = {
+  get() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { data, ts } = JSON.parse(raw);
+      const age = Date.now() - ts;
+      return { data, age, fresh: age < CACHE_FRESH_MS, expired: age > CACHE_MAX_MS };
+    } catch { return null; }
+  },
+  set(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() })); }
+    catch { /* localStorage full — fail silently */ }
+  },
+  clear() {
+    try { localStorage.removeItem(CACHE_KEY); } catch {}
   }
+};
+
+function fmtAge(ms) {
+  const s = Math.floor(ms / 1000);
+  if (s < 60)  return s + 's ago';
+  const m = Math.floor(s / 60);
+  if (m < 60)  return m + 'm ago';
+  return Math.floor(m / 60) + 'h ago';
 }
 
 // ================================================================
 // API LAYER
 // ================================================================
+
+// Fetch with a hard timeout — prevents hung requests from blocking the UI forever.
+function fetchWithTimeout(url, options = {}, ms = 10000) {
+  const ctrl = new AbortController();
+  const id   = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
+// GET with exponential backoff retry.
+// Retries on network/timeout errors only — app-level errors (data.error) are not retried.
 async function apiGet(action) {
-  if (!SCRIPT_URL) throw new Error('No Apps Script URL configured. Click Setup.');
-  const res = await fetch(`${SCRIPT_URL}?action=${action}`, { redirect: 'follow' });
-  const text = await res.text();
-  try { return JSON.parse(text); }
-  catch(e) { throw new Error('Invalid response from Apps Script. Check deployment settings.'); }
+  const delays = [0, 2000, 4000];
+  let lastErr;
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) await new Promise(r => setTimeout(r, delays[i]));
+    try {
+      const res  = await fetchWithTimeout(`${SCRIPT_URL}?action=${action}`, { redirect: 'follow' });
+      const text = await res.text();
+      try { return JSON.parse(text); }
+      catch { throw new Error('Bad response from Apps Script — check deployment.'); }
+    } catch(e) {
+      lastErr = e;
+      if (e.name === 'AbortError') lastErr = new Error('Request timed out after 10s.');
+      // Don't retry if it parsed but returned an app error — that won't change on retry
+    }
+  }
+  throw lastErr;
 }
 
+// POST — no retry (not idempotent; running twice would double-apply changes).
 async function apiPost(action, payload) {
-  if (!SCRIPT_URL) throw new Error('No Apps Script URL configured. Click Setup.');
   const body = JSON.stringify({ action, password: state.adminPw, ...payload });
-  const res = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    redirect: 'follow',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body
-  });
+  const res  = await fetchWithTimeout(SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body
+  }, 15000); // admin writes get a longer timeout
   const text = await res.text();
   try { return JSON.parse(text); }
-  catch(e) { throw new Error('Invalid response from Apps Script.'); }
+  catch { throw new Error('Invalid response from Apps Script.'); }
 }
 
 // ================================================================
-// DATA LOADING
+// SYNC STATUS (subtle header indicator)
 // ================================================================
-async function loadData() {
+function setSyncStatus(type, text) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  if (!type) { el.innerHTML = ''; return; }
+  el.innerHTML = `<span class="sync-${type}">${text}</span>`;
+}
+
+function showCacheBanner(age, onForceRefresh) {
+  const banner = document.getElementById('cache-banner');
+  if (!banner) return;
+  banner.style.display = 'flex';
+  banner.innerHTML = `⚠ Showing data from ${fmtAge(age)} — live update failed.
+    <button onclick="(${onForceRefresh.toString()})()">Force refresh</button>`;
+}
+
+function hideCacheBanner() {
+  const banner = document.getElementById('cache-banner');
+  if (banner) banner.style.display = 'none';
+}
+
+// ================================================================
+// DATA LOADING — stale-while-revalidate
+// ================================================================
+async function loadData(forceRefresh = false) {
+  const cached = Cache.get();
+
+  // ── Fast path: show cached data immediately ──────────────────
+  if (cached && !forceRefresh && !cached.expired) {
+    state.data = cached.data;
+    renderAll();
+    showLoading(false);
+    hideCacheBanner();
+
+    if (!cached.fresh) {
+      // Data is stale — refresh silently in the background
+      setSyncStatus('refreshing', 'Refreshing...');
+      backgroundRefresh();
+    }
+    return;
+  }
+
+  // ── Slow path: no usable cache, show spinner ─────────────────
   showLoading(true);
+  setSyncStatus('refreshing', 'Loading...');
+
   try {
     const data = await apiGet('getAll');
     if (data.error) throw new Error(data.error);
     state.data = data;
+    Cache.set(data);
     renderAll();
     showLoading(false);
+    hideCacheBanner();
+    setSyncStatus(null);
   } catch(e) {
     showLoading(false);
-    document.getElementById('loading-overlay').innerHTML =
-      `<div class="alert alert-err">${e.message}</div>
-       <div style="margin-top:16px"><button class="btn btn-ghost" onclick="showSetup()">⚙ Open Setup</button>
-       <button class="btn btn-ghost" style="margin-left:8px" onclick="loadData()">⟳ Retry</button></div>`;
-    document.getElementById('loading-overlay').style.display = 'block';
+    setSyncStatus('err', '⚠ Offline');
+
+    // If we have expired cache, use it rather than showing a dead screen
+    if (cached) {
+      state.data = cached.data;
+      renderAll();
+      showCacheBanner(cached.age, () => loadData(true));
+    } else {
+      document.getElementById('loading-overlay').innerHTML =
+        `<div class="alert alert-err">${e.message}</div>
+         <div style="margin-top:16px">
+           <button class="btn btn-ghost" onclick="loadData(true)">⟳ Retry</button>
+         </div>`;
+      document.getElementById('loading-overlay').style.display = 'block';
+    }
   }
 }
 
-async function refreshData() { await loadData(); }
+// Silent background refresh — updates the UI only if it succeeds.
+async function backgroundRefresh() {
+  try {
+    const data = await apiGet('getAll');
+    if (data.error) throw new Error(data.error);
+    state.data = data;
+    Cache.set(data);
+    renderAll();
+    hideCacheBanner();
+    setSyncStatus(null);
+  } catch {
+    // Silently failed — keep showing the cached data, note it in the header
+    setSyncStatus('stale', `cached ${fmtAge(Cache.get()?.age || 0)}`);
+  }
+}
+
+// Force-refresh: clears cache, shows spinner, fetches fresh.
+async function refreshData() {
+  Cache.clear();
+  await loadData(true);
+}
 
 function showLoading(yes) {
   const el = document.getElementById('loading-overlay');
@@ -825,31 +954,6 @@ function showLoading(yes) {
 // ================================================================
 // FORMAT HELPERS
 // ================================================================
-function formatLockTime(t) {
-  if (!t) return '7:00 PM';
-  // Handle full Date toString() strings (backend didn't sanitize)
-  if (t.length > 10) {
-    try {
-      const d = new Date(t);
-      if (!isNaN(d)) {
-        let h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
-        const ap = h >= 12 ? 'PM' : 'AM';
-        h = h % 12 || 12;
-        return `${h}:${m} ${ap}`;
-      }
-    } catch(e) {}
-    return '7:00 PM';
-  }
-  // Handle "HH:MM"
-  const parts = t.split(':');
-  let h = parseInt(parts[0]);
-  const m = (parts[1] || '00').substring(0,2);
-  if (isNaN(h)) return t;
-  const ap = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  return `${h}:${m} ${ap}`;
-}
-
 function fmtAbs(n) {
   if (n == null || isNaN(n)) return '—';
   return '$' + Math.abs(n).toLocaleString();
@@ -872,46 +976,22 @@ function rankCell(i) {
 // COUNTDOWN TIMER
 // ================================================================
 let _cdInterval = null;
-
-function getNextFriday7pm() {
-  const now = new Date();
-  const day = now.getDay(); // 0=Sun,1=Mon,...,5=Fri,6=Sat
-  let daysUntilFri = (5 - day + 7) % 7;
-  if (daysUntilFri === 0) {
-    // today is Friday — check if before 7pm
-    const todayAt7 = new Date(now);
-    todayAt7.setHours(19, 0, 0, 0);
-    if (now >= todayAt7) daysUntilFri = 7; // past lock, next Friday
-  }
-  const next = new Date(now);
-  next.setDate(now.getDate() + daysUntilFri);
-  next.setHours(19, 0, 0, 0);
-  return next;
-}
-
-function startCountdown(seasonEndStr) {
+function startCountdown(endStr) {
   if (_cdInterval) clearInterval(_cdInterval);
-  const seasonEnd = seasonEndStr ? new Date(seasonEndStr) : null;
+  const end = new Date(endStr);
   function tick() {
-    const now = new Date();
-    if (seasonEnd && now >= seasonEnd) {
+    const diff = end - new Date();
+    if (diff <= 0) {
       document.getElementById('hdr-countdown').textContent = 'SEASON ENDED';
       clearInterval(_cdInterval);
       return;
     }
-    // Count down to next Friday 7pm lock
-    const lockEnd = getNextFriday7pm();
-    const diff = lockEnd - now;
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    const parts = [];
-    if (d > 0) parts.push(`${d}d`);
-    parts.push(`${String(h).padStart(2,'0')}h`);
-    parts.push(`${String(m).padStart(2,'0')}m`);
-    parts.push(`${String(s).padStart(2,'0')}s`);
-    document.getElementById('hdr-countdown').textContent = parts.join(' ');
+    document.getElementById('hdr-countdown').textContent =
+      `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
   }
   tick();
   _cdInterval = setInterval(tick, 1000);
@@ -940,10 +1020,10 @@ function renderAll() {
   if (config) {
     document.getElementById('hdr-week').textContent       = config.current_week || '—';
     document.getElementById('hdr-season-name').textContent = config.season_name  || '—';
-    document.getElementById('hdr-lock-time').textContent  = 'Friday ' + formatLockTime(config.week_lock_time);
+    document.getElementById('hdr-lock-time').textContent  = 'Friday ' + (config.week_lock_time || '7:00') + ' PM';
     document.getElementById('week-view-title').textContent = 'Week ' + (config.current_week || '?') + ' Bets';
-    document.getElementById('week-lock-str').textContent  = 'Friday at ' + formatLockTime(config.week_lock_time);
-    startCountdown(config.season_end || null);
+    document.getElementById('week-lock-str').textContent  = 'Friday at ' + (config.week_lock_time || '7:00') + ' PM';
+    if (config.season_end) startCountdown(config.season_end);
     fillConfigFields(config);
   }
 
@@ -954,9 +1034,7 @@ function renderAll() {
   populateFilters();
   populateProfiles();
   populateAdminDropdowns();
-  mbPopulateNames();
   if (state.adminOk) populateAdminBets();
-  switchTab(state.tab || 'money');
 }
 
 // ================================================================
@@ -985,22 +1063,10 @@ function renderMoney() {
       ? '<span class="badge b-inactive">INACTIVE</span>'
       : '<span class="badge b-active">ACTIVE</span>';
 
-    // Count how many bets this person placed this week (from currentBets)
-    const bets = state.data?.currentBets || [];
-    const thisWeekBets = bets.reduce((cnt, b) => {
-      const placed = (b.bets||[]).find(x => x.participant.trim().toLowerCase() === p.name.trim().toLowerCase());
-      return cnt + (placed ? 1 : 0);
-    }, 0);
-    const minBets = parseInt(state.data?.config?.min_bets_per_week) || 2;
-    const needsBet = thisWeekBets < minBets && p.status !== 'inactive';
-    const betBadge = needsBet
-      ? `<span class="badge b-loss" style="margin-left:6px;font-size:10px">NEEDS BETS</span>`
-      : (thisWeekBets > 0 ? `<span class="badge b-win" style="margin-left:6px;font-size:10px">✓ BET IN</span>` : '');
-
     return `<tr>
       ${rankCell(i)}
       <td>
-        <strong>${p.name}</strong>${betBadge}
+        <strong>${p.name}</strong>
         <div class="bar-wrap"><div class="bar-fill" style="width:${barW}px"></div></div>
       </td>
       <td class="mono">${fmtAbs(p.balance)}</td>
@@ -1034,6 +1100,8 @@ function renderHeisman() {
 // ================================================================
 // THIS WEEK
 // ================================================================
+let _betCdInterval = null;
+
 function renderWeek() {
   const bets = state.data?.currentBets || [];
   const grid = document.getElementById('bets-grid');
@@ -1044,7 +1112,7 @@ function renderWeek() {
 
   const TYPE_LABEL = { game:'GAME', prop:'PLAYER PROP', bonus:'BONUS BET', local:'LOCAL BET' };
 
-  grid.innerHTML = bets.map(bet => {
+  grid.innerHTML = bets.map((bet, i) => {
     const typeLabel = TYPE_LABEL[bet.betType] || 'BET';
     const limits = [
       bet.entryMin ? `Entry: ${fmtAbs(bet.entryMin)}` : null,
@@ -1061,16 +1129,60 @@ function renderWeek() {
         <span class="pick-amt">${b.amount ? fmtAbs(b.amount) : '—'}</span>
       </div>`).join('');
 
+    // Ends time row
+    let endsHtml = '';
+    if (bet.endsAt) {
+      const d = new Date(bet.endsAt);
+      const timeStr = d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})
+        + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      endsHtml = `<div class="bet-ends">
+        <span class="ends-label">ENDS</span>
+        <span class="ends-time">${timeStr}</span>
+        <span class="ends-cd" data-ends="${bet.endsAt}">...</span>
+      </div>`;
+    }
+
+    // Locked banner
+    const lockedHtml = bet.isLocked
+      ? `<div class="bet-locked-banner">🔒 LOCKED — Bets are finalized</div>`
+      : '';
+
     return `<div class="bet-card">
+      ${lockedHtml}
       <div class="bet-type">${typeLabel}</div>
       <div class="bet-title">${bet.title || '—'}</div>
       <div class="bet-limits">${limits || '&nbsp;'}</div>
+      ${endsHtml}
       ${payouts ? `<div class="bet-payouts">${payouts}</div>` : ''}
       <hr class="bet-sep">
       <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${(bet.bets||[]).length} bet${(bet.bets||[]).length!==1?'s':''} placed</div>
       ${picks || '<div class="muted-c" style="font-size:12px">No bets placed</div>'}
     </div>`;
   }).join('');
+
+  // Start per-bet countdowns
+  if (_betCdInterval) clearInterval(_betCdInterval);
+  _betCdInterval = setInterval(tickBetCountdowns, 1000);
+  tickBetCountdowns();
+}
+
+function tickBetCountdowns() {
+  const now = Date.now();
+  document.querySelectorAll('.ends-cd').forEach(el => {
+    const ends = new Date(el.dataset.ends).getTime();
+    const diff = ends - now;
+    if (diff <= 0) {
+      el.textContent = 'CLOSED';
+      el.classList.add('expired');
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.textContent = h > 24
+      ? `${Math.floor(h/24)}d ${h%24}h`
+      : `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+  });
 }
 
 // ================================================================
@@ -1262,16 +1374,14 @@ function renderProfile() {
 // ================================================================
 function switchTab(tab) {
   state.tab = tab;
-  const tabNames = ['money','heisman','week','mybets','history','profile','updates','admin'];
   document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', tabNames[i] === tab);
+    t.classList.toggle('active', ['money','heisman','week','history','charts','profile','admin'][i] === tab);
   });
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(`view-${tab}`)?.classList.add('active');
   if (tab === 'history') renderHistory();
+  if (tab === 'charts')  renderCharts();
   if (tab === 'profile') renderProfile();
-  if (tab === 'mybets') mbPopulateNames();
-  if (tab === 'updates') loadUpdates();
 }
 
 // ================================================================
@@ -1315,312 +1425,48 @@ function lockAdmin() {
 // ================================================================
 function populateAdminDropdowns() {
   const standings = state.data?.standings || [];
-  ['a-adj-who','a-bonus-who','a-inactive-who','a-resetpin-who'].forEach(id => {
+  ['a-adj-who','a-bonus-who','a-inactive-who','a-editsnap-who'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.innerHTML = standings.map(p =>
       `<option value="${p.name}">${p.name} — ${fmtAbs(p.balance)}</option>`).join('');
   });
-}
 
-async function submitResetPin() {
-  const who = document.getElementById('a-resetpin-who').value;
-  if (!who) { setMsg('a-resetpin-msg','Select a participant.','err'); return; }
-  if (!confirm(`Clear PIN for ${who}? They'll need to set a new one to place bets.`)) return;
-  try {
-    const res = await apiPost('resetPin', { participant: who });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-resetpin-msg', '✅ ' + (res.message || 'PIN cleared.'), 'ok');
-  } catch(e) { setMsg('a-resetpin-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function checkPinStatus() {
-  const who = document.getElementById('a-resetpin-who').value;
-  if (!who) { setMsg('a-resetpin-msg','Select a participant.','err'); return; }
-  try {
-    const res = await apiGet(`hasPin&participant=${encodeURIComponent(who)}`);
-    if (res.hasPin) {
-      setMsg('a-resetpin-msg', `🔐 ${who} has a PIN set.`, 'ok');
-    } else {
-      setMsg('a-resetpin-msg', `⚠️ ${who} has no PIN yet — they'll set one on first login.`, 'info');
-    }
-  } catch(e) { setMsg('a-resetpin-msg', 'Error: ' + e.message, 'err'); }
-}
-
-// ================================================================
-// MY BETS — PIN-VERIFIED BET PLACEMENT
-// ================================================================
-const mbState = { name: '', pin: '', loggedIn: false };
-
-function mbPopulateNames() {
-  const standings = state.data?.standings || [];
-  const sel = document.getElementById('mb-name-sel');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Select your name...</option>' +
-    standings.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
-}
-
-function mbPopulateBets() {
-  const bets = state.data?.currentBets || [];
-  const sel = document.getElementById('mb-bet-sel');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Choose a bet...</option>';
-  bets.forEach((b, i) => {
-    sel.innerHTML += `<option value="${i}">${b.title || b.sheetName || 'Bet ' + (i+1)}</option>`;
-  });
-}
-
-async function mbLogin() {
-  const name = document.getElementById('mb-name-sel').value;
-  if (!name) { setMsg('mb-login-msg', 'Select your name first.', 'err'); return; }
-
-  // Check if they have a PIN via API
-  let hasPinRes;
-  try {
-    hasPinRes = await apiGet(`hasPin&participant=${encodeURIComponent(name)}`);
-  } catch(e) { setMsg('mb-login-msg', 'Error: ' + e.message, 'err'); return; }
-
-  if (!hasPinRes.hasPin) {
-    // No PIN yet — show set-PIN flow
-    document.getElementById('mb-no-pin-msg').style.display = 'block';
-    document.getElementById('mb-set-pin-wrap').style.display = 'block';
-    document.getElementById('mb-pin-wrap').style.display = 'none';
-    const newPin = document.getElementById('mb-new-pin').value;
-    if (!newPin || newPin.length < 4) {
-      setMsg('mb-login-msg', 'Enter a PIN of at least 4 digits to get started.', 'info');
-      return;
-    }
-    try {
-      const res = await apiPost('setPin', { participant: name, pin: newPin });
-      if (res.error) throw new Error(res.error);
-      mbState.name = name; mbState.pin = newPin; mbState.loggedIn = true;
-      showMbPanel();
-    } catch(e) { setMsg('mb-login-msg', 'Error: ' + e.message, 'err'); }
-    return;
-  }
-
-  // Has PIN — verify it
-  document.getElementById('mb-pin-wrap').style.display = 'block';
-  document.getElementById('mb-no-pin-msg').style.display = 'none';
-  document.getElementById('mb-set-pin-wrap').style.display = 'none';
-  const pin = document.getElementById('mb-pin-input').value;
-  if (!pin) { setMsg('mb-login-msg', 'Enter your PIN.', 'err'); return; }
-
-  // Verify by attempting a no-op (we'll just check via placeBet failure, but better to have a dedicated check)
-  // For now use a dummy check: try apiPost setPin with no oldPin — returns pin_exists if correct name
-  // Actually just trust the PIN and let the first bet action reveal if wrong
-  mbState.name = name; mbState.pin = pin; mbState.loggedIn = true;
-  showMbPanel();
-}
-
-function showMbPanel() {
-  document.getElementById('mb-login').style.display = 'none';
-  document.getElementById('mb-panel').style.display = 'block';
-  const p = (state.data?.standings||[]).find(s => s.name === mbState.name);
-  document.getElementById('mb-logged-name').textContent = mbState.name;
-  document.getElementById('mb-balance').textContent = p ? fmtAbs(p.balance) : '—';
-  mbPopulateBets();
-  renderMbCurrentBets();
-}
-
-function mbLogout() {
-  mbState.name = ''; mbState.pin = ''; mbState.loggedIn = false;
-  document.getElementById('mb-login').style.display = 'block';
-  document.getElementById('mb-panel').style.display = 'none';
-  document.getElementById('mb-pin-input').value = '';
-  document.getElementById('mb-new-pin').value = '';
-  document.getElementById('mb-no-pin-msg').style.display = 'none';
-  document.getElementById('mb-set-pin-wrap').style.display = 'none';
-  document.getElementById('mb-pin-wrap').style.display = 'block';
-  document.getElementById('mb-login-msg').innerHTML = '';
-  document.getElementById('mb-bet-form').style.display = 'none';
-}
-
-function renderMbCurrentBets() {
-  const bets = state.data?.currentBets || [];
-  const playerBets = state.data?.playerBets || [];
-  const name = mbState.name.trim().toLowerCase();
-  const rows = [];
-
-  bets.forEach(b => {
-    // Check sheet bets
-    const sheetBet = (b.bets||[]).find(x => x.participant.trim().toLowerCase() === name);
-    // Check web bets
-    const webBet = playerBets.find(x =>
-      x.participant.trim().toLowerCase() === name &&
-      x.bet_id === (b.sheetName || b.bet_id) &&
-      x.status === 'open'
-    );
-    const found = sheetBet || webBet;
-    if (found) {
-      rows.push(`<div class="pick-row">
-        <span class="pick-name" style="font-size:12px">${b.title||b.sheetName||'Bet'}</span>
-        <span class="pick-team">${found.pick}</span>
-        <span class="pick-amt">${found.amount ? fmtAbs(found.amount) : '—'}
-          ${webBet ? `<button class="btn btn-danger btn-sm" style="margin-left:6px;padding:2px 7px;font-size:10px"
-            onclick="mbCancelBet('${b.sheetName||b.bet_id||''}')">Cancel</button>` : ''}
-        </span>
-      </div>`);
-    }
-  });
-
-  document.getElementById('mb-my-current-bets').innerHTML = rows.length
-    ? rows.join('')
-    : '<div class="muted-c" style="font-size:12px">No bets placed yet this week.</div>';
-}
-
-function renderMbBetForm() {
-  const idx = document.getElementById('mb-bet-sel').value;
-  const bet = state.data?.currentBets?.[parseInt(idx)];
-  const form = document.getElementById('mb-bet-form');
-  if (!bet) { form.style.display = 'none'; return; }
-
-  // Options from unique picks already placed + explicit options
-  const opts = [];
-  if (bet.optionA) opts.push(bet.optionA);
-  if (bet.optionB) opts.push(bet.optionB);
-  if (!opts.length) {
-    [...new Set((bet.bets||[]).map(b => b.pick).filter(Boolean))].forEach(o => opts.push(o));
-  }
-
-  const limits = [
-    bet.entryMin ? `Min: ${fmtAbs(bet.entryMin)}` : null,
-    bet.betMax   ? `Max: ${fmtAbs(bet.betMax)}`   : null,
-  ].filter(Boolean).join(' · ');
-
-  document.getElementById('mb-bet-info').innerHTML =
-    `<strong>${bet.title}</strong><br>` +
-    (limits ? `<span class="muted-c">${limits}</span><br>` : '') +
-    [bet.payoutA, bet.payoutB].filter(Boolean).map(p => `<span class="win-c">${p}</span>`).join('<br>');
-
-  const pickSel = document.getElementById('mb-pick-sel');
-  pickSel.innerHTML = opts.length
-    ? opts.map(o => `<option value="${o}">${o}</option>`).join('')
-    : '<option value="">No options found</option>';
-
-  const hint = document.getElementById('mb-amount-hint');
-  const parts = [];
-  if (bet.entryMin) parts.push(`Minimum: ${fmtAbs(bet.entryMin)}`);
-  if (bet.betMax)   parts.push(`Maximum: ${fmtAbs(bet.betMax)}`);
-  hint.textContent = parts.join(' · ');
-
-  if (bet.entryMin) document.getElementById('mb-amount').value = bet.entryMin;
-  form.style.display = 'block';
-  document.getElementById('mb-bet-msg').innerHTML = '';
-}
-
-async function mbSubmitBet() {
-  const idx    = document.getElementById('mb-bet-sel').value;
-  const bet    = state.data?.currentBets?.[parseInt(idx)];
-  const pick   = document.getElementById('mb-pick-sel').value;
-  const amount = parseInt(document.getElementById('mb-amount').value);
-  if (!bet || !pick || !amount) {
-    setMsg('mb-bet-msg', 'Fill in all fields.', 'err'); return;
-  }
-  const week = parseInt(state.data?.config?.current_week) || 0;
-  try {
-    setMsg('mb-bet-msg', 'Placing bet...', 'info');
-    const res = await apiPost('placeBet', {
-      participant: mbState.name,
-      pin:        mbState.pin,
-      bet_id:     bet.sheetName || bet.bet_id || String(idx),
-      pick, amount, week,
-      entry_min:  bet.entryMin || 0,
-      bet_max:    bet.betMax || 0
+  // Charts filter multi-select
+  const chartSel = document.getElementById('chart-filter-participants');
+  if (chartSel && !chartSel.children.length) {
+    standings.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.name;
+      opt.textContent = p.name;
+      opt.selected = true;
+      chartSel.appendChild(opt);
     });
-    if (res.error === 'wrong_pin') {
-      mbLogout();
-      setMsg('mb-login-msg', 'Wrong PIN. Please log in again.', 'err');
-      return;
-    }
-    if (res.error) throw new Error(res.error);
-    setMsg('mb-bet-msg', '✅ ' + res.message, 'ok');
-    setTimeout(() => { refreshData().then(() => { if(mbState.loggedIn) renderMbCurrentBets(); }); }, 800);
-  } catch(e) { setMsg('mb-bet-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function mbCancelBet(betId) {
-  if (!confirm('Cancel this bet?')) return;
-  try {
-    const res = await apiPost('cancelBet', { participant: mbState.name, pin: mbState.pin, bet_id: betId });
-    if (res.error === 'wrong_pin') { mbLogout(); return; }
-    if (res.error) throw new Error(res.error);
-    setTimeout(() => { refreshData().then(() => { if(mbState.loggedIn) renderMbCurrentBets(); }); }, 500);
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-// ================================================================
-// PLAYOFF BRACKET
-// ================================================================
-function renderPlayoff() {
-  const data = state.data?.playoff;
-  if (!data || !data.seeds || !data.seeds.length) return;
-
-  // Add Playoff tab if not already there
-  if (!document.getElementById('tab-playoff')) {
-    const tab = document.createElement('button');
-    tab.id = 'tab-playoff';
-    tab.className = 'tab';
-    tab.textContent = '🏟️ Playoff';
-    tab.onclick = () => switchTab('playoff');
-    document.querySelector('.tabs').appendChild(tab);
-    // Register in switchTab manually
-    if (!window._extraTabs) window._extraTabs = [];
-    window._extraTabs.push('playoff');
-  }
-
-  const container = document.getElementById('view-playoff');
-  container.className = 'view';
-
-  const seeds = [...data.seeds].sort((a,b) => a.seed - b.seed);
-  const rows = seeds.map(s => {
-    const p = (state.data?.standings||[]).find(x =>
-      x.name.trim().toLowerCase().includes(s.name.trim().toLowerCase().split(' ')[0].toLowerCase())
-    );
-    const bal = p ? fmtAbs(p.balance) : '—';
-    return `<tr>
-      <td class="mono" style="color:var(--gold);font-weight:700">#${s.seed}</td>
-      <td><strong>${s.name}</strong></td>
-      <td class="mono">${bal}</td>
-    </tr>`;
-  }).join('');
-
-  container.innerHTML = `
-    <div class="sec-hdr"><div>
-      <div class="sec-title">🏟️ ${data.title}</div>
-      <div class="sec-sub">Season playoff seedings</div>
-    </div></div>
-    <div class="tbl-wrap" style="max-width:500px">
-      <table>
-        <thead><tr><th>Seed</th><th>Name</th><th>Balance</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-}
-
-// ================================================================
-// HEISMAN EXTRA (Player of the Week, commissioner rankings)
-// ================================================================
-function renderHeismanExtra() {
-  const extra = state.data?.heismanExtra;
-  if (!extra) return;
-
-  if (extra.playerOfWeek) {
-    const el = document.getElementById('hdr-heisman-score');
-    if (el && !el.textContent.includes('Week Player')) {
-      el.textContent += ' · 📍 Week Player: ' + extra.playerOfWeek;
-    }
   }
 }
 
 function populateAdminBets() {
   const bets = state.data?.currentBets || [];
-  const sel  = document.getElementById('a-bet-select');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Choose bet...</option>';
-  bets.forEach((b, i) => {
-    sel.innerHTML += `<option value="${i}">${b.title || b.sheetName || 'Bet ' + (i+1)}</option>`;
-  });
+
+  // Resolve bet select
+  const sel = document.getElementById('a-bet-select');
+  if (sel) {
+    sel.innerHTML = '<option value="">Choose bet...</option>';
+    bets.forEach((b, i) => {
+      sel.innerHTML += `<option value="${i}">${b.title || b.sheetName || 'Bet ' + (i+1)}</option>`;
+    });
+  }
+
+  // Finalize / lock bet select — only sheet-based bets can be locked via Apps Script protection
+  const lockSel = document.getElementById('a-lock-bet');
+  if (lockSel) {
+    lockSel.innerHTML = '<option value="">Choose bet...</option>';
+    bets.forEach(b => {
+      if (!b.sheetName) return; // WD_Bets custom bets don't have a sheet to protect
+      const locked = b.isLocked ? ' 🔒' : '';
+      lockSel.innerHTML += `<option value="${b.sheetName}">${b.title || b.sheetName}${locked}</option>`;
+    });
+  }
 }
 
 function loadBetForResolve() {
@@ -1868,6 +1714,416 @@ async function changePassword() {
 }
 
 // ================================================================
+// CHART CONFIG
+// ================================================================
+const CHART_COLORS = [
+  '#F0B429','#3DDC84','#FF6B35','#00B4FF','#A855F7',
+  '#FF4757','#06B6D4','#EC4899','#10B981','#F97316',
+  '#6366F1','#EF4444','#8B5CF6','#14B8A6','#F59E0B'
+];
+
+// Applied once after Chart.js loads
+function applyChartDefaults() {
+  if (typeof Chart === 'undefined') return;
+  Chart.defaults.color          = '#7B8499';
+  Chart.defaults.borderColor    = 'rgba(255,255,255,.07)';
+  Chart.defaults.font.family    = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size      = 12;
+  Chart.defaults.plugins.legend.labels.boxWidth  = 10;
+  Chart.defaults.plugins.legend.labels.padding   = 14;
+  Chart.defaults.plugins.tooltip.backgroundColor = '#1C2237';
+  Chart.defaults.plugins.tooltip.borderColor     = 'rgba(255,255,255,.1)';
+  Chart.defaults.plugins.tooltip.borderWidth     = 1;
+  Chart.defaults.plugins.tooltip.titleColor      = '#F0B429';
+  Chart.defaults.plugins.tooltip.bodyColor       = '#EEF2FF';
+  Chart.defaults.plugins.tooltip.padding         = 10;
+}
+
+// Destroy a chart safely before recreating it
+const _charts = {};
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+
+// ================================================================
+// CHARTS TAB
+// ================================================================
+function renderCharts() {
+  applyChartDefaults();
+  const snapshots = state.data?.snapshots || [];
+  const standings = state.data?.standings || [];
+
+  if (!snapshots.length) {
+    document.getElementById('no-snapshot-msg').style.display = 'block';
+    document.getElementById('balance-chart-wrap').style.display = 'none';
+    return;
+  }
+  document.getElementById('no-snapshot-msg').style.display = 'none';
+  document.getElementById('balance-chart-wrap').style.display = 'block';
+
+  const statusFilter = document.getElementById('chart-filter-status')?.value || 'active';
+  const multiSel     = document.getElementById('chart-filter-participants');
+  const selected     = multiSel
+    ? [...multiSel.options].filter(o => o.selected).map(o => o.value)
+    : [];
+
+  let participants = standings.filter(p => statusFilter === 'all' || p.status === 'active');
+  if (selected.length) participants = participants.filter(p => selected.includes(p.name));
+
+  // Unique weeks sorted
+  const weeks = [...new Set(snapshots.map(s => s.week))].sort((a,b) => a-b);
+
+  const datasets = participants.map((p, i) => {
+    const data = weeks.map(w => {
+      const s = snapshots.find(s => s.week === w && s.participant === p.name);
+      return s ? s.balance : null;
+    });
+    return {
+      label:           p.name,
+      data:            data,
+      borderColor:     CHART_COLORS[i % CHART_COLORS.length],
+      backgroundColor: 'transparent',
+      borderWidth:     2,
+      pointRadius:     4,
+      pointHoverRadius:6,
+      tension:         0.3,
+      spanGaps:        true
+    };
+  });
+
+  destroyChart('balance');
+  const ctx = document.getElementById('balance-chart')?.getContext('2d');
+  if (!ctx) return;
+
+  _charts['balance'] = new Chart(ctx, {
+    type: 'line',
+    data: { labels: weeks.map(w => 'Wk ' + w), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.05)' } },
+        y: {
+          grid: { color: 'rgba(255,255,255,.05)' },
+          ticks: { callback: v => '$' + (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : (v/1000).toFixed(0)+'k') }
+        }
+      },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmtAbs(ctx.raw)}`
+          }
+        }
+      }
+    }
+  });
+}
+
+// ================================================================
+// PROFILE — with charts + visual bet history
+// ================================================================
+function renderProfile() {
+  const name = document.getElementById('profile-select').value;
+  const cont = document.getElementById('profile-content');
+  const chartArea = document.getElementById('profile-charts');
+  const betHist   = document.getElementById('profile-bet-history');
+
+  destroyChart('prof-balance');
+  destroyChart('prof-weekly');
+  if (chartArea) chartArea.style.display = 'none';
+  if (betHist)   betHist.innerHTML = '';
+  if (!name)     { cont.innerHTML = ''; return; }
+
+  const standings  = state.data?.standings || [];
+  const history    = state.data?.history   || [];
+  const bonuses    = state.data?.bonuses   || [];
+  const snapshots  = state.data?.snapshots || [];
+
+  const p = standings.find(s => s.name === name);
+  if (!p) { cont.innerHTML = '<div class="muted-c">Participant not found.</div>'; return; }
+
+  const byMoney  = [...standings].sort((a,b) => b.balance - a.balance);
+  const byHeis   = [...standings].sort((a,b) => b.heismanScore - a.heismanScore);
+  const mRank    = byMoney.findIndex(s => s.name === name) + 1;
+  const mLeader  = byMoney[0];
+  const hLeader  = byHeis[0];
+  const mBehind  = mLeader ? mLeader.balance - p.balance : 0;
+  const hBehind  = hLeader ? hLeader.heismanScore - p.heismanScore : 0;
+  const statusBadge = p.status === 'inactive'
+    ? '<span class="badge b-inactive">INACTIVE</span>'
+    : '<span class="badge b-win" style="font-size:11px">ACTIVE</span>';
+
+  cont.innerHTML = `
+    <div class="flex align-c gap8 mb16" style="flex-wrap:wrap">
+      <h2 style="font-size:28px;font-weight:900;color:var(--gold)">${p.name}</h2>
+      ${statusBadge}
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val">${fmtAbs(p.balance)}</div><div class="stat-lbl">Balance</div></div>
+      <div class="stat"><div class="stat-val">#${mRank}</div><div class="stat-lbl">Money Rank</div></div>
+      <div class="stat"><div class="stat-val">#${p.heismanRank||'—'}</div><div class="stat-lbl">Heisman Rank</div></div>
+      <div class="stat"><div class="stat-val win-c">${p.correctBets||0}</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat"><div class="stat-val loss-c">${p.incorrectBets||0}</div><div class="stat-lbl">Incorrect</div></div>
+      <div class="stat"><div class="stat-val">${p.accuracy||0}%</div><div class="stat-lbl">Accuracy</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px">
+      <div class="card">
+        <div class="card-title">💰 Behind Money Leader</div>
+        <div class="card-meta">${mLeader?.name||'—'}</div>
+        <div class="mono" style="font-size:18px;color:${mBehind>0?'var(--loss)':'var(--win)'}">
+          ${mBehind>0 ? '−'+fmtAbs(mBehind) : '🏆 IS THE LEADER'}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🎯 Behind Heisman Leader</div>
+        <div class="card-meta">${hLeader?.name||'—'}</div>
+        <div class="mono" style="font-size:18px;color:${hBehind>0?'var(--loss)':'var(--win)'}">
+          ${hBehind>0 ? '−'+hBehind+' pts' : '🏆 IS THE LEADER'}
+        </div>
+      </div>
+    </div>`;
+
+  // ── Charts ──────────────────────────────────────────────────────
+  const mySnaps = snapshots.filter(s => s.participant === name).sort((a,b) => a.week - b.week);
+
+  if (mySnaps.length && chartArea) {
+    chartArea.style.display = 'block';
+    applyChartDefaults();
+
+    // Balance history line chart
+    requestAnimationFrame(() => {
+      destroyChart('prof-balance');
+      const ctx1 = document.getElementById('profile-balance-chart')?.getContext('2d');
+      if (ctx1) {
+        _charts['prof-balance'] = new Chart(ctx1, {
+          type: 'line',
+          data: {
+            labels: mySnaps.map(s => 'Wk ' + s.week),
+            datasets: [{
+              label: 'Balance',
+              data: mySnaps.map(s => s.balance),
+              borderColor: '#F0B429',
+              backgroundColor: 'rgba(240,180,41,.08)',
+              fill: true,
+              borderWidth: 2,
+              pointRadius: 4,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: 'rgba(255,255,255,.05)' } },
+              y: {
+                grid: { color: 'rgba(255,255,255,.05)' },
+                ticks: { callback: v => '$'+(v>=1000000?(v/1000000).toFixed(1)+'M':(v/1000).toFixed(0)+'k') }
+              }
+            }
+          }
+        });
+      }
+
+      // Weekly net bar chart
+      const myHist = history.filter(r => r.participant === name);
+      const weekNet = {};
+      myHist.forEach(r => { weekNet[r.week] = (weekNet[r.week]||0) + r.amount_change; });
+      const wKeys = Object.keys(weekNet).map(Number).sort((a,b)=>a-b);
+
+      destroyChart('prof-weekly');
+      const ctx2 = document.getElementById('profile-weekly-chart')?.getContext('2d');
+      if (ctx2 && wKeys.length) {
+        _charts['prof-weekly'] = new Chart(ctx2, {
+          type: 'bar',
+          data: {
+            labels: wKeys.map(w => 'Wk ' + w),
+            datasets: [{
+              label: 'Net Change',
+              data: wKeys.map(w => weekNet[w]),
+              backgroundColor: wKeys.map(w => weekNet[w] >= 0 ? 'rgba(61,220,132,.5)' : 'rgba(255,71,87,.5)'),
+              borderColor:     wKeys.map(w => weekNet[w] >= 0 ? '#3DDC84' : '#FF4757'),
+              borderWidth: 1,
+              borderRadius: 3
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: 'rgba(255,255,255,.05)' } },
+              y: {
+                grid: { color: 'rgba(255,255,255,.05)' },
+                ticks: { callback: v => (v>=0?'+':'')+fmtDelta(v).replace('+','').replace('−','-') }
+              }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // ── Visual Bet History ──────────────────────────────────────────
+  if (betHist) {
+    const myHist = [...history.filter(r => r.participant === name)]
+      .sort((a,b) => b.week - a.week || new Date(b.resolved_at||0) - new Date(a.resolved_at||0));
+    const myBonus = [...bonuses.filter(b => b.participant === name)]
+      .sort((a,b) => b.week - a.week);
+
+    const allItems = [
+      ...myHist.map(r => ({ ...r, _type: 'bet' })),
+      ...myBonus.map(b => ({ ...b, week: b.week, bet_id: b.bonus_type, outcome: 'bonus', amount_change: b.amount, notes: b.notes, _type: 'bonus' }))
+    ].sort((a,b) => b.week - a.week);
+
+    if (!allItems.length) {
+      betHist.innerHTML = '<div class="muted-c" style="font-size:13px;padding:16px 0">No resolved bet history yet.</div>';
+    } else {
+      betHist.innerHTML = `
+        <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:10px">Bet History</div>
+        ${allItems.map(r => {
+          const isWin   = r.outcome === 'win' || r.outcome === 'bonus' || r.amount_change > 0;
+          const isLoss  = r.outcome === 'loss' || r.amount_change < 0;
+          const badge   = r.outcome === 'bonus'
+            ? '<span class="badge b-bonus">BONUS</span>'
+            : isWin ? '<span class="badge b-win">WIN</span>'
+            : '<span class="badge b-loss">LOSS</span>';
+          const chgCls  = isWin ? 'win-c' : isLoss ? 'loss-c' : 'muted-c';
+          return `<div class="bet-card-history">
+            <div class="bch-left">
+              <div class="bch-bet">${r.bet_id || '—'}</div>
+              <div class="bch-pick">${r.notes || ''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              ${badge}
+              <span class="bch-wk">Wk ${r.week}</span>
+            </div>
+            <div class="bch-right">
+              <div class="bch-change ${chgCls}">${fmtDelta(r.amount_change)}</div>
+            </div>
+          </div>`;
+        }).join('')}`;
+    }
+  }
+}
+
+// ================================================================
+// ADMIN: SNAPSHOT FUNCTIONS
+// ================================================================
+async function submitSaveSnapshot() {
+  const week  = document.getElementById('a-snap-week').value;
+  const notes = document.getElementById('a-snap-notes').value;
+  if (!week) { setMsg('a-snap-msg', 'Enter a week number.', 'err'); return; }
+  if (!confirm(`Save balance snapshot for all participants at Week ${week}?`)) return;
+  try {
+    setMsg('a-snap-msg', 'Saving...', 'info');
+    const res = await apiPost('saveSnapshot', { week: parseInt(week), notes });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-snap-msg', `✅ Snapshot saved for ${res.count} participants — Week ${res.week}.`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-snap-msg', 'Error: ' + e.message, 'err'); }
+}
+
+async function submitEditSnapshot() {
+  const week  = document.getElementById('a-editsnap-week').value;
+  const who   = document.getElementById('a-editsnap-who').value;
+  const bal   = document.getElementById('a-editsnap-bal').value;
+  const notes = document.getElementById('a-editsnap-notes').value;
+  if (!week || !who || !bal) { setMsg('a-editsnap-msg', 'Fill in all fields.', 'err'); return; }
+  try {
+    setMsg('a-editsnap-msg', 'Saving...', 'info');
+    const res = await apiPost('editSnapshot', { week: parseInt(week), participant: who, balance: parseInt(bal), notes });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-editsnap-msg', `✅ Snapshot ${res.action} for ${who} — Week ${week}.`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-editsnap-msg', 'Error: ' + e.message, 'err'); }
+}
+
+// ================================================================
+// FINALIZE BET
+// ================================================================
+async function submitFinalizeBet() {
+  const sheetName = document.getElementById('a-lock-bet').value;
+  if (!sheetName) { setMsg('a-lock-msg', 'Select a bet to finalize.', 'err'); return; }
+  if (!confirm(`Lock "${sheetName}"? Participants will no longer be able to edit their picks. This cannot be undone from the site.`)) return;
+  try {
+    setMsg('a-lock-msg', 'Locking...', 'info');
+    const res = await apiPost('finalizeBet', { sheetName });
+    if (res.error) throw new Error(res.error);
+    setMsg('a-lock-msg', `✅ "${sheetName}" is now locked.`, 'ok');
+    setTimeout(refreshData, 1000);
+  } catch(e) { setMsg('a-lock-msg', 'Error: ' + e.message, 'err'); }
+}
+
+// ================================================================
+// AUTO-LOCK TRIGGER
+// ================================================================
+async function submitInstallTrigger() {
+  if (!confirm('Install the hourly auto-lock trigger? Run this once. Running it again resets the existing trigger.')) return;
+  try {
+    setMsg('a-trigger-msg', 'Installing...', 'info');
+    const res = await apiPost('installTrigger', {});
+    if (res.error) throw new Error(res.error);
+    setMsg('a-trigger-msg', '✅ ' + (res.message || 'Trigger installed.'), 'ok');
+  } catch(e) { setMsg('a-trigger-msg', 'Error: ' + e.message, 'err'); }
+}
+
+// ================================================================
+// ADMIN LOG
+// ================================================================
+async function loadAdminLog() {
+  const wrap = document.getElementById('admin-log-wrap');
+  wrap.innerHTML = '<div class="muted-c" style="font-size:12px;padding:8px 0">Loading...</div>';
+  try {
+    const res = await apiGet('getLog');
+    if (res.error) throw new Error(res.error);
+    const log = res.log || [];
+    if (!log.length) {
+      wrap.innerHTML = '<div class="muted-c" style="font-size:12px;padding:8px 0">No log entries yet.</div>';
+      return;
+    }
+
+    const TYPE_CSS = {
+      result:'lt-result', bonus:'lt-bonus', bet_locked:'lt-lock',
+      inactive:'lt-inactive', reinstate:'lt-reinstate',
+      adjustment_add:'lt-result', adjustment_deduct:'lt-inactive',
+      config_change:'lt-other', add_participant:'lt-other', add_bet:'lt-other'
+    };
+
+    const rows = log.map(r => {
+      const tcls = TYPE_CSS[r.type] || 'lt-other';
+      const ts   = r.timestamp ? new Date(r.timestamp).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+      const chg  = r.amount_change ? `<span class="${r.amount_change>0?'win-c':'loss-c'} mono">${fmtDelta(r.amount_change)}</span>` : '';
+      return `<tr>
+        <td class="mono muted-c" style="font-size:11px;white-space:nowrap">${ts}</td>
+        <td><span class="log-type ${tcls}">${r.type}</span></td>
+        <td style="font-size:13px">${r.participant||'—'}</td>
+        <td class="mono muted-c">${r.week||'—'}</td>
+        <td style="font-size:12px;color:var(--muted)">${r.reference||'—'}</td>
+        <td>${chg}</td>
+        <td style="font-size:12px;color:var(--muted)">${r.notes||'—'}</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <div class="log-table-wrap">
+        <table>
+          <thead><tr>
+            <th>Time</th><th>Type</th><th>Participant</th><th>Wk</th>
+            <th>Reference</th><th>Change</th><th>Notes</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    // Cache log for export
+    state.adminLog = log;
+  } catch(e) {
+    wrap.innerHTML = `<div class="alert alert-err">Error loading log: ${e.message}</div>`;
+  }
+}
+
+// ================================================================
 // CSV EXPORT
 // ================================================================
 function exportCSV(type) {
@@ -1877,6 +2133,11 @@ function exportCSV(type) {
     rows = [['Rank','Name','Balance','Correct','Incorrect','Accuracy','Heisman Score','Status'],
       ...s.map((p,i)=>[i+1,p.name,p.balance,p.correctBets||0,p.incorrectBets||0,(p.accuracy||0)+'%',p.heismanScore||0,p.status])];
     filename = 'cfb_money_race.csv';
+  } else if (type === 'log') {
+    const l = state.adminLog || [];
+    rows = [['Timestamp','Type','Participant','Week','Reference','Amount Change','Notes'],
+      ...l.map(r=>[r.timestamp,r.type,r.participant,r.week,r.reference,r.amount_change,r.notes||''])];
+    filename = 'cfb_admin_log.csv';
   } else {
     const h = state.data?.history||[];
     rows = [['Week','Bet','Participant','Outcome','Change','Notes'],
@@ -1902,108 +2163,11 @@ function setMsg(id, msg, type) {
 }
 
 // ================================================================
-// UPDATES & IDEAS — live from Google Sheet
-// ================================================================
-let _updatesLoaded = false;
-
-async function loadUpdates(force) {
-  if (_updatesLoaded && !force) return;
-  const cont = document.getElementById('updates-content');
-  if (!cont) return;
-  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Loading updates...</div>';
-  try {
-    const data = await apiGet('getUpdates');
-    if (data.error) throw new Error(data.error);
-    _updatesLoaded = true;
-    renderUpdates(data);
-  } catch(e) {
-    cont.innerHTML = `<div class="alert alert-err">Could not load updates: ${e.message}<br><small style="opacity:.7">Make sure your Apps Script is updated with the getUpdates action.</small></div>`;
-  }
-}
-
-function renderUpdates(data) {
-  const cont = document.getElementById('updates-content');
-  if (!cont) return;
-  const { updates = [], ideas = [] } = data;
-
-  // ── Updates section ──
-  // Group rows by their "section" field (col B). Rows with no section go into
-  // whatever the last named group was, or a default "Updates" group.
-  let updatesHtml = '';
-  if (!updates.length) {
-    updatesHtml = '<div class="card mb16"><p class="muted-c" style="font-size:13px">No updates yet — add rows to the "Updates" tab in your Google Sheet. Column A = the update text, Column B = section heading (optional).</p></div>';
-  } else {
-    const groups = [];
-    let cur = null;
-    updates.forEach((row, idx) => {
-      const section = row.section || '';
-      if (!cur || (section && section !== cur.heading)) {
-        cur = { heading: section || 'Updates', items: [] };
-        groups.push(cur);
-      }
-      cur.items.push(row);
-    });
-
-    updatesHtml = groups.map(g => `
-      <div class="card mb16">
-        <div class="card-title" style="color:var(--gold);margin-bottom:14px">${escHtml(g.heading)}</div>
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
-          ${g.items.map((item, idx) => {
-            const num = String(idx + 1).padStart(2, '0');
-            const bStyle = item.badge_style || 'b-pending';
-            const badge  = item.badge ? `<span class="badge ${bStyle}" style="margin-left:6px">${escHtml(item.badge)}</span>` : '';
-            const icon   = item.icon  || num;
-            return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--raised);border-radius:4px">
-              <span style="color:var(--gold);font-weight:700;font-family:var(--mono);min-width:28px">${icon}</span>
-              <div>${escHtml(item.text)}${badge}</div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`).join('');
-  }
-
-  // ── Ideas section ──
-  let ideasHtml = '';
-  if (!ideas.length) {
-    ideasHtml = `<div class="card">
-      <div class="card-title" style="color:var(--gold);margin-bottom:10px">💡 Bet Ideas</div>
-      <p class="muted-c" style="font-size:13px">No ideas yet — add rows to the "Bets ideas" tab. Column A = name, Column B = idea/problem, Column C = status.</p>
-    </div>`;
-  } else {
-    const ideaCards = ideas.map(idea => {
-      const s = (idea.status || '').toLowerCase();
-      const isDone = s.includes('done') || s.includes('complete') || s.includes('✓') || s.includes('added');
-      const statusBadge = idea.status
-        ? `<span class="badge ${isDone ? 'b-win' : 'b-pending'}" style="margin-left:6px">${escHtml(idea.status)}</span>` : '';
-      return `<div style="padding:10px;background:var(--raised);border-radius:4px;font-size:13px;margin-bottom:8px">
-        <strong>${escHtml(idea.name || 'Anonymous')}</strong>${statusBadge}
-        ${idea.problem ? `<div class="muted-c" style="margin-top:4px">${escHtml(idea.problem)}</div>` : ''}
-        ${idea.idea    ? `<div style="color:var(--white);margin-top:4px">💡 ${escHtml(idea.idea)}</div>` : ''}
-      </div>`;
-    }).join('');
-    ideasHtml = `<div class="card">
-      <div class="card-title" style="color:var(--gold);margin-bottom:10px">💡 Bet Ideas</div>
-      ${ideaCards}
-    </div>`;
-  }
-
-  cont.innerHTML = updatesHtml + ideasHtml;
-}
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ================================================================
 // INIT
 // ================================================================
 function init() {
-  if (!SCRIPT_URL) {
-    showSetup();
-  } else {
-    document.getElementById('app').style.display = 'block';
-    loadData();
-  }
+  document.getElementById('app').style.display = 'block';
+  loadData();
 }
 
 init();
