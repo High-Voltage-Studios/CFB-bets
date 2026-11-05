@@ -1,2176 +1,870 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CFB Fun Bets Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<meta charset="utf-8">
+<title>The Money Board</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:       #0B0F1A;
-  --surface:  #141928;
-  --raised:   #1C2237;
-  --gold:     #F0B429;
-  --gold-bg:  rgba(240,180,41,.12);
-  --white:    #EEF2FF;
-  --muted:    #7B8499;
-  --win:      #3DDC84;
-  --win-bg:   rgba(61,220,132,.12);
-  --loss:     #FF4757;
-  --loss-bg:  rgba(255,71,87,.12);
-  --border:   rgba(255,255,255,.07);
-  --r:        5px;
-  --mono:     'JetBrains Mono', monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--white);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
-a{color:var(--gold);text-decoration:none}
-
-/* ── Setup ── */
-#setup-screen{display:none;max-width:460px;margin:80px auto;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center}
-#setup-screen.show{display:block}
-.setup-icon{font-size:44px;margin-bottom:12px}
-.setup-title{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:6px}
-.setup-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
-.setup-divider{border:none;border-top:1px solid var(--border);margin:20px 0}
-.setup-section-title{font-size:12px;font-weight:700;color:var(--muted);text-align:left;margin-bottom:10px;letter-spacing:.05em}
-
-/* ── Header ── */
-header{background:var(--surface);border-bottom:1px solid var(--border)}
-.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
-.hdr-logo{font-weight:900;font-size:15px;color:var(--gold);white-space:nowrap}
-.hdr-meta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);font-family:var(--mono);flex-wrap:wrap}
-.hdr-meta em{color:var(--white);font-style:normal}
-.countdown{color:var(--gold);font-weight:700}
-.hdr-hero{display:flex;align-items:center;gap:0;padding:14px 24px}
-.hero-block{flex:1;padding:0 20px}
-.hero-block:first-child{padding-left:0;border-right:1px solid var(--border)}
-.hero-block:last-child{padding-right:0}
-.hero-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
-.hero-name{font-size:26px;font-weight:900;color:var(--gold);line-height:1}
-.hero-sub{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--white);margin-top:3px}
-
-/* ── Tabs ── */
-.tabs{display:flex;gap:0;padding:0 24px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto}
-.tab{padding:11px 15px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;white-space:nowrap;transition:color .12s}
-.tab:hover{color:var(--white)}
-.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-
-/* ── Main ── */
-main{max-width:1200px;margin:0 auto;padding:24px}
-
-/* ── Tables ── */
-.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse}
-thead th{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-align:left;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:var(--surface)}
-td{padding:10px 14px;vertical-align:middle}
-.mono{font-family:var(--mono);font-size:13px}
-.r-gold{color:var(--gold);font-weight:700;font-family:var(--mono)}
-.r-silver{color:#B0B8CC;font-weight:700;font-family:var(--mono)}
-.r-bronze{color:#C87F3A;font-weight:700;font-family:var(--mono)}
-.r-plain{color:var(--muted);font-family:var(--mono);font-size:12px}
-
-/* ── Badges ── */
-.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;font-family:var(--mono);white-space:nowrap}
-.b-win{background:var(--win-bg);color:var(--win)}
-.b-loss{background:var(--loss-bg);color:var(--loss)}
-.b-inactive{background:rgba(85,94,111,.3);color:var(--muted)}
-.b-active{background:rgba(255,255,255,.05);color:var(--muted)}
-.b-pending{background:var(--gold-bg);color:var(--gold)}
-.b-bonus{background:rgba(162,87,255,.15);color:#C07AFF}
-
-/* ── Bar ── */
-.bar-wrap{height:3px;background:var(--raised);border-radius:2px;overflow:hidden;margin-top:5px;width:120px}
-.bar-fill{height:100%;background:var(--gold);border-radius:2px}
-
-/* ── Cards ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-.card-title{font-weight:700;font-size:14px;margin-bottom:4px}
-.card-meta{font-size:11px;color:var(--muted);margin-bottom:12px;font-family:var(--mono)}
-
-/* ── Stat boxes ── */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
-.stat-val{font-family:var(--mono);font-size:21px;font-weight:700}
-.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
-
-/* ── Bet cards ── */
-.bet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
-.bet-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px}
-.bet-type{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
-.bet-title{font-weight:700;font-size:14px;margin:3px 0}
-.bet-limits{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
-.bet-payouts{margin-bottom:10px;padding:8px;background:var(--raised);border-radius:4px;font-size:11px;color:var(--muted);line-height:1.7}
-.bet-payouts span{color:var(--win)}
-.bet-sep{border:none;border-top:1px solid var(--border);margin:8px 0}
-.pick-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
-.pick-row:last-child{border:none}
-.pick-name{color:var(--white)}
-.pick-team{color:var(--gold);font-weight:700}
-.pick-amt{color:var(--muted);font-family:var(--mono);font-size:11px}
-
-/* ── Forms ── */
-.fg{margin-bottom:12px}
-label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);margin-bottom:5px}
-input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);color:var(--white);padding:8px 10px;font-family:inherit;font-size:13px;outline:none;transition:border-color .12s}
-input:focus,select:focus,textarea:focus{border-color:var(--gold)}
-select option{background:var(--surface)}
-.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .12s;white-space:nowrap}
-.btn:hover{opacity:.82}
-.btn-gold{background:var(--gold);color:#0B0F1A}
-.btn-ghost{background:var(--raised);color:var(--white)}
-.btn-danger{background:var(--loss);color:#fff}
-.btn-success{background:var(--win);color:#0B0F1A}
-.btn-sm{padding:5px 10px;font-size:12px}
-.btn-full{width:100%}
-
-/* ── Alerts ── */
-.alert{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-top:8px}
-.alert-err{background:var(--loss-bg);color:var(--loss);border:1px solid rgba(255,71,87,.25)}
-.alert-ok{background:var(--win-bg);color:var(--win);border:1px solid rgba(61,220,132,.25)}
-.alert-info{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(240,180,41,.25)}
-
-/* ── Loading ── */
-.loading{text-align:center;padding:60px 20px;color:var(--muted)}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+:root{--bg:#0a0e17;--card:#171c26;--line:#262d3a;--or:#ff6a00;--tx:#f0f4ff;--mu:#8b94a5;--gn:#22c55e;--rd:#ef4444;color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 'Inter',system-ui,sans-serif;min-height:100vh}
+header{background:#05080e;border-bottom:2px solid var(--or);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:19px;letter-spacing:1px;font-weight:900}
+header h1 b{color:var(--or)}
+#sync-st{font-size:11px;font-family:monospace;color:var(--mu)}
+.sync-refreshing{color:var(--or);display:inline-flex;align-items:center;gap:5px}
+.sync-refreshing::before{content:'';width:7px;height:7px;border:1.5px solid var(--or);border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── Section header ── */
-.sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
-.sec-title{font-size:16px;font-weight:700}
-.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
-
-/* ── Filter row ── */
-.filter-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.filter-row select{width:auto;min-width:150px}
-
-/* ── Profile ── */
-.profile-select-wrap{margin-bottom:20px}
-.profile-select-wrap select{font-size:17px;font-weight:700;background:transparent;border:none;border-bottom:2px solid var(--gold);border-radius:0;padding:4px 8px 8px 0;color:var(--gold);cursor:pointer;width:auto}
-
-/* ── Admin ── */
-.admin-gate{max-width:340px;margin:40px auto;text-align:center;padding:24px}
-.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-.admin-card-title{font-weight:700;font-size:12px;color:var(--gold);letter-spacing:.04em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-
-/* ── Heisman formula note ── */
-.formula-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted)}
-.formula-note strong{color:var(--gold)}
-
-/* ── Charts ── */
-.chart-wrap{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
-.chart-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:16px}
-.chart-canvas-wrap{position:relative;height:280px}
-.chart-canvas-wrap.sm{height:180px}
-.chart-filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.chart-filters select{width:auto;min-width:130px}
-.no-data-msg{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px}
-.bet-card-history{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.bch-left{flex:1;min-width:0}
-.bch-bet{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bch-pick{font-size:11px;color:var(--muted);margin-top:2px}
-.bch-wk{font-size:11px;color:var(--muted);font-family:var(--mono)}
-.bch-right{text-align:right;flex-shrink:0}
-.bch-change{font-family:var(--mono);font-size:14px;font-weight:700}
-
-/* ── Bet Ends / Lock ── */
-.bet-ends{display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:6px;flex-wrap:wrap}
-.ends-label{font-weight:700;color:var(--muted);letter-spacing:.04em}
-.ends-time{color:var(--white);font-family:var(--mono)}
-.ends-cd{color:var(--gold);font-family:var(--mono);font-weight:700}
-.ends-cd.expired{color:var(--loss)}
-.bet-locked-banner{display:flex;align-items:center;gap:6px;background:rgba(85,94,111,.2);border:1px solid rgba(85,94,111,.4);border-radius:3px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}
-
-/* ── Admin Log ── */
-.log-table-wrap{max-height:360px;overflow-y:auto;border-radius:var(--r);border:1px solid var(--border);margin-top:12px}
-.log-type{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 6px;border-radius:3px}
-.lt-result{background:var(--win-bg);color:var(--win)}
-.lt-bonus{background:rgba(162,87,255,.15);color:#C07AFF}
-.lt-lock{background:rgba(240,180,41,.12);color:var(--gold)}
-.lt-inactive{background:var(--loss-bg);color:var(--loss)}
-.lt-reinstate{background:var(--win-bg);color:var(--win)}
-.lt-adjust{background:rgba(255,255,255,.06);color:var(--muted)}
-.lt-other{background:rgba(255,255,255,.04);color:var(--muted)}
-
-/* ── Views ── */
-.view{display:none}.view.active{display:block}
-
-/* ── Utility ── */
-.win-c{color:var(--win)}.loss-c{color:var(--loss)}.gold-c{color:var(--gold)}.muted-c{color:var(--muted)}
-.mt8{margin-top:8px}.mt16{margin-top:16px}.mb16{margin-bottom:16px}
-.flex{display:flex}.gap8{gap:8px}.align-c{align-items:center}
-
-/* ── Sync indicator ── */
-#sync-status{font-size:11px;font-family:var(--mono);transition:opacity .3s}
-.sync-refreshing{color:var(--gold);display:inline-flex;align-items:center;gap:5px}
-.sync-refreshing::before{content:'';width:7px;height:7px;border:1.5px solid var(--gold);border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite}
-.sync-stale{color:var(--muted)}
-.sync-err{color:var(--loss)}
-
-/* ── Cache warning banner ── */
-.cache-banner{background:rgba(240,180,41,.08);border-bottom:1px solid rgba(240,180,41,.2);padding:6px 24px;font-size:11px;color:var(--gold);display:flex;align-items:center;gap:8px}
-.cache-banner button{background:none;border:none;color:var(--gold);cursor:pointer;text-decoration:underline;font-size:11px;padding:0}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--raised);border-radius:3px}
-
-@media(max-width:700px){
-  .hdr-hero{flex-direction:column;gap:12px}
-  .hero-block{border:none!important;padding:0!important}
-  .admin-grid{grid-template-columns:1fr}
-  .fg-row{grid-template-columns:1fr}
-}
+nav{display:flex;gap:5px;overflow-x:auto;padding:8px 12px;background:#05080e;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line);scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{color:var(--mu);text-decoration:none;padding:6px 12px;border-radius:99px;white-space:nowrap;font-weight:600;font-size:13px;transition:color .15s;flex-shrink:0}
+nav a.on{background:var(--or);color:#fff}
+nav a:hover:not(.on){color:var(--tx)}
+#cache-banner{display:none;background:rgba(255,106,0,.08);border-bottom:1px solid rgba(255,106,0,.2);padding:6px 16px;font-size:11px;color:var(--or);align-items:center;gap:8px}
+#cache-banner button{background:none;border:none;color:var(--or);cursor:pointer;text-decoration:underline;font-size:11px;padding:0 4px}
+main{max-width:980px;margin:0 auto;padding:14px;animation:fi .2s}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{font-size:15px;color:var(--or);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+h3{font-size:13px;font-weight:700;color:var(--or);letter-spacing:.04em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat small{color:var(--mu);display:block;font-size:11px;margin-bottom:2px}
+.stat b{font-size:18px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--mu);font-weight:600;white-space:nowrap}
+.tw{overflow-x:auto}
+select,input,textarea,button{background:#0f141d;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;max-width:100%}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--or);outline-offset:2px}
+button{background:var(--or);border:0;font-weight:700;cursor:pointer;transition:opacity .15s}
+button:hover{opacity:.85}
+button.g{background:#1e2535}
+button.sm{padding:5px 10px;font-size:12px}
+.bar{height:20px;border-radius:5px;background:linear-gradient(90deg,var(--or),#ff9a4d);min-width:2px}
+.row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.row span:first-child{width:88px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.warn{border-left:3px solid var(--or);background:#1d1a14;padding:8px 12px;border-radius:8px;margin-bottom:12px;font-size:13px}
+.info{border-left:3px solid var(--gn);background:#111d16;padding:8px 12px;border-radius:8px;margin-bottom:12px;font-size:13px}
+.gn{color:var(--gn)}.rd{color:var(--rd)}.mu{color:var(--mu)}.or{color:var(--or)}
+.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;font-family:monospace}
+.bw{background:rgba(34,197,94,.12);color:var(--gn)}
+.bl{background:rgba(239,68,68,.12);color:var(--rd)}
+.bb{background:rgba(162,87,255,.15);color:#c07aff}
+.bk{background:rgba(139,148,165,.2);color:var(--mu)}
+.ends-row{display:flex;align-items:center;gap:5px;font-size:11px;margin:4px 0;flex-wrap:wrap}
+.ends-lbl{font-weight:700;color:var(--mu);font-size:10px;letter-spacing:.04em}
+.ends-cd{color:var(--or);font-family:monospace;font-weight:700}
+.ends-cd.expired{color:var(--rd)}
+.lock-ban{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--rd);margin-bottom:8px}
+.bet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:10px}
+.bet-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.pick-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pick-row:last-child{border:none}
+.pick-team{color:var(--or);font-weight:700}
+.pick-amt{color:var(--mu);font-family:monospace;font-size:11px}
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ac{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.fg{margin-bottom:10px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:4px;letter-spacing:.03em}
+.fg input,.fg select,.fg textarea{width:100%}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.alert{padding:8px 12px;border-radius:8px;font-size:12px;margin-top:8px}
+.ok{background:rgba(34,197,94,.12);color:var(--gn);border:1px solid rgba(34,197,94,.2)}
+.err{background:rgba(239,68,68,.12);color:var(--rd);border:1px solid rgba(239,68,68,.2)}
+.inf{background:rgba(255,106,0,.1);color:var(--or);border:1px solid rgba(255,106,0,.2)}
+.lt{font-family:monospace;font-size:10px;font-weight:700;padding:2px 5px;border-radius:3px}
+.lt-r{background:rgba(34,197,94,.12);color:var(--gn)}
+.lt-b{background:rgba(162,87,255,.15);color:#c07aff}
+.lt-k{background:rgba(255,106,0,.12);color:var(--or)}
+.lt-i{background:rgba(239,68,68,.12);color:var(--rd)}
+.lt-n{background:rgba(139,148,165,.1);color:var(--mu)}
+.loading{text-align:center;padding:60px 20px;color:var(--mu)}
+.spinner{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--or);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+.lw{max-height:300px;overflow-y:auto}
+@media(max-width:640px){.ag{grid-template-columns:1fr}.fr{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<!-- ── MAIN APP ── -->
-<div id="app" style="display:none">
-  <header>
-    <div class="hdr-top">
-      <div class="hdr-logo">🏈 CFB FUN BETS HUB</div>
-      <div class="hdr-meta">
-        WEEK <em id="hdr-week">—</em>
-        &nbsp;·&nbsp;
-        ENDS IN: <span class="countdown" id="hdr-countdown">—</span>
-        &nbsp;·&nbsp;
-        <span id="sync-status"></span>
-        <button class="btn btn-ghost btn-sm" onclick="refreshData()">⟳ Refresh</button>
-      </div>
-    </div>
-    <div id="cache-banner" style="display:none" class="cache-banner"></div>
-    <div class="hdr-hero">
-      <div class="hero-block">
-        <div class="hero-label">🏆 MONEY LEADER</div>
-        <div class="hero-name" id="hdr-money-leader">—</div>
-        <div class="hero-sub" id="hdr-money-bal">—</div>
-      </div>
-      <div class="hero-block" style="padding-left:32px;padding-right:32px">
-        <div class="hero-label">🎯 HEISMAN LEADER</div>
-        <div class="hero-name" id="hdr-heisman-leader" style="font-size:20px">—</div>
-        <div class="hero-sub" style="font-size:14px" id="hdr-heisman-score">—</div>
-      </div>
-      <div class="hero-block" style="border-left:1px solid var(--border)">
-        <div class="hero-label">📅 LOCK TIME</div>
-        <div class="hero-name" style="font-size:16px;color:var(--white)" id="hdr-lock-time">Friday 7:00 PM</div>
-        <div class="hero-sub" style="font-size:12px;color:var(--muted)" id="hdr-season-name">—</div>
-      </div>
-    </div>
-  </header>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('money')">💰 Money Race</button>
-    <button class="tab" onclick="switchTab('heisman')">🏆 Heisman Race</button>
-    <button class="tab" onclick="switchTab('week')">📅 This Week</button>
-    <button class="tab" onclick="switchTab('history')">📊 History</button>
-    <button class="tab" onclick="switchTab('charts')">📈 Charts</button>
-    <button class="tab" onclick="switchTab('profile')">👤 Participant</button>
-    <button class="tab" onclick="switchTab('admin')">🔐 Admin</button>
-  </div>
-
-  <main id="main-content">
-    <div id="loading-overlay" class="loading">
-      <div class="spinner"></div>
-      Loading from Google Sheets...
-    </div>
-
-    <!-- MONEY RACE -->
-    <div id="view-money" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title">Money Race</div>
-          <div class="sec-sub">Ranked by current balance</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV('money')">↓ Export CSV</button>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Balance</th>
-              <th>This Week</th>
-              <th>Bets</th>
-              <th>W / L</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="money-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- HEISMAN RACE -->
-    <div id="view-heisman" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title">Heisman Race</div>
-          <div class="sec-sub">Who shows up AND picks correctly</div>
-        </div>
-      </div>
-      <div class="formula-note">
-        <strong>Formula (estimate):</strong> Heisman Score = Correct Bets × (1 + Weeks Participated ÷ Total Weeks).
-        Rewards both accuracy and consistency. This is a projected ranking, not an official formula.
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Heisman Score ★</th>
-              <th>Correct Bets</th>
-              <th>Accuracy</th>
-              <th>Weeks In</th>
-              <th>Consistency</th>
-            </tr>
-          </thead>
-          <tbody id="heisman-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- THIS WEEK -->
-    <div id="view-week" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title" id="week-view-title">This Week's Bets</div>
-          <div class="sec-sub">All bets lock <span id="week-lock-str">Friday at 7:00 PM</span></div>
-        </div>
-      </div>
-      <div id="bets-grid" class="bet-grid"></div>
-    </div>
-
-    <!-- HISTORY -->
-    <div id="view-history" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title">Bet History</div>
-          <div class="sec-sub">All resolved bets and bonuses</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV('history')">↓ Export CSV</button>
-      </div>
-      <div class="filter-row">
-        <select id="flt-participant" onchange="renderHistory()">
-          <option value="">All Participants</option>
-        </select>
-        <select id="flt-week" onchange="renderHistory()">
-          <option value="">All Weeks</option>
-        </select>
-        <select id="flt-outcome" onchange="renderHistory()">
-          <option value="">All Outcomes</option>
-          <option value="win">Wins</option>
-          <option value="loss">Losses</option>
-          <option value="bonus">Bonuses</option>
-        </select>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Week</th>
-              <th>Bet / Type</th>
-              <th>Participant</th>
-              <th>Outcome</th>
-              <th>Change</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody id="history-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- CHARTS -->
-    <div id="view-charts" class="view">
-      <div class="sec-hdr">
-        <div>
-          <div class="sec-title">Balance Over Time</div>
-          <div class="sec-sub">Week-by-week balances — save a snapshot at the end of each week from Admin</div>
-        </div>
-      </div>
-      <div class="chart-filters">
-        <select id="chart-filter-status" onchange="renderCharts()">
-          <option value="active">Active only</option>
-          <option value="all">Everyone</option>
-        </select>
-        <select id="chart-filter-participants" multiple style="min-width:180px;height:80px" onchange="renderCharts()">
-        </select>
-        <div style="font-size:11px;color:var(--muted);align-self:flex-end;padding-bottom:6px">Hold Ctrl/Cmd to select multiple</div>
-      </div>
-      <div id="no-snapshot-msg" class="no-data-msg" style="display:none">
-        No snapshot data yet.<br>
-        <span style="font-size:12px">Admin → Save Week Snapshot at the end of each week to start tracking.</span>
-      </div>
-      <div class="chart-wrap" id="balance-chart-wrap">
-        <div class="chart-title">💰 Balance Trends</div>
-        <div class="chart-canvas-wrap"><canvas id="balance-chart"></canvas></div>
-      </div>
-    </div>
-
-    <!-- PARTICIPANT PROFILE -->
-    <div id="view-profile" class="view">
-      <div class="profile-select-wrap">
-        <label style="font-size:12px">View Profile</label>
-        <select id="profile-select" onchange="renderProfile()">
-          <option value="">Select Participant...</option>
-        </select>
-      </div>
-      <div id="profile-content"></div>
-      <!-- Charts rendered here by renderProfile() -->
-      <div id="profile-charts" style="display:none">
-        <div class="chart-wrap" style="margin-top:16px">
-          <div class="chart-title">💰 Balance History</div>
-          <div class="chart-canvas-wrap sm"><canvas id="profile-balance-chart"></canvas></div>
-        </div>
-        <div class="chart-wrap">
-          <div class="chart-title">📊 Weekly Net Gain / Loss</div>
-          <div class="chart-canvas-wrap sm"><canvas id="profile-weekly-chart"></canvas></div>
-        </div>
-      </div>
-      <div id="profile-bet-history" style="margin-top:16px"></div>
-    </div>
-
-    <!-- ADMIN -->
-    <div id="view-admin" class="view">
-      <!-- Gate -->
-      <div id="admin-gate" class="admin-gate">
-        <div style="font-size:44px;margin-bottom:16px">🔐</div>
-        <div class="sec-title" style="margin-bottom:6px">Admin Panel</div>
-        <div class="muted-c" style="margin-bottom:20px;font-size:13px">Enter the admin password to manage the group.</div>
-        <div class="fg">
-          <input type="password" id="admin-pw-input" placeholder="Admin password"
-            onkeydown="if(event.key==='Enter')verifyAdmin()">
-        </div>
-        <button class="btn btn-gold btn-full" onclick="verifyAdmin()">Unlock Admin Panel</button>
-        <div id="admin-auth-msg" style="margin-top:10px"></div>
-      </div>
-
-      <!-- Panel -->
-      <div id="admin-panel" style="display:none">
-        <div class="sec-hdr">
-          <div class="sec-title">🔐 Admin Panel</div>
-          <button class="btn btn-ghost btn-sm" onclick="lockAdmin()">🔒 Lock</button>
-        </div>
-
-        <div class="admin-grid">
-
-          <!-- Resolve Bet -->
-          <div class="admin-card">
-            <div class="admin-card-title">✅ RESOLVE BET</div>
-            <div class="fg">
-              <label>Select Bet</label>
-              <select id="a-bet-select" onchange="loadBetForResolve()">
-                <option value="">Choose bet...</option>
-              </select>
-            </div>
-            <div id="a-bet-preview" style="margin-bottom:10px;font-size:12px;color:var(--muted)"></div>
-            <div class="fg">
-              <label>Winning Option</label>
-              <select id="a-bet-winner">
-                <option value="">Select winner...</option>
-              </select>
-            </div>
-            <div class="fg">
-              <label>Week #</label>
-              <input type="number" id="a-bet-week" placeholder="9">
-            </div>
-            <div id="a-resolve-preview" class="mt8" style="font-size:12px"></div>
-            <button class="btn btn-success btn-full mt8" onclick="previewResolve()">Preview Payouts</button>
-            <button class="btn btn-gold btn-full mt8" id="a-resolve-confirm" style="display:none" onclick="submitResolve()">✓ Confirm & Apply</button>
-            <div id="a-resolve-msg" class="mt8"></div>
-          </div>
-
-          <!-- Adjust Balance -->
-          <div class="admin-card">
-            <div class="admin-card-title">💰 ADJUST BALANCE</div>
-            <div class="fg">
-              <label>Participant</label>
-              <select id="a-adj-who"></select>
-            </div>
-            <div class="fg">
-              <label>Amount (positive = add, negative = deduct)</label>
-              <input type="number" id="a-adj-amt" placeholder="e.g. -10000 or 25000">
-            </div>
-            <div class="fg">
-              <label>Reason</label>
-              <input type="text" id="a-adj-reason" placeholder="e.g. Perfect Saturday bonus">
-            </div>
-            <button class="btn btn-gold btn-full" onclick="submitAdjBalance()">Apply Adjustment</button>
-            <div id="a-adj-msg" class="mt8"></div>
-          </div>
-
-          <!-- Award Bonus -->
-          <div class="admin-card">
-            <div class="admin-card-title">🎯 AWARD BONUS</div>
-            <div class="fg">
-              <label>Participant</label>
-              <select id="a-bonus-who"></select>
-            </div>
-            <div class="fg">
-              <label>Bonus Type</label>
-              <select id="a-bonus-type" onchange="fillBonusAmount()">
-                <option value="rival_week" data-amt="0">Rival Week (×2 payout — enter net)</option>
-                <option value="home_sweet_home" data-amt="15000">Home Sweet Home (+$15,000)</option>
-                <option value="perfect_saturday" data-amt="50000">Perfect Saturday (+$50,000)</option>
-                <option value="exact_score" data-amt="0">Exact Score (×5 bet — enter net)</option>
-                <option value="custom" data-amt="0">Custom Amount</option>
-              </select>
-            </div>
-            <div class="fg">
-              <label>Amount ($)</label>
-              <input type="number" id="a-bonus-amt" placeholder="e.g. 15000">
-            </div>
-            <div class="fg">
-              <label>Week #</label>
-              <input type="number" id="a-bonus-week">
-            </div>
-            <div class="fg">
-              <label>Notes (optional)</label>
-              <input type="text" id="a-bonus-notes" placeholder="e.g. Picked Wisconsin score exactly">
-            </div>
-            <button class="btn btn-gold btn-full" onclick="submitBonus()">Award Bonus</button>
-            <div id="a-bonus-msg" class="mt8"></div>
-          </div>
-
-          <!-- Inactive Management -->
-          <div class="admin-card">
-            <div class="admin-card-title">⚠️ INACTIVE MANAGEMENT</div>
-            <div class="fg">
-              <label>Participant</label>
-              <select id="a-inactive-who"></select>
-            </div>
-            <div class="fg">
-              <label>Week # (when inactivity triggered)</label>
-              <input type="number" id="a-inactive-week">
-            </div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:10px">
-              Marking inactive deducts $10,000 and shows a public inactive marker.<br>
-              Reinstate restores active status; balance stays as-is (minus the $10k already deducted).
-            </p>
-            <div class="flex gap8">
-              <button class="btn btn-danger" style="flex:1" onclick="submitMarkInactive()">Mark Inactive (−$10k)</button>
-              <button class="btn btn-success" style="flex:1" onclick="submitReinstate()">Reinstate</button>
-            </div>
-            <div id="a-inactive-msg" class="mt8"></div>
-          </div>
-
-          <!-- Add Bet -->
-          <div class="admin-card">
-            <div class="admin-card-title">➕ ADD NEW BET</div>
-            <div class="fg">
-              <label>Title</label>
-              <input type="text" id="a-bet-title" placeholder="e.g. Ohio State vs Michigan">
-            </div>
-            <div class="fg-row">
-              <div class="fg">
-                <label>Type</label>
-                <select id="a-bet-type">
-                  <option value="game">Game</option>
-                  <option value="prop">Player Prop</option>
-                  <option value="bonus">Bonus Bet</option>
-                  <option value="local">Local Bet</option>
-                </select>
-              </div>
-              <div class="fg">
-                <label>Week #</label>
-                <input type="number" id="a-bet-new-week">
-              </div>
-            </div>
-            <div class="fg-row">
-              <div class="fg"><label>Option A</label><input type="text" id="a-bet-a" placeholder="Team A"></div>
-              <div class="fg"><label>Option B</label><input type="text" id="a-bet-b" placeholder="Team B"></div>
-            </div>
-            <div class="fg-row">
-              <div class="fg"><label>Payout A</label><input type="text" id="a-bet-pa" placeholder="+$15,000 or x1.5"></div>
-              <div class="fg"><label>Payout B</label><input type="text" id="a-bet-pb" placeholder="+$12,000 or x1.35"></div>
-            </div>
-            <div class="fg-row">
-              <div class="fg"><label>Entry Min ($)</label><input type="number" id="a-bet-entry"></div>
-              <div class="fg"><label>Max Bet ($)</label><input type="number" id="a-bet-max"></div>
-            </div>
-            <button class="btn btn-gold btn-full" onclick="submitAddBet()">Add Bet to Sheet</button>
-            <div id="a-bet-msg" class="mt8"></div>
-          </div>
-
-          <!-- Save Weekly Snapshot -->
-          <div class="admin-card">
-            <div class="admin-card-title">📸 SAVE WEEK SNAPSHOT</div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-              Records everyone's current balance for the selected week.
-              Run this at the end of each week to build the balance-over-time graph.
-            </p>
-            <div class="fg">
-              <label>Week # to Snapshot</label>
-              <input type="number" id="a-snap-week" placeholder="9">
-            </div>
-            <div class="fg">
-              <label>Notes (optional)</label>
-              <input type="text" id="a-snap-notes" placeholder="e.g. End of Week 9">
-            </div>
-            <button class="btn btn-gold btn-full" onclick="submitSaveSnapshot()">📸 Save Snapshot</button>
-            <div id="a-snap-msg" class="mt8"></div>
-          </div>
-
-          <!-- Edit Past Snapshot -->
-          <div class="admin-card">
-            <div class="admin-card-title">✏️ EDIT PAST SNAPSHOT</div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-              Correct a specific participant's balance for a past week.
-              Updates the graph entry for that week.
-            </p>
-            <div class="fg">
-              <label>Week #</label>
-              <input type="number" id="a-editsnap-week" placeholder="8">
-            </div>
-            <div class="fg">
-              <label>Participant</label>
-              <select id="a-editsnap-who"></select>
-            </div>
-            <div class="fg">
-              <label>Corrected Balance ($)</label>
-              <input type="number" id="a-editsnap-bal" placeholder="1200000">
-            </div>
-            <div class="fg">
-              <label>Reason</label>
-              <input type="text" id="a-editsnap-notes" placeholder="e.g. Missed bonus resolution">
-            </div>
-            <button class="btn btn-ghost btn-full" onclick="submitEditSnapshot()">Save Correction</button>
-            <div id="a-editsnap-msg" class="mt8"></div>
-          </div>
-
-          <!-- Finalize / Lock Bet -->
-          <div class="admin-card">
-            <div class="admin-card-title">🔒 FINALIZE BET</div>
-            <div class="fg">
-              <label>Select Bet to Lock</label>
-              <select id="a-lock-bet">
-                <option value="">Choose bet...</option>
-              </select>
-            </div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-              Locks the Google Sheet tab so nobody can change their pick.
-              The auto-lock trigger does this automatically when the Ends time passes.
-              Use this to lock manually ahead of time.
-            </p>
-            <button class="btn btn-danger btn-full" onclick="submitFinalizeBet()">🔒 Finalize & Lock</button>
-            <div id="a-lock-msg" class="mt8"></div>
-          </div>
-
-          <!-- Season Config -->
-          <div class="admin-card">
-            <div class="admin-card-title">⚙️ SEASON SETTINGS</div>
-            <div class="fg">
-              <label>Season Name</label>
-              <input type="text" id="cfg-name">
-            </div>
-            <div class="fg">
-              <label>Season End Date & Time</label>
-              <input type="datetime-local" id="cfg-end">
-            </div>
-            <div class="fg-row">
-              <div class="fg"><label>Current Week</label><input type="number" id="cfg-week"></div>
-              <div class="fg"><label>Lock Time (HH:MM)</label><input type="text" id="cfg-lock" placeholder="19:00"></div>
-            </div>
-            <div class="fg-row">
-              <div class="fg"><label>Min Bets/Week</label><input type="number" id="cfg-minbets"></div>
-              <div class="fg"><label>Miss Penalty ($)</label><input type="number" id="cfg-penalty"></div>
-            </div>
-            <button class="btn btn-gold btn-full" onclick="saveConfig()">Save Settings</button>
-            <div id="a-cfg-msg" class="mt8"></div>
-            <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
-            <p style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6">
-              Run once to activate hourly auto-lock. Bets lock automatically when their Ends time passes.
-            </p>
-            <button class="btn btn-ghost btn-full" onclick="submitInstallTrigger()">⏰ Install Auto-Lock Trigger</button>
-            <div id="a-trigger-msg" class="mt8"></div>
-          </div>
-
-          <!-- Add Participant -->
-          <div class="admin-card">
-            <div class="admin-card-title">👤 ADD PARTICIPANT</div>
-            <div class="fg">
-              <label>Name (e.g. "John D.")</label>
-              <input type="text" id="a-new-name" placeholder="First Last Initial">
-            </div>
-            <div class="fg">
-              <label>Starting Balance ($)</label>
-              <input type="number" id="a-new-bal" placeholder="500000">
-            </div>
-            <button class="btn btn-gold btn-full" onclick="submitAddParticipant()">Add to Sheet</button>
-            <div id="a-participant-msg" class="mt8"></div>
-          </div>
-
-          <!-- Change Password -->
-          <div class="admin-card">
-            <div class="admin-card-title">🔑 CHANGE ADMIN PASSWORD</div>
-            <div class="fg">
-              <label>New Password</label>
-              <input type="password" id="a-new-pw">
-            </div>
-            <div class="fg">
-              <label>Confirm Password</label>
-              <input type="password" id="a-confirm-pw">
-            </div>
-            <button class="btn btn-ghost btn-full" onclick="changePassword()">Update Password</button>
-            <div id="a-pw-msg" class="mt8"></div>
-          </div>
-
-        </div><!-- /.admin-grid -->
-
-        <!-- ── Admin Log — single unified view of everything ── -->
-        <div style="margin-top:28px">
-          <div class="sec-hdr">
-            <div>
-              <div class="sec-title" style="font-size:15px">📋 Admin Log</div>
-              <div class="sec-sub">Every action in one place — newest first</div>
-            </div>
-            <div class="flex gap8">
-              <button class="btn btn-ghost btn-sm" onclick="exportCSV('log')">↓ Export</button>
-              <button class="btn btn-ghost btn-sm" onclick="loadAdminLog()">⟳ Load Log</button>
-            </div>
-          </div>
-          <div id="admin-log-wrap">
-            <div class="muted-c" style="font-size:12px;padding:12px 0">Click Load Log to pull the latest entries from the sheet.</div>
-          </div>
-        </div>
-
-      </div><!-- /#admin-panel -->
-    </div><!-- /#view-admin -->
-
-  </main>
-</div><!-- /#app -->
-
+<header>
+  <h1>THE <b>MONEY</b> BOARD</h1>
+  <span id="sync-st"></span>
+</header>
+<div id="cache-banner" style="display:none"></div>
+<nav id="nav"></nav>
+<main id="app" aria-live="polite"></main>
 <script>
-// ================================================================
-// CONFIG & STATE
-// ================================================================
-// SCRIPT URL — hard-coded so the site loads for everyone automatically.
-// To change: update this line, redeploy to Vercel.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2JrGe-6rI3bUVuOzGJAUEViTKafYyoYeAY11ZJeTjEFDEakDJBceXGKWn-utGRNJlFg/exec';
+// ── CONSTANTS ───────────────────────────────────────────────────
+const URL_='https://script.google.com/macros/s/AKfycbw2JrGe-6rI3bUVuOzGJAUEViTKafYyoYeAY11ZJeTjEFDEakDJBceXGKWn-utGRNJlFg/exec';
+const AH='965e175b29f97ef4a17fb261820374ed512f21a501c73449e0127541db684a97';
+const PAGES=[['home','Home'],['stand','Standings'],['heis','Heisman'],['week','This Week'],
+  ['catchup','Catch-Up'],['h2h','Head-to-Head'],['bets','Bets'],['proj','Projections'],
+  ['charts','Charts'],['sports','Sports'],['hist','History'],['admin','Admin']];
+const CC=['#ff6a00','#22c55e','#38bdf8','#ef4444','#a78bfa','#facc15','#f472b6','#2dd4bf','#fb923c','#94a3b8','#84cc16','#e879f9'];
+const CK='cfbmb2';const CF=2*60*1000;const CX=30*60*1000;
 
-// Cache settings
-const CACHE_KEY        = 'cfb_data_v1';
-const CACHE_FRESH_MS   = 2  * 60 * 1000; // under 2 min → no background refresh
-const CACHE_MAX_MS     = 30 * 60 * 1000; // over 30 min → treat as expired, show spinner
+// ── STATE ────────────────────────────────────────────────────────
+let ADMIN=false,pendingResolve=null;
+let state={data:null,adminPw:'',adminLog:null};
+let sortK='b',ca={a:null,b:null,ga:0,gb:0},hh={a:null,b:null},pj={d:{}},bt={i:0,w:null};
+let _cd=null,savedScenarios=JSON.parse(localStorage.getItem('cfb_sc')||'[]');
 
-let state = { data: null, tab: 'money', adminPw: '', adminOk: false, adminLog: null };
-let pendingResolve = null;
+// ── CACHE ────────────────────────────────────────────────────────
+const Cache={
+  get(){try{const r=localStorage.getItem(CK);if(!r)return null;const{data,ts}=JSON.parse(r);const age=Date.now()-ts;return{data,age,fresh:age<CF,expired:age>CX}}catch{return null}},
+  set(d){try{localStorage.setItem(CK,JSON.stringify({data:d,ts:Date.now()}))}catch{}},
+  clear(){try{localStorage.removeItem(CK)}catch{}}
+};
+const fmtAge=ms=>{const s=Math.floor(ms/1000);return s<60?s+'s ago':Math.floor(s/60)<60?Math.floor(s/60)+'m ago':Math.floor(s/3600)+'h ago'};
 
-// ================================================================
-// CACHE
-// ================================================================
-const Cache = {
-  get() {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const { data, ts } = JSON.parse(raw);
-      const age = Date.now() - ts;
-      return { data, age, fresh: age < CACHE_FRESH_MS, expired: age > CACHE_MAX_MS };
-    } catch { return null; }
-  },
-  set(data) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() })); }
-    catch { /* localStorage full — fail silently */ }
-  },
-  clear() {
-    try { localStorage.removeItem(CACHE_KEY); } catch {}
+// ── API ──────────────────────────────────────────────────────────
+function fetchT(url,opts={},ms=10000){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);return fetch(url,{...opts,signal:c.signal}).finally(()=>clearTimeout(t))}
+async function apiGet(action){
+  const delays=[0,2000,4000];let le;
+  for(let i=0;i<delays.length;i++){
+    if(delays[i])await new Promise(r=>setTimeout(r,delays[i]));
+    try{const res=await fetchT(`${URL_}?action=${action}`,{redirect:'follow'});const txt=await res.text();return JSON.parse(txt)}
+    catch(e){le=e.name==='AbortError'?new Error('Request timed out'):e}
+  }throw le;
+}
+async function apiPost(action,payload){
+  const body=JSON.stringify({action,password:state.adminPw,...payload});
+  const res=await fetchT(URL_,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body},15000);
+  return JSON.parse(await res.text());
+}
+
+// ── LOAD ─────────────────────────────────────────────────────────
+async function loadData(force=false){
+  const cached=Cache.get();
+  if(cached&&!force&&!cached.expired){
+    state.data=cached.data;go();setSS(null);
+    if(!cached.fresh){setSS('refreshing','Refreshing…');bgRef();}
+    return;
   }
+  if(!cached)document.getElementById('app').innerHTML='<div class="loading"><div class="spinner"></div>Loading from Google Sheets…</div>';
+  setSS('refreshing','Loading…');
+  try{
+    const data=await apiGet('getAll');
+    if(data.error)throw new Error(data.error);
+    state.data=data;Cache.set(data);hideBan();go();setSS(null);
+  }catch(e){
+    setSS(null);
+    if(cached){state.data=cached.data;showBan(`Cached data from ${fmtAge(cached.age)}`,()=>loadData(true));go();}
+    else document.getElementById('app').innerHTML=`<div class="card"><div class="alert err">${esc(e.message)}</div><br><button onclick="loadData(true)">⟳ Retry</button></div>`;
+  }
+}
+async function bgRef(){
+  try{const d=await apiGet('getAll');if(d.error)throw new Error(d.error);state.data=d;Cache.set(d);hideBan();go();setSS(null);}
+  catch{setSS(null);document.getElementById('sync-st').innerHTML=`<span class="mu" style="font-size:11px">cached ${fmtAge(Cache.get()?.age||0)}</span>`;}
+}
+function setSS(cls,txt){const el=document.getElementById('sync-st');if(!el)return;el.innerHTML=cls?`<span class="sync-${cls}">${txt}</span>`:'';}
+function showBan(msg,fn){const b=document.getElementById('cache-banner');if(!b)return;b.style.display='flex';b.innerHTML=`⚠ ${msg} <button onclick="(${fn.toString()})()">Force refresh</button>`;}
+function hideBan(){const b=document.getElementById('cache-banner');if(b)b.style.display='none';}
+
+// ── ADMIN AUTH ───────────────────────────────────────────────────
+async function login(){
+  const pw=qs('#pw')?.value;if(!pw)return;
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
+  const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hash===AH){ADMIN=true;state.adminPw=pw;go();}
+  else setElH('#pe','Wrong passcode.');
+}
+function logout(){ADMIN=false;state.adminPw='';go();}
+
+// ── FORMAT ───────────────────────────────────────────────────────
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $$=n=>(n<0?'-':'')+'$'+Math.abs(Math.round(n*100)/100).toLocaleString();
+const sg=n=>n>0?`<span class="gn">▲ ${$$(n)}</span>`:n<0?`<span class="rd">▼ ${$$(-n)}</span>`:'<span class="mu">–</span>';
+const pc=n=>n==null?'<span class="mu">n/a</span>':`<span class="${n>=0?'gn':'rd'}">${n>0?'+':''}${n.toFixed(1)}%</span>`;
+const fmtD=n=>(n>0?'+':'−')+'$'+Math.abs(n).toLocaleString();
+const noD=()=>'<div class="card"><h2>No data</h2><p class="mu">Still loading or connection failed.</p><button onclick="loadData(true)">⟳ Retry</button></div>';
+
+// ── DATA HELPERS ─────────────────────────────────────────────────
+function getHist(name){
+  const snaps=(state.data?.snapshots||[]).filter(s=>s.participant===name).sort((a,b)=>a.week-b.week).map(s=>s.balance);
+  const p=(state.data?.standings||[]).find(s=>s.name===name);
+  if(p&&(!snaps.length||snaps[snaps.length-1]!==p.balance))snaps.push(p.balance);
+  return snaps.length?snaps:[p?.balance||0];
+}
+function calc(){
+  const L=(state.data?.standings||[]).map(p=>{
+    const hist=getHist(p.name),b=p.balance,pv=hist.length>1?hist[hist.length-2]:null;
+    const d=pv==null?0:b-pv,pct=pv==null||pv===0?null:(b-pv)/Math.abs(pv)*100;
+    const imp=b-hist[0];
+    return{...p,id:p.name,b,pv,d,pct,imp,hist};
+  });
+  const s=[...L].sort((a,b)=>b.b-a.b);L.forEach(p=>{p.rk=s.findIndex(x=>x.id===p.id)+1;});
+  L.sort((a,b)=>a.rk-b.rk);
+  const ps=[...L].sort((a,b)=>(b.pv??b.b)-(a.pv??a.b));L.forEach(p=>{p.prk=ps.findIndex(x=>x.id===p.id)+1;});
+  L.forEach((p,i)=>{p.behind=L[0].b-p.b;p.ahead=i<L.length-1?p.b-L[i+1].b:null;});
+  return L;
+}
+function projRows(d){const q=calc().map(p=>({...p,b:p.b+(d[p.id]||0)}));q.sort((a,b)=>b.b-a.b);q.forEach((p,i)=>{p.nr=i+1;});return q;}
+function parsePay(str,amt){
+  if(!str)return amt;
+  const f=str.match(/\+?\$?([\d,]+)/);if(f)return parseInt(f[1].replace(/,/g,''));
+  const m=str.match(/x([\d.]+)/i);if(m)return Math.round(amt*(parseFloat(m[1])-1));
+  return amt;
+}
+function mkOpts(L,sel){return L.map(p=>`<option value="${esc(p.id)}"${p.id===sel?' selected':''}>${esc(p.name)}</option>`).join('');}
+
+// ── SVG LINE CHART ────────────────────────────────────────────────
+function lineChart(series,labels){
+  const all=series.flatMap(s=>s.v);if(!all.length)return '<p class="mu">No data yet.</p>';
+  const mx=Math.max(...all),mn=Math.min(...all);
+  const n=Math.max(...series.map(s=>s.v.length));
+  const W=580,H=200,P=38;
+  const X=i=>P+(n<2?W/2-P:i*(W-2*P)/(n-1));
+  const Y=v=>H-P-(mx===mn?.5:(v-mn)/(mx-mn))*(H-2*P);
+  const fmt=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0);
+  let ya='';for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4;ya+=`<line x1="${P}" y1="${Y(v)}" x2="${W-P}" y2="${Y(v)}" stroke="#262d3a"/><text x="${P-4}" y="${Y(v)+4}" text-anchor="end" fill="#8b94a5" font-size="10">${fmt(v)}</text>`;}
+  let xl='';if(labels)labels.forEach((l,i)=>{xl+=`<text x="${X(i)}" y="${H-P+14}" text-anchor="middle" fill="#8b94a5" font-size="10">${esc(String(l))}</text>`;});
+  const paths=series.map((s,si)=>{const col=CC[si%CC.length];const pts=s.v.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');const dots=s.v.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${col}"/>`).join('');return`<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>${dots}`;});
+  const leg=series.length>1?`<div style="margin-bottom:6px">${series.map((s,si)=>`<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#8b94a5;margin-right:10px"><span style="width:14px;height:3px;background:${CC[si%CC.length]};display:inline-block;border-radius:2px"></span>${esc(s.n)}</span>`).join('')}</div>`:'';
+  return`<div style="overflow-x:auto">${leg}<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="min-width:280px">${ya}${xl}${paths.join('')}</svg></div>`;
+}
+
+// ── PAGES ────────────────────────────────────────────────────────
+const P={};
+
+P.home=()=>{
+  const L=calc();if(!L.length)return noD();
+  const t=L.reduce((s,p)=>s+p.b,0);
+  const gs=[...L].sort((a,b)=>b.d-a.d);
+  const cl=(()=>{let c=null;for(let i=0;i<L.length-1;i++){const g=L[i].b-L[i+1].b;if(g>0&&(!c||g<c.g))c={a:L[i],b:L[i+1],g};}return c;})();
+  const big=L[0].b;
+  const snap=state.data?.snapshots||[];
+  const weeks=[...new Set(snap.map(s=>s.week))].sort((a,b)=>a-b);
+  const top5=L.slice(0,5).map(p=>({n:p.name,v:snap.filter(s=>s.participant===p.name).sort((a,b)=>a.week-b.week).map(s=>s.balance)})).filter(d=>d.v.length>0);
+  return`
+  <div class="grid">
+    <div class="stat"><small>Total in play</small><b>${$$(t)}</b></div>
+    <div class="stat"><small>Average</small><b>${$$(t/L.length)}</b></div>
+    <div class="stat"><small>Leader</small><b>${esc(L[0].name)}</b><small>${$$(L[0].b)}</small></div>
+    <div class="stat"><small>Closest race</small><b>${cl?esc(cl.a.name)+' vs '+esc(cl.b.name):'–'}</b>${cl?`<small>${$$(cl.g)} gap</small>`:''}</div>
+    <div class="stat"><small>Biggest gain</small><b>${esc(gs[0].name)}</b>${sg(gs[0].d)}</div>
+    <div class="stat"><small>Season ends</small><b id="hcd">–</b></div>
+  </div>
+  <div class="card"><h2>Standings</h2>
+    ${L.map(p=>`<div class="row"><span>${p.rk<=3?['🥇','🥈','🥉'][p.rk-1]:p.rk+'.'} ${esc(p.name)}${p.status==='inactive'?' <span class="mu" style="font-size:10px">[off]</span>':''}</span>
+      <div class="bar" style="width:${Math.max(p.b/big*55,1)}%;${p.b<0?'background:var(--rd)':''}"></div>
+      <b>${$$(p.b)}</b>${sg(p.d)}</div>`).join('')}
+  </div>
+  ${top5.length?`<div class="card"><h2>Balance History (Top 5)</h2>${lineChart(top5,weeks.map(w=>'Wk '+w))}</div>`:'<div class="card"><h2>Balance History</h2><p class="mu">No snapshots yet. Admin → Save Week Snapshot at the end of each week.</p></div>'}`;
 };
 
-function fmtAge(ms) {
-  const s = Math.floor(ms / 1000);
-  if (s < 60)  return s + 's ago';
-  const m = Math.floor(s / 60);
-  if (m < 60)  return m + 'm ago';
-  return Math.floor(m / 60) + 'h ago';
+function startHCD(){
+  const el=document.getElementById('hcd');if(!el)return;
+  const e=new Date(state.data?.config?.season_end||'');
+  if(isNaN(e)){el.textContent='–';return;}
+  const tick=()=>{const diff=e-Date.now();if(diff<=0){el.textContent='Ended';return;}const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000);el.textContent=`${d}d ${h}h`;setTimeout(tick,60000);};tick();
 }
 
-// ================================================================
-// API LAYER
-// ================================================================
-
-// Fetch with a hard timeout — prevents hung requests from blocking the UI forever.
-function fetchWithTimeout(url, options = {}, ms = 10000) {
-  const ctrl = new AbortController();
-  const id   = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(id));
-}
-
-// GET with exponential backoff retry.
-// Retries on network/timeout errors only — app-level errors (data.error) are not retried.
-async function apiGet(action) {
-  const delays = [0, 2000, 4000];
-  let lastErr;
-  for (let i = 0; i < delays.length; i++) {
-    if (delays[i]) await new Promise(r => setTimeout(r, delays[i]));
-    try {
-      const res  = await fetchWithTimeout(`${SCRIPT_URL}?action=${action}`, { redirect: 'follow' });
-      const text = await res.text();
-      try { return JSON.parse(text); }
-      catch { throw new Error('Bad response from Apps Script — check deployment.'); }
-    } catch(e) {
-      lastErr = e;
-      if (e.name === 'AbortError') lastErr = new Error('Request timed out after 10s.');
-      // Don't retry if it parsed but returned an app error — that won't change on retry
-    }
-  }
-  throw lastErr;
-}
-
-// POST — no retry (not idempotent; running twice would double-apply changes).
-async function apiPost(action, payload) {
-  const body = JSON.stringify({ action, password: state.adminPw, ...payload });
-  const res  = await fetchWithTimeout(SCRIPT_URL, {
-    method: 'POST', redirect: 'follow',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body
-  }, 15000); // admin writes get a longer timeout
-  const text = await res.text();
-  try { return JSON.parse(text); }
-  catch { throw new Error('Invalid response from Apps Script.'); }
-}
-
-// ================================================================
-// SYNC STATUS (subtle header indicator)
-// ================================================================
-function setSyncStatus(type, text) {
-  const el = document.getElementById('sync-status');
-  if (!el) return;
-  if (!type) { el.innerHTML = ''; return; }
-  el.innerHTML = `<span class="sync-${type}">${text}</span>`;
-}
-
-function showCacheBanner(age, onForceRefresh) {
-  const banner = document.getElementById('cache-banner');
-  if (!banner) return;
-  banner.style.display = 'flex';
-  banner.innerHTML = `⚠ Showing data from ${fmtAge(age)} — live update failed.
-    <button onclick="(${onForceRefresh.toString()})()">Force refresh</button>`;
-}
-
-function hideCacheBanner() {
-  const banner = document.getElementById('cache-banner');
-  if (banner) banner.style.display = 'none';
-}
-
-// ================================================================
-// DATA LOADING — stale-while-revalidate
-// ================================================================
-async function loadData(forceRefresh = false) {
-  const cached = Cache.get();
-
-  // ── Fast path: show cached data immediately ──────────────────
-  if (cached && !forceRefresh && !cached.expired) {
-    state.data = cached.data;
-    renderAll();
-    showLoading(false);
-    hideCacheBanner();
-
-    if (!cached.fresh) {
-      // Data is stale — refresh silently in the background
-      setSyncStatus('refreshing', 'Refreshing...');
-      backgroundRefresh();
-    }
-    return;
-  }
-
-  // ── Slow path: no usable cache, show spinner ─────────────────
-  showLoading(true);
-  setSyncStatus('refreshing', 'Loading...');
-
-  try {
-    const data = await apiGet('getAll');
-    if (data.error) throw new Error(data.error);
-    state.data = data;
-    Cache.set(data);
-    renderAll();
-    showLoading(false);
-    hideCacheBanner();
-    setSyncStatus(null);
-  } catch(e) {
-    showLoading(false);
-    setSyncStatus('err', '⚠ Offline');
-
-    // If we have expired cache, use it rather than showing a dead screen
-    if (cached) {
-      state.data = cached.data;
-      renderAll();
-      showCacheBanner(cached.age, () => loadData(true));
-    } else {
-      document.getElementById('loading-overlay').innerHTML =
-        `<div class="alert alert-err">${e.message}</div>
-         <div style="margin-top:16px">
-           <button class="btn btn-ghost" onclick="loadData(true)">⟳ Retry</button>
-         </div>`;
-      document.getElementById('loading-overlay').style.display = 'block';
-    }
-  }
-}
-
-// Silent background refresh — updates the UI only if it succeeds.
-async function backgroundRefresh() {
-  try {
-    const data = await apiGet('getAll');
-    if (data.error) throw new Error(data.error);
-    state.data = data;
-    Cache.set(data);
-    renderAll();
-    hideCacheBanner();
-    setSyncStatus(null);
-  } catch {
-    // Silently failed — keep showing the cached data, note it in the header
-    setSyncStatus('stale', `cached ${fmtAge(Cache.get()?.age || 0)}`);
-  }
-}
-
-// Force-refresh: clears cache, shows spinner, fetches fresh.
-async function refreshData() {
-  Cache.clear();
-  await loadData(true);
-}
-
-function showLoading(yes) {
-  const el = document.getElementById('loading-overlay');
-  if (yes) {
-    el.innerHTML = '<div class="spinner"></div>Loading from Google Sheets...';
-    el.style.display = 'block';
-  } else {
-    el.style.display = 'none';
-  }
-}
-
-// ================================================================
-// FORMAT HELPERS
-// ================================================================
-function fmtAbs(n) {
-  if (n == null || isNaN(n)) return '—';
-  return '$' + Math.abs(n).toLocaleString();
-}
-
-function fmtDelta(n) {
-  if (!n) return '—';
-  const sign = n > 0 ? '+' : '−';
-  return sign + '$' + Math.abs(n).toLocaleString();
-}
-
-function rankCell(i) {
-  if (i === 0) return '<td class="r-gold">🥇</td>';
-  if (i === 1) return '<td class="r-silver">🥈</td>';
-  if (i === 2) return '<td class="r-bronze">🥉</td>';
-  return `<td class="r-plain">#${i + 1}</td>`;
-}
-
-// ================================================================
-// COUNTDOWN TIMER
-// ================================================================
-let _cdInterval = null;
-function startCountdown(endStr) {
-  if (_cdInterval) clearInterval(_cdInterval);
-  const end = new Date(endStr);
-  function tick() {
-    const diff = end - new Date();
-    if (diff <= 0) {
-      document.getElementById('hdr-countdown').textContent = 'SEASON ENDED';
-      clearInterval(_cdInterval);
-      return;
-    }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('hdr-countdown').textContent =
-      `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
-  }
-  tick();
-  _cdInterval = setInterval(tick, 1000);
-}
-
-// ================================================================
-// RENDER ALL
-// ================================================================
-function renderAll() {
-  if (!state.data) return;
-  const { standings, currentBets, history, bonuses, config } = state.data;
-
-  // Header
-  const byMoney  = [...(standings||[])].sort((a,b) => b.balance - a.balance);
-  const byHeis   = [...(standings||[])].sort((a,b) => b.heismanScore - a.heismanScore);
-
-  if (byMoney[0]) {
-    document.getElementById('hdr-money-leader').textContent = byMoney[0].name;
-    document.getElementById('hdr-money-bal').textContent    = fmtAbs(byMoney[0].balance);
-  }
-  if (byHeis[0]) {
-    document.getElementById('hdr-heisman-leader').textContent = byHeis[0].name;
-    document.getElementById('hdr-heisman-score').textContent  = byHeis[0].heismanScore + ' pts (est.)';
-  }
-
-  if (config) {
-    document.getElementById('hdr-week').textContent       = config.current_week || '—';
-    document.getElementById('hdr-season-name').textContent = config.season_name  || '—';
-    document.getElementById('hdr-lock-time').textContent  = 'Friday ' + (config.week_lock_time || '7:00') + ' PM';
-    document.getElementById('week-view-title').textContent = 'Week ' + (config.current_week || '?') + ' Bets';
-    document.getElementById('week-lock-str').textContent  = 'Friday at ' + (config.week_lock_time || '7:00') + ' PM';
-    if (config.season_end) startCountdown(config.season_end);
-    fillConfigFields(config);
-  }
-
-  renderMoney();
-  renderHeisman();
-  renderWeek();
-  renderHistory();
-  populateFilters();
-  populateProfiles();
-  populateAdminDropdowns();
-  if (state.adminOk) populateAdminBets();
-}
-
-// ================================================================
-// MONEY RACE
-// ================================================================
-function renderMoney() {
-  const standings = state.data?.standings || [];
-  const history   = state.data?.history   || [];
-  const config    = state.data?.config    || {};
-  const curWeek   = parseInt(config.current_week) || 0;
-
-  // Week delta per participant
-  const weekDelta = {};
-  history.filter(r => r.week === curWeek).forEach(r => {
-    weekDelta[r.participant] = (weekDelta[r.participant] || 0) + r.amount_change;
-  });
-
-  const sorted   = [...standings].sort((a,b) => b.balance - a.balance);
-  const topBal   = sorted[0]?.balance || 1;
-
-  document.getElementById('money-tbody').innerHTML = sorted.map((p, i) => {
-    const delta    = weekDelta[p.name] || 0;
-    const dcls     = delta > 0 ? 'win-c' : delta < 0 ? 'loss-c' : 'muted-c';
-    const barW     = Math.round((p.balance / topBal) * 120);
-    const statusBadge = p.status === 'inactive'
-      ? '<span class="badge b-inactive">INACTIVE</span>'
-      : '<span class="badge b-active">ACTIVE</span>';
-
-    return `<tr>
-      ${rankCell(i)}
-      <td>
-        <strong>${p.name}</strong>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${barW}px"></div></div>
-      </td>
-      <td class="mono">${fmtAbs(p.balance)}</td>
-      <td class="mono ${dcls}">${delta ? fmtDelta(delta) : '—'}</td>
-      <td class="mono">${p.totalBets || 0}</td>
-      <td class="mono"><span class="win-c">${p.correctBets||0}W</span> / <span class="loss-c">${p.incorrectBets||0}L</span></td>
-      <td>${statusBadge}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ================================================================
-// HEISMAN RACE
-// ================================================================
-function renderHeisman() {
-  const standings = state.data?.standings || [];
-  const sorted = [...standings].sort((a,b) => b.heismanScore - a.heismanScore);
-
-  document.getElementById('heisman-tbody').innerHTML = sorted.map((p, i) => `
-    <tr>
-      ${rankCell(i)}
-      <td><strong>${p.name}</strong></td>
-      <td><span class="mono gold-c" style="font-size:17px;font-weight:700">${p.heismanScore || 0}</span></td>
-      <td class="mono win-c">${p.correctBets || 0}</td>
-      <td class="mono">${p.accuracy || 0}%</td>
-      <td class="mono">${p.weeksParticipated || 0}</td>
-      <td class="mono">${p.consistency || 0}%</td>
-    </tr>`).join('');
-}
-
-// ================================================================
-// THIS WEEK
-// ================================================================
-let _betCdInterval = null;
-
-function renderWeek() {
-  const bets = state.data?.currentBets || [];
-  const grid = document.getElementById('bets-grid');
-  if (!bets.length) {
-    grid.innerHTML = '<p class="muted-c">No bets found for this week. Admin can add bets from the Admin panel.</p>';
-    return;
-  }
-
-  const TYPE_LABEL = { game:'GAME', prop:'PLAYER PROP', bonus:'BONUS BET', local:'LOCAL BET' };
-
-  grid.innerHTML = bets.map((bet, i) => {
-    const typeLabel = TYPE_LABEL[bet.betType] || 'BET';
-    const limits = [
-      bet.entryMin ? `Entry: ${fmtAbs(bet.entryMin)}` : null,
-      bet.betMax   ? `Max: ${fmtAbs(bet.betMax)}`   : null
-    ].filter(Boolean).join(' · ');
-
-    const payouts = [bet.payoutA, bet.payoutB].filter(Boolean)
-      .map(p => `<span>${p}</span>`).join('<br>');
-
-    const picks = (bet.bets || []).map(b => `
-      <div class="pick-row">
-        <span class="pick-name">${b.participant}</span>
-        <span class="pick-team">${b.pick}</span>
-        <span class="pick-amt">${b.amount ? fmtAbs(b.amount) : '—'}</span>
-      </div>`).join('');
-
-    // Ends time row
-    let endsHtml = '';
-    if (bet.endsAt) {
-      const d = new Date(bet.endsAt);
-      const timeStr = d.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})
-        + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-      endsHtml = `<div class="bet-ends">
-        <span class="ends-label">ENDS</span>
-        <span class="ends-time">${timeStr}</span>
-        <span class="ends-cd" data-ends="${bet.endsAt}">...</span>
-      </div>`;
-    }
-
-    // Locked banner
-    const lockedHtml = bet.isLocked
-      ? `<div class="bet-locked-banner">🔒 LOCKED — Bets are finalized</div>`
-      : '';
-
-    return `<div class="bet-card">
-      ${lockedHtml}
-      <div class="bet-type">${typeLabel}</div>
-      <div class="bet-title">${bet.title || '—'}</div>
-      <div class="bet-limits">${limits || '&nbsp;'}</div>
-      ${endsHtml}
-      ${payouts ? `<div class="bet-payouts">${payouts}</div>` : ''}
-      <hr class="bet-sep">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${(bet.bets||[]).length} bet${(bet.bets||[]).length!==1?'s':''} placed</div>
-      ${picks || '<div class="muted-c" style="font-size:12px">No bets placed</div>'}
-    </div>`;
-  }).join('');
-
-  // Start per-bet countdowns
-  if (_betCdInterval) clearInterval(_betCdInterval);
-  _betCdInterval = setInterval(tickBetCountdowns, 1000);
-  tickBetCountdowns();
-}
-
-function tickBetCountdowns() {
-  const now = Date.now();
-  document.querySelectorAll('.ends-cd').forEach(el => {
-    const ends = new Date(el.dataset.ends).getTime();
-    const diff = ends - now;
-    if (diff <= 0) {
-      el.textContent = 'CLOSED';
-      el.classList.add('expired');
-      return;
-    }
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    el.textContent = h > 24
-      ? `${Math.floor(h/24)}d ${h%24}h`
-      : `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
-  });
-}
-
-// ================================================================
-// HISTORY
-// ================================================================
-function populateFilters() {
-  const standings = state.data?.standings || [];
-  const history   = state.data?.history   || [];
-
-  const pSel = document.getElementById('flt-participant');
-  pSel.innerHTML = '<option value="">All Participants</option>';
-  standings.forEach(p => {
-    pSel.innerHTML += `<option value="${p.name}">${p.name}</option>`;
-  });
-
-  const weeks = [...new Set(history.map(r => r.week))].sort((a,b) => a-b);
-  const wSel  = document.getElementById('flt-week');
-  wSel.innerHTML = '<option value="">All Weeks</option>';
-  weeks.forEach(w => { wSel.innerHTML += `<option value="${w}">Week ${w}</option>`; });
-}
-
-function renderHistory() {
-  const history   = state.data?.history  || [];
-  const bonuses   = state.data?.bonuses  || [];
-  const fP = document.getElementById('flt-participant')?.value || '';
-  const fW = document.getElementById('flt-week')?.value       || '';
-  const fO = document.getElementById('flt-outcome')?.value    || '';
-
-  // Merge history + bonuses into one list
-  const bonusRows = bonuses.map(b => ({
-    bet_id: b.bonus_type, participant: b.participant, week: b.week,
-    outcome: 'bonus', amount_change: b.amount, notes: b.notes,
-    resolved_at: b.awarded_at
-  }));
-  let records = [...history, ...bonusRows];
-
-  if (fP) records = records.filter(r => r.participant === fP);
-  if (fW) records = records.filter(r => String(r.week) === fW);
-  if (fO) records = records.filter(r => r.outcome === fO);
-  records.sort((a,b) => b.week - a.week || new Date(b.resolved_at||0) - new Date(a.resolved_at||0));
-
-  const BADGE = {
-    win:    '<span class="badge b-win">WIN</span>',
-    loss:   '<span class="badge b-loss">LOSS</span>',
-    bonus:  '<span class="badge b-bonus">BONUS</span>',
-    adjustment_add:    '<span class="badge b-win">ADJUST+</span>',
-    adjustment_deduct: '<span class="badge b-loss">ADJUST−</span>'
-  };
-
-  const tbody = document.getElementById('history-tbody');
-  if (!records.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="muted-c" style="padding:24px;text-align:center">No records yet. Resolve bets from the Admin panel to populate history.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = records.map(r => {
-    const dcls = r.amount_change > 0 ? 'win-c' : r.amount_change < 0 ? 'loss-c' : '';
-    return `<tr>
-      <td class="mono muted-c">${r.week || '—'}</td>
-      <td>${r.bet_id || '—'}</td>
-      <td>${r.participant || '—'}</td>
-      <td>${BADGE[r.outcome] || `<span class="badge b-active">${r.outcome||'?'}</span>`}</td>
-      <td class="mono ${dcls}">${r.amount_change ? fmtDelta(r.amount_change) : '—'}</td>
-      <td class="muted-c" style="font-size:12px">${r.notes || '—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ================================================================
-// PARTICIPANT PROFILE
-// ================================================================
-function populateProfiles() {
-  const standings = state.data?.standings || [];
-  const sel = document.getElementById('profile-select');
-  sel.innerHTML = '<option value="">Select Participant...</option>';
-  standings.sort((a,b) => b.balance - a.balance)
-           .forEach(p => { sel.innerHTML += `<option value="${p.name}">${p.name}</option>`; });
-}
-
-function renderProfile() {
-  const name = document.getElementById('profile-select').value;
-  const cont = document.getElementById('profile-content');
-  if (!name) { cont.innerHTML = ''; return; }
-
-  const standings = state.data?.standings || [];
-  const history   = state.data?.history   || [];
-  const bonuses   = state.data?.bonuses   || [];
-
-  const p = standings.find(s => s.name === name);
-  if (!p) { cont.innerHTML = '<div class="muted-c">Participant not found.</div>'; return; }
-
-  const byMoney  = [...standings].sort((a,b) => b.balance - a.balance);
-  const byHeis   = [...standings].sort((a,b) => b.heismanScore - a.heismanScore);
-  const mRank    = byMoney.findIndex(s => s.name === name) + 1;
-  const hRank    = byHeis.findIndex(s => s.name === name)  + 1;
-  const mLeader  = byMoney[0];
-  const hLeader  = byHeis[0];
-  const mBehind  = mLeader ? mLeader.balance - p.balance : 0;
-  const hBehind  = hLeader ? hLeader.heismanScore - p.heismanScore : 0;
-  const mBehindBets = byMoney.indexOf(p) > 0 ? (mRank - 1) : 0;
-
-  const myHist   = history.filter(r => r.participant === name);
-  const myBonus  = bonuses.filter(b => b.participant === name);
-
-  // Weekly breakdown
-  const byWeek = {};
-  myHist.forEach(r => {
-    if (!byWeek[r.week]) byWeek[r.week] = { w:0, l:0, net:0 };
-    if (r.outcome === 'win') byWeek[r.week].w++;
-    else if (r.outcome === 'loss') byWeek[r.week].l++;
-    byWeek[r.week].net += r.amount_change;
-  });
-
-  const statusBadge = p.status === 'inactive'
-    ? '<span class="badge b-inactive">INACTIVE</span>'
-    : '<span class="badge b-win" style="font-size:11px">ACTIVE</span>';
-
-  cont.innerHTML = `
-    <div class="flex align-c gap8 mb16" style="flex-wrap:wrap">
-      <h2 style="font-size:28px;font-weight:900;color:var(--gold)">${p.name}</h2>
-      ${statusBadge}
+P.stand=()=>{
+  const L=calc();if(!L.length)return noD();
+  const fmap={b:(a,b)=>b.b-a.b,lo:(a,b)=>a.b-b.b,up:(a,b)=>b.d-a.d,dn:(a,b)=>a.d-b.d,imp:(a,b)=>b.imp-a.imp};
+  L.sort(fmap[sortK]||fmap.b);L.forEach((p,i)=>{p.rk=i+1;});
+  return`<div class="card"><h2>Money Standings</h2>
+    <div class="f">
+      <select onchange="sortK=this.value;go()">
+        <option value="b">Highest balance</option><option value="lo">Lowest balance</option>
+        <option value="up">Biggest increase</option><option value="dn">Biggest decrease</option>
+        <option value="imp">Most improved</option>
+      </select>
+      <button class="g sm" onclick="Cache.clear();loadData(true)">⟳ Refresh</button>
+      <button class="g sm" onclick="exportCSV()">↓ CSV</button>
     </div>
+    <div class="tw"><table>
+      <tr><th>#</th><th>Name</th><th>Balance</th><th>Prev#</th><th>Change</th><th>%</th><th>W/L</th><th>Behind leader</th><th>Since start</th><th>Status</th></tr>
+      ${L.map(p=>`<tr>
+        <td><b>${p.rk}</b></td><td><b>${esc(p.name)}</b></td><td><b>${$$(p.b)}</b></td>
+        <td>${p.prk}${p.prk>p.rk?' <span class="gn">▲</span>':p.prk<p.rk?' <span class="rd">▼</span>':''}</td>
+        <td>${sg(p.d)}</td><td>${pc(p.pct)}</td>
+        <td><span class="gn">${p.correctBets||0}W</span>/<span class="rd">${p.incorrectBets||0}L</span></td>
+        <td class="mu">${p.behind?$$(p.behind):'–'}</td><td>${sg(p.imp)}</td>
+        <td>${p.status==='inactive'?'<span class="mu">inactive</span>':'<span class="gn">active</span>'}</td>
+      </tr>`).join('')}
+    </table></div></div>`;
+};
 
-    <div class="stats-row">
-      <div class="stat"><div class="stat-val">${fmtAbs(p.balance)}</div><div class="stat-lbl">Balance</div></div>
-      <div class="stat"><div class="stat-val">#${mRank}</div><div class="stat-lbl">Money Rank</div></div>
-      <div class="stat"><div class="stat-val">#${hRank}</div><div class="stat-lbl">Heisman Rank</div></div>
-      <div class="stat"><div class="stat-val win-c">${p.correctBets||0}</div><div class="stat-lbl">Correct Bets</div></div>
-      <div class="stat"><div class="stat-val loss-c">${p.incorrectBets||0}</div><div class="stat-lbl">Incorrect Bets</div></div>
-      <div class="stat"><div class="stat-val">${p.accuracy||0}%</div><div class="stat-lbl">Accuracy</div></div>
+P.heis=()=>{
+  const L=calc();if(!L.length)return noD();
+  const cfg=state.data?.config||{};
+  const hs=[...L].sort((a,b)=>b.heismanScore-a.heismanScore);
+  return`
+  <div class="card"><h2>Heisman Race</h2>
+    <p class="mu">Score = Correct Bets × (1 + Weeks In ÷ ${cfg.current_week||1}). Rewards accuracy <i>and</i> consistency. <b>Estimated ranking.</b></p>
+    <p>🏆 Leader: <b class="or">${esc(hs[0]?.name||'–')}</b> — ${hs[0]?.heismanScore||0} pts</p>
+  </div>
+  <div class="card"><div class="tw"><table>
+    <tr><th>#</th><th>Name</th><th>Score ★</th><th>Correct</th><th>Incorrect</th><th>Accuracy</th><th>Weeks In</th><th>Consistency</th><th>Behind</th></tr>
+    ${hs.map((p,i)=>`<tr>
+      <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
+      <td><b>${esc(p.name)}</b></td><td><b class="or">${p.heismanScore||0}</b></td>
+      <td class="gn">${p.correctBets||0}</td><td class="rd">${p.incorrectBets||0}</td>
+      <td>${p.accuracy||0}%</td><td>${p.weeksParticipated||0}</td><td>${p.consistency||0}%</td>
+      <td class="mu">${i>0?((hs[0].heismanScore||0)-(p.heismanScore||0))+' pts':'–'}</td>
+    </tr>`).join('')}
+  </table></div></div>`;
+};
+
+P.week=()=>{
+  const bets=state.data?.currentBets||[];const cfg=state.data?.config||{};
+  if(!bets.length)return noD();
+  if(_cd){clearInterval(_cd);_cd=null;}
+  const TL={game:'GAME',prop:'PLAYER PROP',bonus:'BONUS BET',local:'LOCAL BET'};
+  return`<div class="warn">All bets lock <b>Friday at ${cfg.week_lock_time||'7:00'} PM</b> · Week ${cfg.current_week||'?'}</div>
+  <div class="bet-grid">${bets.map(bet=>{
+    const lim=[bet.entryMin?'Entry: '+$$(bet.entryMin):'',bet.betMax?'Max: '+$$(bet.betMax):''].filter(Boolean).join(' · ');
+    const pays=[bet.payoutA,bet.payoutB].filter(Boolean).join(' / ');
+    const picks=(bet.bets||[]).map(b=>`<div class="pick-row"><span>${esc(b.participant)}</span><span class="pick-team">${esc(b.pick)}</span><span class="pick-amt">${b.amount?$$(b.amount):'–'}</span></div>`).join('');
+    const ends=bet.endsAt?`<div class="ends-row"><span class="ends-lbl">ENDS</span><span class="mu">${new Date(bet.endsAt).toLocaleDateString('en-US',{month:'numeric',day:'numeric'})} at ${new Date(bet.endsAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</span><span class="ends-cd" data-ends="${bet.endsAt}">...</span></div>`:'';
+    return`<div class="bet-card">${bet.isLocked?'<div class="lock-ban">🔒 LOCKED</div>':''}<span class="mu" style="font-size:10px;font-weight:700;letter-spacing:.06em">${TL[bet.betType]||'BET'}</span><div style="font-weight:700;font-size:14px;margin:2px 0">${esc(bet.title||'–')}</div><div class="mu" style="font-size:11px;font-family:monospace">${lim}</div>${ends}${pays?`<div class="mu" style="font-size:11px;background:#0f141d;padding:5px 8px;border-radius:6px;margin:5px 0">${pays}</div>`:''}
+      <div class="mu" style="font-size:11px;margin-bottom:3px">${(bet.bets||[]).length} bets placed</div>
+      ${picks||'<div class="mu" style="font-size:12px">No bets placed</div>'}
+    </div>`;}).join('')}</div>`;
+};
+
+function tickCDs(){document.querySelectorAll('.ends-cd').forEach(el=>{const d=new Date(el.dataset.ends).getTime()-Date.now();if(d<=0){el.textContent='CLOSED';el.classList.add('expired');return;}const h=Math.floor(d/3600000),m=Math.floor((d%3600000)/60000),s=Math.floor((d%60000)/1000);el.textContent=h>24?`${Math.floor(h/24)}d ${h%24}h`:`${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;});}
+
+P.catchup=()=>{
+  const L=calc();if(L.length<2)return L.length?'<div class="card">Need 2+ participants.</div>':noD();
+  ca.a=ca.a||L[0].id;ca.b=ca.b||L[1].id;
+  const A=L.find(p=>p.id===ca.a),B=L.find(p=>p.id===ca.b);if(!A||!B)return'';
+  const hi=A.b>=B.b?A:B,lo=hi===A?B:A,gap=hi.b-lo.b;
+  return`<div class="warn">Hypothetical only — not predictions or guarantees.</div>
+  <div class="card"><h2>Catch-Up Calculator</h2>
+    <div class="f"><select onchange="ca.a=this.value;go()">${mkOpts(L,ca.a)}</select>
+      vs <select onchange="ca.b=this.value;go()">${mkOpts(L,ca.b)}</select></div>
+    <p>${gap===0?`Tied at <b>${$$(hi.b)}</b>.`:`Gap: <b>${$$(gap)}</b> (${((gap/Math.abs(hi.b))*100).toFixed(1)}% of ${esc(hi.name)}'s balance)</p>
+      <p><b>${esc(lo.name)}</b> needs to gain <b>${$$(gap)}</b> to tie</p>
+      <p><b>${esc(hi.name)}</b> can lose up to <b>${$$(gap)}</b> before being tied`}
+    </p>
+    <p id="ch" class="mu" style="font-size:12px;margin-top:8px"></p>
+  </div>
+  <div class="card"><h2>What if…</h2>
+    <div class="f">
+      <label>${esc(lo.name)} gains <input type="number" min="0" style="width:110px" value="${lo===A?ca.ga:ca.gb}" oninput="${lo===A?'ca.ga':'ca.gb'}=Math.max(0,+this.value||0);upd()"></label>
+      <label>${esc(hi.name)} loses <input type="number" min="0" style="width:110px" value="${hi===A?ca.ga:ca.gb}" oninput="${hi===A?'ca.ga':'ca.gb'}=Math.max(0,+this.value||0);upd()"></label>
     </div>
+    <p id="cr"></p>
+  </div>
+  ${A.hist.length>2?`<div class="card"><h2>Balance History</h2>${lineChart([{n:A.name,v:A.hist},{n:B.name,v:B.hist}])}</div>`:''}`;
+};
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-      <div class="card">
-        <div class="card-title">💰 Behind Money Leader</div>
-        <div class="card-meta">${mLeader?.name || '—'}</div>
-        <div class="mono" style="font-size:18px;color:${mBehind>0?'var(--loss)':'var(--win)'}">
-          ${mBehind > 0 ? '−' + fmtAbs(mBehind) : '🏆 IS THE LEADER'}
-        </div>
-        ${mBehind > 0 ? `<div class="muted-c" style="font-size:12px;margin-top:4px">#${mRank-1} spot${mRank-1!==1?'s':''} behind</div>` : ''}
+function chance(){
+  const L=calc(),A=L.find(p=>p.id===ca.a),B=L.find(p=>p.id===ca.b);if(!A||!B)return;
+  const hi=A.b>=B.b?A:B,lo=hi===A?B:A;
+  const d=h=>h.slice(1).map((v,i)=>v-h[i]);
+  const dh=d(hi.hist),dl=d(lo.hist);
+  const el=document.getElementById('ch');if(!el)return;
+  if(dh.length<2||dl.length<2){el.innerHTML='Need at least 3 snapshots for each to estimate.';return;}
+  const pk=a=>a[Math.floor(Math.random()*a.length)];
+  let w={1:0,3:0,5:0};
+  for(let t=0;t<4000;t++){let x=lo.b,y=hi.b;for(let r=1;r<=5;r++){x+=pk(dl);y+=pk(dh);if([1,3,5].includes(r)&&x>y)w[r]++;}}
+  el.innerHTML=`Catch-up odds for <b>${esc(lo.name)}</b>: ${[1,3,5].map(r=>Math.round(w[r]/40)+'% in '+r+' round'+(r>1?'s':'')).join(' · ')} <span class="mu">(rough simulation only)</span>`;
+}
+
+function upd(){
+  chance();
+  const L=calc(),A=L.find(p=>p.id===ca.a),B=L.find(p=>p.id===ca.b);if(!A||!B)return;
+  const hi=A.b>=B.b?A:B,lo=hi===A?B:A,g=lo===A?ca.ga:ca.gb,l=hi===A?ca.ga:ca.gb;
+  const n=lo.b+g-(hi.b-l);const el=document.getElementById('cr');if(!el)return;
+  el.innerHTML=n>0?`<b class="gn">${esc(lo.name)} leads by ${$$(n)}</b>`:n===0?'<b>Tied</b>':`<b class="rd">${esc(hi.name)} still leads by ${$$(-n)}</b>`;
+}
+
+P.h2h=()=>{
+  const L=calc();if(L.length<2)return noD();
+  hh.a=hh.a||L[0].id;hh.b=hh.b||L[1].id;
+  const A=L.find(p=>p.id===hh.a),B=L.find(p=>p.id===hh.b);if(!A||!B)return'';
+  const w=A.b===B.b?null:A.b>B.b?A:B;
+  const pcs=p=>p.hist.length>1&&p.hist[0]!==0?(p.b-p.hist[0])/Math.abs(p.hist[0])*100:null;
+  return`<div class="card"><h2>Head-to-Head</h2>
+    <div class="f"><select onchange="hh.a=this.value;go()">${mkOpts(L,hh.a)}</select>
+      vs <select onchange="hh.b=this.value;go()">${mkOpts(L,hh.b)}</select></div>
+    <p>${w?`<b class="gn">${esc(w.name)}</b> leads by ${$$(Math.abs(A.b-B.b))}`:'<b>Tied</b>'}</p>
+    <div class="tw"><table>
+      <tr><th></th><th>${esc(A.name)}</th><th>${esc(B.name)}</th></tr>
+      <tr><td>Balance</td><td><b>${$$(A.b)}</b></td><td><b>${$$(B.b)}</b></td></tr>
+      <tr><td>Rank</td><td>${A.rk}</td><td>${B.rk}</td></tr>
+      <tr><td>Last change</td><td>${sg(A.d)}</td><td>${sg(B.d)}</td></tr>
+      <tr><td>Correct bets</td><td class="gn">${A.correctBets||0}</td><td class="gn">${B.correctBets||0}</td></tr>
+      <tr><td>Accuracy</td><td>${A.accuracy||0}%</td><td>${B.accuracy||0}%</td></tr>
+      <tr><td>Heisman score</td><td>${A.heismanScore||0}</td><td>${B.heismanScore||0}</td></tr>
+      <tr><td>% since start</td><td>${pc(pcs(A))}</td><td>${pc(pcs(B))}</td></tr>
+    </table></div>
+  </div>
+  ${A.hist.length>1?`<div class="card"><h2>Balance History</h2>${lineChart([{n:A.name,v:A.hist},{n:B.name,v:B.hist}])}</div>`:'<div class="card"><p class="mu">No snapshot history yet.</p></div>'}`;
+};
+
+P.bets=()=>{
+  const L=calc();if(!L.length)return noD();
+  const bets=state.data?.currentBets||[];if(!bets.length)return'<div class="card"><h2>No bets loaded</h2><p class="mu">No bets found in the Google Sheet.</p></div>';
+  if(bt.i>=bets.length)bt.i=0;
+  const B=bets[bt.i];
+  const ks=[...new Set((B.bets||[]).map(p=>p.pick).filter(Boolean))];
+  // h is a fully self-contained card — always closed, no dangling div
+  const h=`<div class="warn">Hypothetical only — not predictions or guarantees.</div>
+  <div class="card"><h2>Bet What-If</h2>
+    <div class="f"><select onchange="bt.i=+this.value;bt.w=null;go()">
+      ${bets.map((b,i)=>`<option value="${i}"${i===bt.i?' selected':''}>${esc(b.title||b.sheetName||'Bet '+(i+1))}${b.isLocked?' 🔒':''}</option>`).join('')}
+    </select></div>
+    ${B.endsAt?`<p class="mu" style="font-size:12px">Ends: ${new Date(B.endsAt).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'})}</p>`:''}
+    <div class="f">${ks.map(k=>`<button class="${bt.w===k?'':'g'}" onclick="bt.w=${JSON.stringify(k)};go()">If ${esc(k)} wins</button>`).join('')}</div>
+  </div>`;
+  if(!bt.w)return h;
+  const payWin=ks.indexOf(bt.w)===0?B.payoutA:B.payoutB;
+  const results=(B.bets||[]).map(b=>{const isW=b.pick===bt.w;return{...b,isW,change:isW?parsePay(payWin,b.amount):-(b.amount||0)};});
+  const delta={};results.forEach(r=>{const p=L.find(x=>x.name.toLowerCase().trim()===r.participant.toLowerCase().trim());if(p)delta[p.id]=(delta[p.id]||0)+r.change;});
+  const proj=projRows(delta);
+  return h+`
+  <div class="card">
+    <div class="tw"><table>
+      <tr><th>Name</th><th>Bet</th><th>Pick</th><th>Result</th></tr>
+      ${results.map(r=>`<tr><td>${esc(r.participant)}</td><td>${$$(r.amount)}</td><td>${esc(r.pick)}</td><td>${sg(r.change)}</td></tr>`).join('')}
+    </table></div>
+    ${payWin?`<p class="mu" style="font-size:12px;margin-top:6px">Payout rule: ${esc(payWin)}</p>`:''}
+  </div>
+  <div class="card"><h2>Projected Standings if ${esc(bt.w)} wins</h2>
+    <div class="tw"><table>
+      <tr><th>Proj#</th><th>Name</th><th>Balance</th><th>Move</th></tr>
+      ${proj.map(p=>`<tr><td>${p.nr}</td><td>${esc(p.name)}</td><td>${$$(p.b)}</td><td>${p.nr<p.rk?`<span class="gn">▲${p.rk-p.nr}</span>`:p.nr>p.rk?`<span class="rd">▼${p.nr-p.rk}</span>`:'<span class="mu">–</span>'}${p.nr===1&&p.rk!==1?' 👑':''}</td></tr>`).join('')}
+    </table></div>
+  </div>`;
+};
+
+P.proj=()=>{
+  const L=calc();if(!L.length)return noD();
+  return`<div class="warn">Hypothetical only — not predictions or guarantees.</div>
+  <div class="card"><h2>Scenario Builder</h2>
+    <p class="mu">Enter a possible change for each person, then see projected standings.</p>
+    ${L.map(p=>`<div class="f" style="margin-bottom:6px"><span style="width:110px;font-size:13px">${esc(p.name)}</span>
+      <input type="number" value="${pj.d[p.id]||0}" style="width:120px"
+        oninput="pj.d[${JSON.stringify(p.id).replace(/"/g,'&quot;')}]=+this.value||0;pr()"></div>`).join('')}
+    <div id="pr"></div>
+    <div class="f" style="margin-top:10px">
+      <input id="sn" placeholder="Scenario name" maxlength="40" style="flex:1">
+      <button onclick="saveScen()">Save</button>
+      <button class="g" onclick="pj.d={};pr();go()">Clear</button>
+    </div>
+  </div>
+  <div class="card"><h2>Saved Scenarios</h2>
+    ${savedScenarios.length?savedScenarios.map((s,i)=>{const r=projRows(s.d);return`<p style="margin-bottom:8px"><b>${esc(s.name)}</b> <button class="g sm" onclick="savedScenarios.splice(${i},1);localStorage.setItem('cfb_sc',JSON.stringify(savedScenarios));go()">Delete</button><br><span class="mu" style="font-size:12px">${r.slice(0,3).map(p=>p.nr+'. '+esc(p.name)+' '+$$(p.b)).join(' · ')}</span></p>`;}).join(''):'<span class="mu">None saved yet.</span>'}
+  </div>`;
+};
+
+function pr(){
+  const r=projRows(pj.d);const el=document.getElementById('pr');if(!el)return;
+  el.innerHTML=`<div class="tw" style="margin-top:10px"><table><tr><th>Proj#</th><th>Name</th><th>Projected</th><th>Move</th></tr>
+    ${r.map(p=>`<tr><td>${p.nr}</td><td>${esc(p.name)}</td><td>${$$(p.b)}</td><td>${p.nr<p.rk?`<span class="gn">▲${p.rk-p.nr}</span>`:p.nr>p.rk?`<span class="rd">▼${p.nr-p.rk}</span>`:'<span class="mu">–</span>'}${p.nr===1&&p.rk!==1?' 👑 takes 1st':''}</td></tr>`).join('')}
+  </table></div>`;
+}
+function saveScen(){
+  const n=qs('#sn')?.value.trim().slice(0,40)||'Scenario '+(savedScenarios.length+1);
+  savedScenarios.push({name:n,d:{...pj.d}});
+  localStorage.setItem('cfb_sc',JSON.stringify(savedScenarios));go();
+}
+
+P.charts=()=>{
+  const snap=state.data?.snapshots||[];const L=calc();
+  const weeks=[...new Set(snap.map(s=>s.week))].sort((a,b)=>a-b);
+  if(!snap.length)return`<div class="card"><h2>Charts</h2><p class="mu">No snapshot data yet. Admin → Save Week Snapshot at the end of each week to start building the chart.</p></div>`;
+  return`<div class="card"><h2>Balance Over Time</h2>
+    ${lineChart(L.map(p=>({n:p.name,v:snap.filter(s=>s.participant===p.name).sort((a,b)=>a.week-b.week).map(s=>s.balance)})).filter(d=>d.v.length),weeks.map(w=>'Wk '+w))}
+  </div>
+  <div class="card"><h2>Participant Deep Dive</h2>
+    <select onchange="renderPC(this.value)"><option value="">Select…</option>
+      ${L.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('')}
+    </select>
+    <div id="pc-wrap" style="margin-top:12px"></div>
+  </div>`;
+};
+
+function renderPC(name){
+  const el=document.getElementById('pc-wrap');if(!el||!name){if(el)el.innerHTML='';return;}
+  const snap=(state.data?.snapshots||[]).filter(s=>s.participant===name).sort((a,b)=>a.week-b.week);
+  const hist=(state.data?.history||[]).filter(r=>r.participant===name);
+  const wnet={};hist.forEach(r=>{wnet[r.week]=(wnet[r.week]||0)+r.amount_change;});
+  const wks=Object.keys(wnet).map(Number).sort((a,b)=>a-b);
+  const cards=[...hist].sort((a,b)=>b.week-a.week).map(r=>{
+    const iw=r.outcome==='win';
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px">
+      <span>${esc(r.bet_id||'–')} <span class="mu" style="font-size:11px">Wk ${r.week}</span></span>
+      <span class="badge ${iw?'bw':'bl'}">${iw?'WIN':'LOSS'}</span>
+      <b class="${iw?'gn':'rd'}">${sg(r.amount_change)}</b>
+    </div>`;}).join('');
+  el.innerHTML=`${snap.length?`<h2 style="font-size:13px;margin-bottom:8px">Balance History</h2>${lineChart([{n:name,v:snap.map(s=>s.balance)}],snap.map(s=>'Wk '+s.week))}`:'<p class="mu">No snapshot history yet.</p>'}
+    ${wks.length?`<h2 style="font-size:13px;margin:12px 0 6px">Weekly Net Change</h2>
+      <div class="tw"><table><tr><th>Week</th><th>Net</th></tr>${wks.map(w=>`<tr><td>Wk ${w}</td><td class="${wnet[w]>=0?'gn':'rd'}">${sg(wnet[w])}</td></tr>`).join('')}</table></div>`:''}
+    ${hist.length?`<h2 style="font-size:13px;margin:12px 0 6px">Bet History</h2>${cards}`:'<p class="mu">No resolved bet history yet.</p>'}`;
+}
+
+P.sports=()=>{
+  const games=state.data?.games||[];
+  return`<div class="card"><h2>ESPN Win Probabilities</h2>
+    <p class="mu">Admin-entered win percentages saved to the Google Sheet — everyone sees the same data. Not live odds.</p>
+    ${games.length?games.map((g,i)=>`<div style="margin:12px 0">
+      <div class="f" style="justify-content:space-between;margin:0"><b>${esc(g.teamA)}${g.rankA?' #'+g.rankA:''} ${g.probA??'?'}%</b><b>${g.probB??'?'}% ${esc(g.teamB)}${g.rankB?' #'+g.rankB:''}</b></div>
+      <div style="display:flex;height:12px;border-radius:5px;overflow:hidden;background:var(--line);margin:4px 0">
+        ${g.probA!=null?`<div style="width:${g.probA}%;background:var(--mu)"></div><div style="width:${g.probB}%;background:var(--or)"></div>`:'<div style="width:100%;background:var(--line)"></div>'}
       </div>
-      <div class="card">
-        <div class="card-title">🎯 Behind Heisman Leader</div>
-        <div class="card-meta">${hLeader?.name || '—'}</div>
-        <div class="mono" style="font-size:18px;color:${hBehind>0?'var(--loss)':'var(--win)'}">
-          ${hBehind > 0 ? '−' + hBehind + ' pts' : '🏆 IS THE LEADER'}
-        </div>
-        ${hBehind > 0 ? `<div class="muted-c" style="font-size:12px;margin-top:4px">Needs ${hBehind} more Heisman pts</div>` : ''}
+      <small class="mu">${esc(g.source||'')} ${ADMIN?`<a href="javascript:delGame(${i})" style="color:var(--or);font-size:11px">remove</a>`:''}</small>
+    </div>`).join(''):'<p class="mu">No games added yet.</p>'}
+  </div>
+  ${ADMIN?`<div class="card"><h2>Add Game</h2>
+    <div class="f">
+      <input id="ga" placeholder="Team A" size="8" maxlength="20">
+      <input id="gra" type="number" placeholder="Rank A" style="width:70px">
+      <input id="gp" type="number" min="0" max="100" step=".1" placeholder="A win %" style="width:95px">
+      <input id="gb" placeholder="Team B" size="8" maxlength="20">
+      <input id="grb" type="number" placeholder="Rank B" style="width:70px">
+      <button onclick="addGame()">Add</button>
+      <button class="g" onclick="clearGames()">Clear All</button>
+    </div>
+    <div id="gm"></div>
+  </div>`:''}`;
+};
+
+async function addGame(){
+  const a=qs('#ga')?.value.trim(),b=qs('#gb')?.value.trim(),p=parseFloat(qs('#gp')?.value),ra=parseInt(qs('#gra')?.value)||0,rb=parseInt(qs('#grb')?.value)||0;
+  if(!a||!b){setMsg('gm','Team A and B required.','err');return;}
+  const games=[...(state.data?.games||[])];
+  games.push({id:'G_'+Date.now(),teamA:a,teamB:b,rankA:ra,rankB:rb,probA:isNaN(p)?null:p,probB:isNaN(p)?null:Math.round((100-p)*10)/10,source:'ESPN, entered by admin'});
+  await svGames(games);
+}
+async function delGame(i){if(!confirm('Remove this game?'))return;const g=[...(state.data?.games||[])];g.splice(i,1);await svGames(g);}
+async function clearGames(){if(!confirm('Clear all games?'))return;await svGames([]);}
+async function svGames(games){
+  setMsg('gm','Saving…','inf');
+  try{const r=await apiPost('saveGames',{games});if(r.error)throw new Error(r.error);if(state.data)state.data.games=games;Cache.clear();go();}
+  catch(e){setMsg('gm','Error: '+e.message,'err');}
+}
+
+P.hist=()=>{
+  const h=(state.data?.history||[]);const bn=(state.data?.bonuses||[]);
+  const all=[...h,...bn.map(b=>({...b,bet_id:b.bonus_type,outcome:'bonus',amount_change:b.amount,resolved_at:b.awarded_at}))].sort((a,b)=>new Date(b.resolved_at||0)-new Date(a.resolved_at||0));
+  return`<div class="card"><h2>Activity Log</h2>
+    <p class="mu">Last synced: ${new Date(state.data?.timestamp||0).toLocaleString()}</p>
+    <button class="g sm" onclick="loadLog('hl-out')">Load Full Log</button>
+    <div id="hl-out" style="margin-top:8px"></div>
+    ${!all.length?'<p class="mu" style="margin-top:10px">No resolved bet history yet.</p>':
+    `<div class="lw"><table>
+      <tr><th>Wk</th><th>Type</th><th>Name</th><th>Change</th><th>Notes</th></tr>
+      ${all.slice(0,100).map(r=>`<tr>
+        <td class="mu">${r.week||'–'}</td>
+        <td><span class="lt ${r.outcome==='win'?'lt-r':r.outcome==='loss'?'lt-i':r.outcome==='bonus'?'lt-b':'lt-n'}">${esc(r.outcome||'–')}</span></td>
+        <td>${esc(r.participant||'–')}</td><td>${sg(r.amount_change||0)}</td>
+        <td class="mu" style="font-size:11px">${esc(r.notes||r.bet_id||'–')}</td>
+      </tr>`).join('')}
+    </table></div>`}
+  </div>`;
+};
+
+async function loadLog(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML='<span class="mu">Loading…</span>';
+  try{
+    const r=await apiGet('getLog');if(r.error)throw new Error(r.error);
+    const log=r.log||[];
+    const TM={result:'lt-r',bonus:'lt-b',bet_locked:'lt-k',inactive:'lt-i',reinstate:'lt-r',adjustment_add:'lt-r',adjustment_deduct:'lt-i'};
+    el.innerHTML=log.length?`<div class="lw"><table><tr><th>Time</th><th>Type</th><th>Name</th><th>Change</th><th>Ref</th><th>Notes</th></tr>
+      ${log.map(r=>`<tr>
+        <td class="mu" style="font-size:11px;white-space:nowrap">${r.timestamp?new Date(r.timestamp).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'}):'–'}</td>
+        <td><span class="lt ${TM[r.type]||'lt-n'}">${esc(r.type||'–')}</span></td>
+        <td>${esc(r.participant||'–')}</td><td>${sg(r.amount_change||0)}</td>
+        <td class="mu" style="font-size:11px">${esc(r.reference||'–')}</td>
+        <td class="mu" style="font-size:11px">${esc(r.notes||'–')}</td>
+      </tr>`).join('')}
+    </table></div>`:'<p class="mu">No log entries.</p>';
+  }catch(e){el.innerHTML=`<div class="alert err">Error: ${esc(e.message)}</div>`;}
+}
+
+P.admin=()=>{
+  if(!ADMIN)return`<div class="card" style="max-width:360px;margin:0 auto">
+    <h2>Admin Login</h2>
+    <p class="mu">View only. Enter the passcode to access management tools.</p>
+    <div class="f" style="margin-top:12px">
+      <input id="pw" type="password" placeholder="Passcode" autocomplete="off" onkeydown="if(event.key==='Enter')login()" style="flex:1">
+      <button onclick="login()">Log in</button>
+    </div>
+    <p id="pe" class="rd" style="margin-top:8px;font-size:13px"></p>
+  </div>`;
+  const L=calc();const pOpts=L.map(p=>`<option value="${esc(p.name)}">${esc(p.name)} — ${$$(p.b)}</option>`).join('');
+  const bets=state.data?.currentBets||[];const shBets=bets.filter(b=>b.sheetName);
+  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <h2 style="margin:0">🔐 Admin Panel</h2>
+    <button class="g sm" onclick="logout()">Log out</button>
+  </div>
+  <div class="ag">
+    <div class="ac"><h3>✅ RESOLVE BET</h3>
+      <div class="fg"><label>Bet</label><select id="a-bs" onchange="loadBR()"><option value="">Choose bet…</option>
+        ${bets.map((b,i)=>`<option value="${i}">${esc(b.title||b.sheetName||'Bet '+(i+1))}</option>`).join('')}
+      </select></div>
+      <div id="a-bp" style="font-size:12px;margin-bottom:8px"></div>
+      <div class="fg"><label>Winner</label><select id="a-bw"><option value="">Select winner…</option></select></div>
+      <div class="fg"><label>Week #</label><input type="number" id="a-wk" placeholder="${state.data?.config?.current_week||9}"></div>
+      <div id="a-rp"></div>
+      <button onclick="previewR()" style="width:100%;margin-top:6px">Preview Payouts</button>
+      <button onclick="submitR()" id="a-rb" style="display:none;width:100%;margin-top:6px;background:var(--gn);color:#000">✓ Confirm & Apply</button>
+      <div id="a-rm"></div>
+    </div>
+    <div class="ac"><h3>💰 ADJUST BALANCE</h3>
+      <div class="fg"><label>Participant</label><select id="a-aw">${pOpts}</select></div>
+      <div class="fg"><label>Amount (+/−)</label><input type="number" id="a-aa" placeholder="e.g. -10000"></div>
+      <div class="fg"><label>Reason</label><input type="text" id="a-ar" placeholder="e.g. Perfect Saturday"></div>
+      <button onclick="submitAdj()" style="width:100%">Apply</button>
+      <div id="a-am"></div>
+    </div>
+    <div class="ac"><h3>🎯 AWARD BONUS</h3>
+      <div class="fg"><label>Participant</label><select id="a-bno">${pOpts}</select></div>
+      <div class="fg"><label>Type</label><select id="a-bnt" onchange="fillBA()">
+        <option value="rival_week" data-amt="0">Rival Week (enter net)</option>
+        <option value="home_sweet_home" data-amt="15000">Home Sweet Home +$15k</option>
+        <option value="perfect_saturday" data-amt="50000">Perfect Saturday +$50k</option>
+        <option value="exact_score" data-amt="0">Exact Score (enter net)</option>
+        <option value="custom" data-amt="0">Custom</option>
+      </select></div>
+      <div class="fr">
+        <div class="fg"><label>Amount ($)</label><input type="number" id="a-bna"></div>
+        <div class="fg"><label>Week</label><input type="number" id="a-bnw"></div>
       </div>
+      <div class="fg"><label>Notes</label><input type="text" id="a-bnn"></div>
+      <button onclick="submitBonus()" style="width:100%">Award</button>
+      <div id="a-bnm"></div>
     </div>
-
-    <div class="card mb16">
-      <div class="card-title" style="margin-bottom:10px">Weekly Breakdown</div>
-      ${Object.keys(byWeek).length === 0
-        ? '<div class="muted-c" style="font-size:12px">No resolved bet history yet.</div>'
-        : `<div class="tbl-wrap"><table>
-            <thead><tr><th>Week</th><th>Wins</th><th>Losses</th><th>Net Change</th></tr></thead>
-            <tbody>${Object.entries(byWeek).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).map(([w,s])=>`
-              <tr>
-                <td class="mono muted-c">Week ${w}</td>
-                <td class="mono win-c">${s.w}</td>
-                <td class="mono loss-c">${s.l}</td>
-                <td class="mono ${s.net>=0?'win-c':'loss-c'}">${fmtDelta(s.net)}</td>
-              </tr>`).join('')}
-            </tbody>
-           </table></div>`}
-    </div>
-
-    ${myBonus.length ? `
-    <div class="card">
-      <div class="card-title" style="margin-bottom:10px">🎯 Bonus History</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Week</th><th>Type</th><th>Amount</th><th>Notes</th></tr></thead>
-        <tbody>${myBonus.map(b=>`
-          <tr>
-            <td class="mono muted-c">Week ${b.week}</td>
-            <td>${b.bonus_type||'—'}</td>
-            <td class="mono win-c">${fmtDelta(b.amount)}</td>
-            <td class="muted-c" style="font-size:12px">${b.notes||'—'}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>` : ''}
-  `;
-}
-
-// ================================================================
-// NAVIGATION
-// ================================================================
-function switchTab(tab) {
-  state.tab = tab;
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', ['money','heisman','week','history','charts','profile','admin'][i] === tab);
-  });
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(`view-${tab}`)?.classList.add('active');
-  if (tab === 'history') renderHistory();
-  if (tab === 'charts')  renderCharts();
-  if (tab === 'profile') renderProfile();
-}
-
-// ================================================================
-// ADMIN AUTH
-// ================================================================
-async function verifyAdmin() {
-  const pw = document.getElementById('admin-pw-input').value;
-  if (!pw) { setMsg('admin-auth-msg', 'Enter a password.', 'err'); return; }
-  setMsg('admin-auth-msg', 'Verifying...', 'info');
-  try {
-    state.adminPw = pw;
-    const res = await apiPost('ping', {});
-    if (res.error === 'auth') {
-      state.adminPw = '';
-      setMsg('admin-auth-msg', 'Incorrect password.', 'err');
-      return;
-    }
-    if (res.error) throw new Error(res.error);
-    state.adminOk = true;
-    document.getElementById('admin-gate').style.display  = 'none';
-    document.getElementById('admin-panel').style.display = 'block';
-    populateAdminBets();
-    populateAdminDropdowns();
-  } catch(e) {
-    state.adminPw = '';
-    setMsg('admin-auth-msg', 'Error: ' + e.message, 'err');
-  }
-}
-
-function lockAdmin() {
-  state.adminOk = false;
-  state.adminPw = '';
-  document.getElementById('admin-gate').style.display  = 'block';
-  document.getElementById('admin-panel').style.display = 'none';
-  document.getElementById('admin-pw-input').value = '';
-  document.getElementById('admin-auth-msg').innerHTML  = '';
-}
-
-// ================================================================
-// ADMIN HELPERS
-// ================================================================
-function populateAdminDropdowns() {
-  const standings = state.data?.standings || [];
-  ['a-adj-who','a-bonus-who','a-inactive-who','a-editsnap-who'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = standings.map(p =>
-      `<option value="${p.name}">${p.name} — ${fmtAbs(p.balance)}</option>`).join('');
-  });
-
-  // Charts filter multi-select
-  const chartSel = document.getElementById('chart-filter-participants');
-  if (chartSel && !chartSel.children.length) {
-    standings.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.name;
-      opt.textContent = p.name;
-      opt.selected = true;
-      chartSel.appendChild(opt);
-    });
-  }
-}
-
-function populateAdminBets() {
-  const bets = state.data?.currentBets || [];
-
-  // Resolve bet select
-  const sel = document.getElementById('a-bet-select');
-  if (sel) {
-    sel.innerHTML = '<option value="">Choose bet...</option>';
-    bets.forEach((b, i) => {
-      sel.innerHTML += `<option value="${i}">${b.title || b.sheetName || 'Bet ' + (i+1)}</option>`;
-    });
-  }
-
-  // Finalize / lock bet select — only sheet-based bets can be locked via Apps Script protection
-  const lockSel = document.getElementById('a-lock-bet');
-  if (lockSel) {
-    lockSel.innerHTML = '<option value="">Choose bet...</option>';
-    bets.forEach(b => {
-      if (!b.sheetName) return; // WD_Bets custom bets don't have a sheet to protect
-      const locked = b.isLocked ? ' 🔒' : '';
-      lockSel.innerHTML += `<option value="${b.sheetName}">${b.title || b.sheetName}${locked}</option>`;
-    });
-  }
-}
-
-function loadBetForResolve() {
-  const idx  = document.getElementById('a-bet-select').value;
-  const bet  = state.data?.currentBets?.[parseInt(idx)];
-  const prev = document.getElementById('a-bet-preview');
-  const wSel = document.getElementById('a-bet-winner');
-  pendingResolve = null;
-  document.getElementById('a-resolve-confirm').style.display = 'none';
-  document.getElementById('a-resolve-preview').innerHTML = '';
-  document.getElementById('a-resolve-msg').innerHTML = '';
-
-  if (!bet) { prev.innerHTML = ''; wSel.innerHTML = '<option value="">Select winner...</option>'; return; }
-
-  // Show current bets
-  const rows = (bet.bets||[]).map(b =>
-    `<div class="flex" style="justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">
-      <span>${b.participant}</span>
-      <span class="gold-c">${b.pick}</span>
-      <span class="muted-c mono">${fmtAbs(b.amount)}</span>
-    </div>`).join('');
-  prev.innerHTML = rows || '<div class="muted-c" style="font-size:12px">No bets placed</div>';
-
-  // Winner options = unique picks
-  const opts = [...new Set((bet.bets||[]).map(b => b.pick).filter(Boolean))];
-  wSel.innerHTML = '<option value="">Select winner...</option>';
-  opts.forEach(o => { wSel.innerHTML += `<option value="${o}">${o}</option>`; });
-}
-
-function parsePayout(payoutStr, betAmt) {
-  if (!payoutStr) return betAmt;
-  // Flat: "+$18,000" or "$18,000"
-  const flat = payoutStr.match(/\+?\$?([\d,]+)/);
-  if (flat) return parseInt(flat[1].replace(/,/g,''));
-  // Multiplier: "x1.5" or "x1.50"
-  const mult = payoutStr.match(/x([\d.]+)/i);
-  if (mult) return Math.round(betAmt * (parseFloat(mult[1]) - 1));
-  return betAmt;
-}
-
-function previewResolve() {
-  const idx    = document.getElementById('a-bet-select').value;
-  const bet    = state.data?.currentBets?.[parseInt(idx)];
-  const winner = document.getElementById('a-bet-winner').value;
-  const week   = document.getElementById('a-bet-week').value;
-  const prev   = document.getElementById('a-resolve-preview');
-  const msg    = document.getElementById('a-resolve-msg');
-
-  if (!bet || !winner || !week) {
-    setMsg('a-resolve-msg', 'Select a bet, winner, and week number.', 'err');
-    return;
-  }
-
-  // Figure out which payout string corresponds to the winning side
-  const allPicks = [...new Set((bet.bets||[]).map(b => b.pick).filter(Boolean))];
-  const winnerIdx = allPicks.indexOf(winner);
-  const payoutWin = winnerIdx === 0 ? bet.payoutA : bet.payoutB;
-
-  const results = (bet.bets||[]).map(b => {
-    const outcome = b.pick === winner ? 'win' : 'loss';
-    const change  = outcome === 'win'
-      ? parsePayout(payoutWin, b.amount)
-      : -(b.amount || 0);
-    return { participant: b.participant, pick: b.pick, outcome, amount_change: change };
-  });
-
-  pendingResolve = {
-    bet_id: bet.sheetName || bet.bet_id || bet.title,
-    bet_title: bet.title,
-    week: parseInt(week),
-    results
-  };
-
-  const rows = results.map(r => {
-    const cls = r.outcome === 'win' ? 'win-c' : 'loss-c';
-    return `<div class="flex" style="justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">
-      <span>${r.participant}</span>
-      <span class="${r.outcome==='win'?'win-c':'loss-c'}" style="font-weight:700">${r.outcome.toUpperCase()}</span>
-      <span class="mono ${cls}">${fmtDelta(r.amount_change)}</span>
-    </div>`;
-  }).join('');
-
-  prev.innerHTML = `
-    <div style="background:var(--raised);padding:10px;border-radius:4px;margin-bottom:8px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">PAYOUT PREVIEW — using: ${payoutWin || '(no payout rule found)'}</div>
-      ${rows}
-    </div>`;
-
-  document.getElementById('a-resolve-confirm').style.display = 'block';
-  msg.innerHTML = '';
-}
-
-async function submitResolve() {
-  if (!pendingResolve) { setMsg('a-resolve-msg', 'Preview payouts first.', 'err'); return; }
-  setMsg('a-resolve-msg', 'Applying...', 'info');
-  try {
-    const res = await apiPost('resolveBet', pendingResolve);
-    if (res.error) throw new Error(res.error);
-    setMsg('a-resolve-msg', `✅ Resolved ${res.resolved} bets. Refreshing...`, 'ok');
-    pendingResolve = null;
-    document.getElementById('a-resolve-confirm').style.display = 'none';
-    document.getElementById('a-resolve-preview').innerHTML = '';
-    setTimeout(refreshData, 1200);
-  } catch(e) {
-    setMsg('a-resolve-msg', 'Error: ' + e.message, 'err');
-  }
-}
-
-async function submitAdjBalance() {
-  const who    = document.getElementById('a-adj-who').value;
-  const amt    = document.getElementById('a-adj-amt').value;
-  const reason = document.getElementById('a-adj-reason').value;
-  if (!who || !amt) { setMsg('a-adj-msg', 'Select participant and enter amount.', 'err'); return; }
-  try {
-    const res = await apiPost('adjustBalance', { participant: who, amount: parseInt(amt), reason });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-adj-msg', `✅ ${fmtAbs(res.oldBalance)} → ${fmtAbs(res.newBalance)}`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-adj-msg', 'Error: ' + e.message, 'err'); }
-}
-
-function fillBonusAmount() {
-  const sel = document.getElementById('a-bonus-type');
-  const amt = sel.options[sel.selectedIndex]?.dataset.amt;
-  if (amt) document.getElementById('a-bonus-amt').value = amt;
-}
-
-async function submitBonus() {
-  const who  = document.getElementById('a-bonus-who').value;
-  const type = document.getElementById('a-bonus-type').value;
-  const amt  = document.getElementById('a-bonus-amt').value;
-  const week = document.getElementById('a-bonus-week').value;
-  const note = document.getElementById('a-bonus-notes').value;
-  if (!who || !amt) { setMsg('a-bonus-msg', 'Fill in participant and amount.', 'err'); return; }
-  try {
-    const res = await apiPost('addBonus', { participant: who, bonus_type: type, amount: parseInt(amt), week: parseInt(week)||0, notes: note });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-bonus-msg', `✅ Bonus awarded to ${who}!`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-bonus-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function submitMarkInactive() {
-  const who  = document.getElementById('a-inactive-who').value;
-  const week = document.getElementById('a-inactive-week').value;
-  if (!confirm(`Mark ${who} as INACTIVE? This deducts $10,000 from their balance.`)) return;
-  try {
-    const res = await apiPost('markInactive', { participant: who, week: parseInt(week)||0 });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-inactive-msg', `✅ ${who} marked inactive, −$10,000 applied.`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-inactive-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function submitReinstate() {
-  const who = document.getElementById('a-inactive-who').value;
-  if (!confirm(`Reinstate ${who}? Their balance stays as-is.`)) return;
-  try {
-    const res = await apiPost('reinstate', { participant: who });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-inactive-msg', `✅ ${who} reinstated.`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-inactive-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function submitAddBet() {
-  const title = document.getElementById('a-bet-title').value;
-  const type  = document.getElementById('a-bet-type').value;
-  const week  = document.getElementById('a-bet-new-week').value;
-  if (!title) { setMsg('a-bet-msg', 'Title is required.', 'err'); return; }
-  try {
-    const res = await apiPost('addBet', {
-      title, type, week,
-      option_a: document.getElementById('a-bet-a').value,
-      option_b: document.getElementById('a-bet-b').value,
-      payout_a: document.getElementById('a-bet-pa').value,
-      payout_b: document.getElementById('a-bet-pb').value,
-      entry_min: document.getElementById('a-bet-entry').value,
-      bet_max:   document.getElementById('a-bet-max').value
-    });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-bet-msg', `✅ Bet added! ID: ${res.bet_id}`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-bet-msg', 'Error: ' + e.message, 'err'); }
-}
-
-function fillConfigFields(cfg) {
-  const map = {
-    'cfg-name':    cfg.season_name,
-    'cfg-end':     cfg.season_end ? cfg.season_end.slice(0,16) : '',
-    'cfg-week':    cfg.current_week,
-    'cfg-lock':    cfg.week_lock_time,
-    'cfg-minbets': cfg.min_bets_per_week,
-    'cfg-penalty': cfg.miss_penalty
-  };
-  Object.entries(map).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (el && val != null) el.value = val;
-  });
-}
-
-async function saveConfig() {
-  const fields = [
-    ['season_name',       'cfg-name'],
-    ['season_end',        'cfg-end'],
-    ['current_week',      'cfg-week'],
-    ['week_lock_time',    'cfg-lock'],
-    ['min_bets_per_week', 'cfg-minbets'],
-    ['miss_penalty',      'cfg-penalty']
-  ];
-  try {
-    setMsg('a-cfg-msg', 'Saving...', 'info');
-    for (const [key, elId] of fields) {
-      const val = document.getElementById(elId)?.value;
-      if (val != null) await apiPost('updateConfig', { key, value: val });
-    }
-    setMsg('a-cfg-msg', '✅ Settings saved.', 'ok');
-    setTimeout(refreshData, 800);
-  } catch(e) { setMsg('a-cfg-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function submitAddParticipant() {
-  const name = document.getElementById('a-new-name').value.trim();
-  const bal  = document.getElementById('a-new-bal').value;
-  if (!name) { setMsg('a-participant-msg', 'Name is required.', 'err'); return; }
-  try {
-    const res = await apiPost('addParticipant', { name, startBalance: parseInt(bal)||500000 });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-participant-msg', `✅ ${name} added with ${fmtAbs(res.startBalance)}.`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-participant-msg', 'Error: ' + e.message, 'err'); }
-}
-
-async function changePassword() {
-  const nw = document.getElementById('a-new-pw').value;
-  const cf = document.getElementById('a-confirm-pw').value;
-  if (!nw) { setMsg('a-pw-msg', 'Enter a new password.', 'err'); return; }
-  if (nw !== cf) { setMsg('a-pw-msg', 'Passwords do not match.', 'err'); return; }
-  try {
-    const res = await apiPost('setPassword', { newPassword: nw });
-    if (res.error) throw new Error(res.error);
-    state.adminPw = nw;
-    setMsg('a-pw-msg', '✅ Password updated.', 'ok');
-  } catch(e) { setMsg('a-pw-msg', 'Error: ' + e.message, 'err'); }
-}
-
-// ================================================================
-// CHART CONFIG
-// ================================================================
-const CHART_COLORS = [
-  '#F0B429','#3DDC84','#FF6B35','#00B4FF','#A855F7',
-  '#FF4757','#06B6D4','#EC4899','#10B981','#F97316',
-  '#6366F1','#EF4444','#8B5CF6','#14B8A6','#F59E0B'
-];
-
-// Applied once after Chart.js loads
-function applyChartDefaults() {
-  if (typeof Chart === 'undefined') return;
-  Chart.defaults.color          = '#7B8499';
-  Chart.defaults.borderColor    = 'rgba(255,255,255,.07)';
-  Chart.defaults.font.family    = "'Inter', system-ui, sans-serif";
-  Chart.defaults.font.size      = 12;
-  Chart.defaults.plugins.legend.labels.boxWidth  = 10;
-  Chart.defaults.plugins.legend.labels.padding   = 14;
-  Chart.defaults.plugins.tooltip.backgroundColor = '#1C2237';
-  Chart.defaults.plugins.tooltip.borderColor     = 'rgba(255,255,255,.1)';
-  Chart.defaults.plugins.tooltip.borderWidth     = 1;
-  Chart.defaults.plugins.tooltip.titleColor      = '#F0B429';
-  Chart.defaults.plugins.tooltip.bodyColor       = '#EEF2FF';
-  Chart.defaults.plugins.tooltip.padding         = 10;
-}
-
-// Destroy a chart safely before recreating it
-const _charts = {};
-function destroyChart(id) {
-  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
-}
-
-// ================================================================
-// CHARTS TAB
-// ================================================================
-function renderCharts() {
-  applyChartDefaults();
-  const snapshots = state.data?.snapshots || [];
-  const standings = state.data?.standings || [];
-
-  if (!snapshots.length) {
-    document.getElementById('no-snapshot-msg').style.display = 'block';
-    document.getElementById('balance-chart-wrap').style.display = 'none';
-    return;
-  }
-  document.getElementById('no-snapshot-msg').style.display = 'none';
-  document.getElementById('balance-chart-wrap').style.display = 'block';
-
-  const statusFilter = document.getElementById('chart-filter-status')?.value || 'active';
-  const multiSel     = document.getElementById('chart-filter-participants');
-  const selected     = multiSel
-    ? [...multiSel.options].filter(o => o.selected).map(o => o.value)
-    : [];
-
-  let participants = standings.filter(p => statusFilter === 'all' || p.status === 'active');
-  if (selected.length) participants = participants.filter(p => selected.includes(p.name));
-
-  // Unique weeks sorted
-  const weeks = [...new Set(snapshots.map(s => s.week))].sort((a,b) => a-b);
-
-  const datasets = participants.map((p, i) => {
-    const data = weeks.map(w => {
-      const s = snapshots.find(s => s.week === w && s.participant === p.name);
-      return s ? s.balance : null;
-    });
-    return {
-      label:           p.name,
-      data:            data,
-      borderColor:     CHART_COLORS[i % CHART_COLORS.length],
-      backgroundColor: 'transparent',
-      borderWidth:     2,
-      pointRadius:     4,
-      pointHoverRadius:6,
-      tension:         0.3,
-      spanGaps:        true
-    };
-  });
-
-  destroyChart('balance');
-  const ctx = document.getElementById('balance-chart')?.getContext('2d');
-  if (!ctx) return;
-
-  _charts['balance'] = new Chart(ctx, {
-    type: 'line',
-    data: { labels: weeks.map(w => 'Wk ' + w), datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        x: { grid: { color: 'rgba(255,255,255,.05)' } },
-        y: {
-          grid: { color: 'rgba(255,255,255,.05)' },
-          ticks: { callback: v => '$' + (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : (v/1000).toFixed(0)+'k') }
-        }
-      },
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: ${fmtAbs(ctx.raw)}`
-          }
-        }
-      }
-    }
-  });
-}
-
-// ================================================================
-// PROFILE — with charts + visual bet history
-// ================================================================
-function renderProfile() {
-  const name = document.getElementById('profile-select').value;
-  const cont = document.getElementById('profile-content');
-  const chartArea = document.getElementById('profile-charts');
-  const betHist   = document.getElementById('profile-bet-history');
-
-  destroyChart('prof-balance');
-  destroyChart('prof-weekly');
-  if (chartArea) chartArea.style.display = 'none';
-  if (betHist)   betHist.innerHTML = '';
-  if (!name)     { cont.innerHTML = ''; return; }
-
-  const standings  = state.data?.standings || [];
-  const history    = state.data?.history   || [];
-  const bonuses    = state.data?.bonuses   || [];
-  const snapshots  = state.data?.snapshots || [];
-
-  const p = standings.find(s => s.name === name);
-  if (!p) { cont.innerHTML = '<div class="muted-c">Participant not found.</div>'; return; }
-
-  const byMoney  = [...standings].sort((a,b) => b.balance - a.balance);
-  const byHeis   = [...standings].sort((a,b) => b.heismanScore - a.heismanScore);
-  const mRank    = byMoney.findIndex(s => s.name === name) + 1;
-  const mLeader  = byMoney[0];
-  const hLeader  = byHeis[0];
-  const mBehind  = mLeader ? mLeader.balance - p.balance : 0;
-  const hBehind  = hLeader ? hLeader.heismanScore - p.heismanScore : 0;
-  const statusBadge = p.status === 'inactive'
-    ? '<span class="badge b-inactive">INACTIVE</span>'
-    : '<span class="badge b-win" style="font-size:11px">ACTIVE</span>';
-
-  cont.innerHTML = `
-    <div class="flex align-c gap8 mb16" style="flex-wrap:wrap">
-      <h2 style="font-size:28px;font-weight:900;color:var(--gold)">${p.name}</h2>
-      ${statusBadge}
-    </div>
-    <div class="stats-row">
-      <div class="stat"><div class="stat-val">${fmtAbs(p.balance)}</div><div class="stat-lbl">Balance</div></div>
-      <div class="stat"><div class="stat-val">#${mRank}</div><div class="stat-lbl">Money Rank</div></div>
-      <div class="stat"><div class="stat-val">#${p.heismanRank||'—'}</div><div class="stat-lbl">Heisman Rank</div></div>
-      <div class="stat"><div class="stat-val win-c">${p.correctBets||0}</div><div class="stat-lbl">Correct</div></div>
-      <div class="stat"><div class="stat-val loss-c">${p.incorrectBets||0}</div><div class="stat-lbl">Incorrect</div></div>
-      <div class="stat"><div class="stat-val">${p.accuracy||0}%</div><div class="stat-lbl">Accuracy</div></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px">
-      <div class="card">
-        <div class="card-title">💰 Behind Money Leader</div>
-        <div class="card-meta">${mLeader?.name||'—'}</div>
-        <div class="mono" style="font-size:18px;color:${mBehind>0?'var(--loss)':'var(--win)'}">
-          ${mBehind>0 ? '−'+fmtAbs(mBehind) : '🏆 IS THE LEADER'}
-        </div>
+    <div class="ac"><h3>⚠️ INACTIVE</h3>
+      <div class="fg"><label>Participant</label><select id="a-iw">${pOpts}</select></div>
+      <div class="fg"><label>Week #</label><input type="number" id="a-iwk"></div>
+      <p class="mu" style="font-size:11px;margin-bottom:8px">Inactive deducts $10k. Reinstate restores active status.</p>
+      <div class="f">
+        <button onclick="submitInactive()" style="flex:1;background:var(--rd)">Mark (−$10k)</button>
+        <button onclick="submitReinstate()" style="flex:1;background:var(--gn);color:#000">Reinstate</button>
       </div>
-      <div class="card">
-        <div class="card-title">🎯 Behind Heisman Leader</div>
-        <div class="card-meta">${hLeader?.name||'—'}</div>
-        <div class="mono" style="font-size:18px;color:${hBehind>0?'var(--loss)':'var(--win)'}">
-          ${hBehind>0 ? '−'+hBehind+' pts' : '🏆 IS THE LEADER'}
-        </div>
+      <div id="a-im"></div>
+    </div>
+    <div class="ac"><h3>🔒 FINALIZE BET</h3>
+      <div class="fg"><label>Bet Sheet</label><select id="a-lk">
+        <option value="">Choose bet…</option>
+        ${shBets.map(b=>`<option value="${esc(b.sheetName)}">${esc(b.title||b.sheetName)}${b.isLocked?' 🔒':''}</option>`).join('')}
+      </select></div>
+      <p class="mu" style="font-size:11px;margin-bottom:8px">Locks the sheet tab. Auto-lock does this automatically at the Ends time.</p>
+      <button onclick="submitLock()" style="width:100%;background:var(--rd)">🔒 Finalize & Lock</button>
+      <div id="a-lm"></div>
+    </div>
+    <div class="ac"><h3>➕ ADD BET</h3>
+      <div class="fg"><label>Title</label><input type="text" id="a-bt" placeholder="e.g. Ohio State vs Michigan"></div>
+      <div class="fr">
+        <div class="fg"><label>Type</label><select id="a-btp"><option value="game">Game</option><option value="prop">Prop</option><option value="bonus">Bonus</option><option value="local">Local</option></select></div>
+        <div class="fg"><label>Week</label><input type="number" id="a-bwk"></div>
       </div>
-    </div>`;
+      <div class="fr">
+        <div class="fg"><label>Option A</label><input type="text" id="a-ba"></div>
+        <div class="fg"><label>Option B</label><input type="text" id="a-bb"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Payout A</label><input type="text" id="a-bpa" placeholder="+$15,000 or x1.5"></div>
+        <div class="fg"><label>Payout B</label><input type="text" id="a-bpb"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Entry Min ($)</label><input type="number" id="a-ben"></div>
+        <div class="fg"><label>Max Bet ($)</label><input type="number" id="a-bmx"></div>
+      </div>
+      <button onclick="submitAddBet()" style="width:100%">Add to Sheet</button>
+      <div id="a-btm"></div>
+    </div>
+    <div class="ac"><h3>📸 SNAPSHOTS</h3>
+      <div class="fg"><label>Week #</label><input type="number" id="a-sw" value="${state.data?.config?.current_week||''}"></div>
+      <div class="fg"><label>Notes</label><input type="text" id="a-sn"></div>
+      <button onclick="submitSnap()" style="width:100%">📸 Save Week Snapshot</button>
+      <div id="a-sm"></div>
+      <hr style="border:none;border-top:1px solid var(--line);margin:12px 0">
+      <p class="mu" style="font-size:11px;margin-bottom:8px">Edit a past snapshot entry.</p>
+      <div class="fr">
+        <div class="fg"><label>Week</label><input type="number" id="a-esw"></div>
+        <div class="fg"><label>Balance ($)</label><input type="number" id="a-esb"></div>
+      </div>
+      <div class="fg"><label>Participant</label><select id="a-esp">${pOpts}</select></div>
+      <div class="fg"><label>Reason</label><input type="text" id="a-esn"></div>
+      <button onclick="submitEditSnap()" style="width:100%" class="g">Save Correction</button>
+      <div id="a-esm"></div>
+    </div>
+    <div class="ac"><h3>⚙️ SETTINGS</h3>
+      <div class="fg"><label>Season Name</label><input type="text" id="cfg-n" value="${esc(state.data?.config?.season_name||'')}"></div>
+      <div class="fg"><label>Season End</label><input type="datetime-local" id="cfg-e" value="${(state.data?.config?.season_end||'').slice(0,16)}"></div>
+      <div class="fr">
+        <div class="fg"><label>Current Week</label><input type="number" id="cfg-w" value="${state.data?.config?.current_week||''}"></div>
+        <div class="fg"><label>Lock Time</label><input type="text" id="cfg-lt" value="${state.data?.config?.week_lock_time||'19:00'}"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Min Bets/Wk</label><input type="number" id="cfg-mb" value="${state.data?.config?.min_bets_per_week||2}"></div>
+        <div class="fg"><label>Miss Penalty ($)</label><input type="number" id="cfg-mp" value="${state.data?.config?.miss_penalty||10000}"></div>
+      </div>
+      <button onclick="saveCfg()" style="width:100%">Save Settings</button>
+      <div id="a-cfm"></div>
+      <hr style="border:none;border-top:1px solid var(--line);margin:12px 0">
+      <button onclick="submitTrig()" style="width:100%" class="g">⏰ Install Auto-Lock Trigger</button>
+      <div id="a-trm"></div>
+    </div>
+    <div class="ac"><h3>👤 ADD PARTICIPANT</h3>
+      <div class="fg"><label>Name (e.g. "John D.")</label><input type="text" id="a-pn"></div>
+      <div class="fg"><label>Starting Balance ($)</label><input type="number" id="a-pb" placeholder="500000"></div>
+      <button onclick="submitAddP()" style="width:100%">Add to Sheet</button>
+      <div id="a-pm"></div>
+    </div>
+    <div class="ac"><h3>🔑 CHANGE PASSWORD</h3>
+      <div class="fg"><label>New Password</label><input type="password" id="a-np"></div>
+      <div class="fg"><label>Confirm</label><input type="password" id="a-cp"></div>
+      <button onclick="changePW()" style="width:100%" class="g">Update</button>
+      <div id="a-pwm"></div>
+    </div>
+  </div>
+  <div style="margin-top:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h2 style="margin:0;font-size:14px">📋 Admin Log</h2>
+      <div class="f" style="margin:0"><button class="g sm" onclick="exportLog()">↓ Export</button><button class="g sm" onclick="loadLog('al-out')">⟳ Load</button></div>
+    </div>
+    <div id="al-out" class="mu" style="font-size:12px">Click Load to pull the latest entries.</div>
+  </div>`;
+};
 
-  // ── Charts ──────────────────────────────────────────────────────
-  const mySnaps = snapshots.filter(s => s.participant === name).sort((a,b) => a.week - b.week);
+// ── ADMIN HELPERS ─────────────────────────────────────────────────
+const qs=sel=>document.querySelector(sel);
+const setElH=(sel,h)=>{const e=qs(sel);if(e)e.innerHTML=h;};
+function setMsg(id,msg,type){const el=document.getElementById(id);if(!el)return;const c=type==='ok'?'ok':type==='inf'?'inf':'err';el.innerHTML=`<div class="alert ${c}">${msg}</div>`;}
 
-  if (mySnaps.length && chartArea) {
-    chartArea.style.display = 'block';
-    applyChartDefaults();
-
-    // Balance history line chart
-    requestAnimationFrame(() => {
-      destroyChart('prof-balance');
-      const ctx1 = document.getElementById('profile-balance-chart')?.getContext('2d');
-      if (ctx1) {
-        _charts['prof-balance'] = new Chart(ctx1, {
-          type: 'line',
-          data: {
-            labels: mySnaps.map(s => 'Wk ' + s.week),
-            datasets: [{
-              label: 'Balance',
-              data: mySnaps.map(s => s.balance),
-              borderColor: '#F0B429',
-              backgroundColor: 'rgba(240,180,41,.08)',
-              fill: true,
-              borderWidth: 2,
-              pointRadius: 4,
-              tension: 0.3
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { grid: { color: 'rgba(255,255,255,.05)' } },
-              y: {
-                grid: { color: 'rgba(255,255,255,.05)' },
-                ticks: { callback: v => '$'+(v>=1000000?(v/1000000).toFixed(1)+'M':(v/1000).toFixed(0)+'k') }
-              }
-            }
-          }
-        });
-      }
-
-      // Weekly net bar chart
-      const myHist = history.filter(r => r.participant === name);
-      const weekNet = {};
-      myHist.forEach(r => { weekNet[r.week] = (weekNet[r.week]||0) + r.amount_change; });
-      const wKeys = Object.keys(weekNet).map(Number).sort((a,b)=>a-b);
-
-      destroyChart('prof-weekly');
-      const ctx2 = document.getElementById('profile-weekly-chart')?.getContext('2d');
-      if (ctx2 && wKeys.length) {
-        _charts['prof-weekly'] = new Chart(ctx2, {
-          type: 'bar',
-          data: {
-            labels: wKeys.map(w => 'Wk ' + w),
-            datasets: [{
-              label: 'Net Change',
-              data: wKeys.map(w => weekNet[w]),
-              backgroundColor: wKeys.map(w => weekNet[w] >= 0 ? 'rgba(61,220,132,.5)' : 'rgba(255,71,87,.5)'),
-              borderColor:     wKeys.map(w => weekNet[w] >= 0 ? '#3DDC84' : '#FF4757'),
-              borderWidth: 1,
-              borderRadius: 3
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { grid: { color: 'rgba(255,255,255,.05)' } },
-              y: {
-                grid: { color: 'rgba(255,255,255,.05)' },
-                ticks: { callback: v => (v>=0?'+':'')+fmtDelta(v).replace('+','').replace('−','-') }
-              }
-            }
-          }
-        });
-      }
-    });
-  }
-
-  // ── Visual Bet History ──────────────────────────────────────────
-  if (betHist) {
-    const myHist = [...history.filter(r => r.participant === name)]
-      .sort((a,b) => b.week - a.week || new Date(b.resolved_at||0) - new Date(a.resolved_at||0));
-    const myBonus = [...bonuses.filter(b => b.participant === name)]
-      .sort((a,b) => b.week - a.week);
-
-    const allItems = [
-      ...myHist.map(r => ({ ...r, _type: 'bet' })),
-      ...myBonus.map(b => ({ ...b, week: b.week, bet_id: b.bonus_type, outcome: 'bonus', amount_change: b.amount, notes: b.notes, _type: 'bonus' }))
-    ].sort((a,b) => b.week - a.week);
-
-    if (!allItems.length) {
-      betHist.innerHTML = '<div class="muted-c" style="font-size:13px;padding:16px 0">No resolved bet history yet.</div>';
-    } else {
-      betHist.innerHTML = `
-        <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:10px">Bet History</div>
-        ${allItems.map(r => {
-          const isWin   = r.outcome === 'win' || r.outcome === 'bonus' || r.amount_change > 0;
-          const isLoss  = r.outcome === 'loss' || r.amount_change < 0;
-          const badge   = r.outcome === 'bonus'
-            ? '<span class="badge b-bonus">BONUS</span>'
-            : isWin ? '<span class="badge b-win">WIN</span>'
-            : '<span class="badge b-loss">LOSS</span>';
-          const chgCls  = isWin ? 'win-c' : isLoss ? 'loss-c' : 'muted-c';
-          return `<div class="bet-card-history">
-            <div class="bch-left">
-              <div class="bch-bet">${r.bet_id || '—'}</div>
-              <div class="bch-pick">${r.notes || ''}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              ${badge}
-              <span class="bch-wk">Wk ${r.week}</span>
-            </div>
-            <div class="bch-right">
-              <div class="bch-change ${chgCls}">${fmtDelta(r.amount_change)}</div>
-            </div>
-          </div>`;
-        }).join('')}`;
-    }
-  }
+function loadBR(){
+  const idx=qs('#a-bs')?.value;const bet=state.data?.currentBets?.[parseInt(idx)];
+  const bp=document.getElementById('a-bp');const bw=qs('#a-bw');
+  pendingResolve=null;const rb=qs('#a-rb');if(rb)rb.style.display='none';const rp=document.getElementById('a-rp');if(rp)rp.innerHTML='';
+  if(!bet){if(bp)bp.innerHTML='';if(bw)bw.innerHTML='<option value="">Select winner…</option>';return;}
+  if(bp)bp.innerHTML=(bet.bets||[]).map(b=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--line)"><span>${esc(b.participant)}</span><span class="or">${esc(b.pick)}</span><span class="mu">${$$(b.amount)}</span></div>`).join('')||'<span class="mu">No bets placed</span>';
+  const ks=[...new Set((bet.bets||[]).map(b=>b.pick).filter(Boolean))];
+  if(bw)bw.innerHTML='<option value="">Select winner…</option>'+ks.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
+}
+function previewR(){
+  const idx=qs('#a-bs')?.value;const bet=state.data?.currentBets?.[parseInt(idx)];
+  const winner=qs('#a-bw')?.value;const week=qs('#a-wk')?.value;
+  if(!bet||!winner||!week){setMsg('a-rm','Select a bet, winner, and week number.','err');return;}
+  const ks=[...new Set((bet.bets||[]).map(b=>b.pick).filter(Boolean))];
+  const payW=ks.indexOf(winner)===0?bet.payoutA:bet.payoutB;
+  const results=(bet.bets||[]).map(b=>{const iw=b.pick===winner;return{participant:b.participant,outcome:iw?'win':'loss',amount_change:iw?parsePay(payW,b.amount):-(b.amount||0)};});
+  pendingResolve={bet_id:bet.sheetName||bet.bet_id||bet.title,bet_title:bet.title,week:parseInt(week),results};
+  const rp=document.getElementById('a-rp');
+  if(rp)rp.innerHTML=`<div style="background:#0f141d;padding:8px;border-radius:6px;margin-top:8px;font-size:12px">
+    <div class="mu" style="margin-bottom:4px">Using: ${esc(payW||'(no payout rule)')}</div>
+    ${results.map(r=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line)"><span>${esc(r.participant)}</span><span class="${r.outcome==='win'?'gn':'rd'}">${r.outcome.toUpperCase()}</span><span class="${r.amount_change>0?'gn':'rd'}">${sg(r.amount_change)}</span></div>`).join('')}
+  </div>`;
+  const rb=qs('#a-rb');if(rb)rb.style.display='block';setMsg('a-rm','','inf');
+}
+async function submitR(){
+  if(!pendingResolve){setMsg('a-rm','Preview payouts first.','err');return;}
+  setMsg('a-rm','Applying…','inf');
+  try{const r=await apiPost('resolveBet',pendingResolve);if(r.error)throw new Error(r.error);setMsg('a-rm',`✅ Resolved ${r.resolved} bets. Refreshing…`,'ok');pendingResolve=null;const rb=qs('#a-rb');if(rb)rb.style.display='none';Cache.clear();setTimeout(()=>loadData(true),1200);}
+  catch(e){setMsg('a-rm','Error: '+e.message,'err');}
+}
+async function submitAdj(){
+  const who=qs('#a-aw')?.value,amt=qs('#a-aa')?.value,reason=qs('#a-ar')?.value;
+  if(!who||!amt){setMsg('a-am','Fill in all fields.','err');return;}
+  try{const r=await apiPost('adjustBalance',{participant:who,amount:parseInt(amt),reason});if(r.error)throw new Error(r.error);setMsg('a-am',`✅ ${$$(r.oldBalance)} → ${$$(r.newBalance)}`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-am','Error: '+e.message,'err');}
+}
+function fillBA(){const sel=qs('#a-bnt');const amt=sel?.options[sel.selectedIndex]?.dataset.amt;if(amt){const el=qs('#a-bna');if(el)el.value=amt;}}
+async function submitBonus(){
+  const who=qs('#a-bno')?.value,type=qs('#a-bnt')?.value,amt=qs('#a-bna')?.value,week=qs('#a-bnw')?.value,notes=qs('#a-bnn')?.value;
+  if(!who||!amt){setMsg('a-bnm','Fill in participant and amount.','err');return;}
+  try{const r=await apiPost('addBonus',{participant:who,bonus_type:type,amount:parseInt(amt),week:parseInt(week)||0,notes});if(r.error)throw new Error(r.error);setMsg('a-bnm',`✅ Bonus awarded to ${who}!`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-bnm','Error: '+e.message,'err');}
+}
+async function submitInactive(){
+  const who=qs('#a-iw')?.value,week=qs('#a-iwk')?.value;
+  if(!confirm(`Mark ${who} as INACTIVE? Deducts $10,000.`))return;
+  try{const r=await apiPost('markInactive',{participant:who,week:parseInt(week)||0});if(r.error)throw new Error(r.error);setMsg('a-im',`✅ ${who} marked inactive.`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-im','Error: '+e.message,'err');}
+}
+async function submitReinstate(){
+  const who=qs('#a-iw')?.value;if(!confirm(`Reinstate ${who}?`))return;
+  try{const r=await apiPost('reinstate',{participant:who});if(r.error)throw new Error(r.error);setMsg('a-im',`✅ ${who} reinstated.`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-im','Error: '+e.message,'err');}
+}
+async function submitLock(){
+  const sheet=qs('#a-lk')?.value;if(!sheet){setMsg('a-lm','Select a bet.','err');return;}
+  if(!confirm(`Lock "${sheet}"?`))return;
+  try{setMsg('a-lm','Locking…','inf');const r=await apiPost('finalizeBet',{sheetName:sheet});if(r.error)throw new Error(r.error);setMsg('a-lm',`✅ "${sheet}" locked.`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-lm','Error: '+e.message,'err');}
+}
+async function submitAddBet(){
+  const title=qs('#a-bt')?.value;if(!title){setMsg('a-btm','Title required.','err');return;}
+  try{const r=await apiPost('addBet',{title,type:qs('#a-btp')?.value,week:qs('#a-bwk')?.value,option_a:qs('#a-ba')?.value,option_b:qs('#a-bb')?.value,payout_a:qs('#a-bpa')?.value,payout_b:qs('#a-bpb')?.value,entry_min:qs('#a-ben')?.value,bet_max:qs('#a-bmx')?.value});if(r.error)throw new Error(r.error);setMsg('a-btm',`✅ Bet added: ${r.bet_id}`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-btm','Error: '+e.message,'err');}
+}
+async function submitSnap(){
+  const week=qs('#a-sw')?.value;if(!week){setMsg('a-sm','Enter a week number.','err');return;}
+  if(!confirm(`Save snapshot for all participants at Week ${week}?`))return;
+  try{setMsg('a-sm','Saving…','inf');const r=await apiPost('saveSnapshot',{week:parseInt(week),notes:qs('#a-sn')?.value});if(r.error)throw new Error(r.error);setMsg('a-sm',`✅ Saved for ${r.count} participants — Week ${r.week}.`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-sm','Error: '+e.message,'err');}
+}
+async function submitEditSnap(){
+  const week=qs('#a-esw')?.value,who=qs('#a-esp')?.value,bal=qs('#a-esb')?.value;
+  if(!week||!who||!bal){setMsg('a-esm','Fill in all fields.','err');return;}
+  try{const r=await apiPost('editSnapshot',{week:parseInt(week),participant:who,balance:parseInt(bal),notes:qs('#a-esn')?.value});if(r.error)throw new Error(r.error);setMsg('a-esm',`✅ Snapshot ${r.action} for ${who} — Week ${week}.`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-esm','Error: '+e.message,'err');}
+}
+async function saveCfg(){
+  const fields=[['season_name','cfg-n'],['season_end','cfg-e'],['current_week','cfg-w'],['week_lock_time','cfg-lt'],['min_bets_per_week','cfg-mb'],['miss_penalty','cfg-mp']];
+  try{setMsg('a-cfm','Saving…','inf');for(const[k,id]of fields){const v=qs('#'+id)?.value;if(v!=null)await apiPost('updateConfig',{key:k,value:v});}setMsg('a-cfm','✅ Settings saved.','ok');Cache.clear();setTimeout(()=>loadData(true),800);}
+  catch(e){setMsg('a-cfm','Error: '+e.message,'err');}
+}
+async function submitTrig(){
+  if(!confirm('Install hourly auto-lock trigger? Run once.'))return;
+  try{setMsg('a-trm','Installing…','inf');const r=await apiPost('installTrigger',{});if(r.error)throw new Error(r.error);setMsg('a-trm','✅ '+(r.message||'Trigger installed.'),'ok');}
+  catch(e){setMsg('a-trm','Error: '+e.message,'err');}
+}
+async function submitAddP(){
+  const name=qs('#a-pn')?.value.trim();if(!name){setMsg('a-pm','Name required.','err');return;}
+  try{const r=await apiPost('addParticipant',{name,startBalance:parseInt(qs('#a-pb')?.value)||500000});if(r.error)throw new Error(r.error);setMsg('a-pm',`✅ ${name} added with ${$$(r.startBalance)}.`,'ok');Cache.clear();setTimeout(()=>loadData(true),1000);}
+  catch(e){setMsg('a-pm','Error: '+e.message,'err');}
+}
+async function changePW(){
+  const nw=qs('#a-np')?.value,cf=qs('#a-cp')?.value;
+  if(!nw){setMsg('a-pwm','Enter a new password.','err');return;}
+  if(nw!==cf){setMsg('a-pwm','Passwords do not match.','err');return;}
+  try{const r=await apiPost('setPassword',{newPassword:nw});if(r.error)throw new Error(r.error);state.adminPw=nw;setMsg('a-pwm','✅ Password updated. Note: the site login hash must also be updated in the HTML if you want them to stay in sync.','ok');}
+  catch(e){setMsg('a-pwm','Error: '+e.message,'err');}
 }
 
-// ================================================================
-// ADMIN: SNAPSHOT FUNCTIONS
-// ================================================================
-async function submitSaveSnapshot() {
-  const week  = document.getElementById('a-snap-week').value;
-  const notes = document.getElementById('a-snap-notes').value;
-  if (!week) { setMsg('a-snap-msg', 'Enter a week number.', 'err'); return; }
-  if (!confirm(`Save balance snapshot for all participants at Week ${week}?`)) return;
-  try {
-    setMsg('a-snap-msg', 'Saving...', 'info');
-    const res = await apiPost('saveSnapshot', { week: parseInt(week), notes });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-snap-msg', `✅ Snapshot saved for ${res.count} participants — Week ${res.week}.`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-snap-msg', 'Error: ' + e.message, 'err'); }
+// ── EXPORT ───────────────────────────────────────────────────────
+function exportCSV(){
+  const L=calc();
+  csvDown([['Rank','Name','Balance','Change','Correct','Incorrect','Accuracy','Heisman','Status'],
+    ...L.map((p,i)=>[i+1,p.name,p.b,p.d,p.correctBets||0,p.incorrectBets||0,(p.accuracy||0)+'%',p.heismanScore||0,p.status])],'money_board.csv');
+}
+function exportLog(){
+  if(!state.adminLog?.length){alert('Load the admin log first.');return;}
+  csvDown([['Timestamp','Type','Participant','Week','Reference','Change','Notes'],
+    ...state.adminLog.map(r=>[r.timestamp,r.type,r.participant,r.week,r.reference,r.amount_change,r.notes||''])],'admin_log.csv');
+}
+function csvDown(rows,name){
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();
 }
 
-async function submitEditSnapshot() {
-  const week  = document.getElementById('a-editsnap-week').value;
-  const who   = document.getElementById('a-editsnap-who').value;
-  const bal   = document.getElementById('a-editsnap-bal').value;
-  const notes = document.getElementById('a-editsnap-notes').value;
-  if (!week || !who || !bal) { setMsg('a-editsnap-msg', 'Fill in all fields.', 'err'); return; }
-  try {
-    setMsg('a-editsnap-msg', 'Saving...', 'info');
-    const res = await apiPost('editSnapshot', { week: parseInt(week), participant: who, balance: parseInt(bal), notes });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-editsnap-msg', `✅ Snapshot ${res.action} for ${who} — Week ${week}.`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-editsnap-msg', 'Error: ' + e.message, 'err'); }
+// ── ROUTER ───────────────────────────────────────────────────────
+function go(){
+  if(_cd){clearInterval(_cd);_cd=null;}
+  const h=(location.hash||'#home').slice(1);
+  const pg=P[h]?h:'home';
+  document.getElementById('nav').innerHTML=PAGES.map(([id,lbl])=>
+    `<a href="#${id}"${id===pg?' class="on" aria-current="page"':''}>${lbl}${id==='admin'&&ADMIN?' 🔐':''}</a>`).join('');
+  document.getElementById('app').innerHTML=P[pg]();
+  if(pg==='home')startHCD();
+  if(pg==='week'){_cd=setInterval(tickCDs,1000);tickCDs();}
+  if(pg==='catchup'&&calc().length>1){chance();upd();}
+  if(pg==='proj'&&calc().length)pr();
 }
-
-// ================================================================
-// FINALIZE BET
-// ================================================================
-async function submitFinalizeBet() {
-  const sheetName = document.getElementById('a-lock-bet').value;
-  if (!sheetName) { setMsg('a-lock-msg', 'Select a bet to finalize.', 'err'); return; }
-  if (!confirm(`Lock "${sheetName}"? Participants will no longer be able to edit their picks. This cannot be undone from the site.`)) return;
-  try {
-    setMsg('a-lock-msg', 'Locking...', 'info');
-    const res = await apiPost('finalizeBet', { sheetName });
-    if (res.error) throw new Error(res.error);
-    setMsg('a-lock-msg', `✅ "${sheetName}" is now locked.`, 'ok');
-    setTimeout(refreshData, 1000);
-  } catch(e) { setMsg('a-lock-msg', 'Error: ' + e.message, 'err'); }
-}
-
-// ================================================================
-// AUTO-LOCK TRIGGER
-// ================================================================
-async function submitInstallTrigger() {
-  if (!confirm('Install the hourly auto-lock trigger? Run this once. Running it again resets the existing trigger.')) return;
-  try {
-    setMsg('a-trigger-msg', 'Installing...', 'info');
-    const res = await apiPost('installTrigger', {});
-    if (res.error) throw new Error(res.error);
-    setMsg('a-trigger-msg', '✅ ' + (res.message || 'Trigger installed.'), 'ok');
-  } catch(e) { setMsg('a-trigger-msg', 'Error: ' + e.message, 'err'); }
-}
-
-// ================================================================
-// ADMIN LOG
-// ================================================================
-async function loadAdminLog() {
-  const wrap = document.getElementById('admin-log-wrap');
-  wrap.innerHTML = '<div class="muted-c" style="font-size:12px;padding:8px 0">Loading...</div>';
-  try {
-    const res = await apiGet('getLog');
-    if (res.error) throw new Error(res.error);
-    const log = res.log || [];
-    if (!log.length) {
-      wrap.innerHTML = '<div class="muted-c" style="font-size:12px;padding:8px 0">No log entries yet.</div>';
-      return;
-    }
-
-    const TYPE_CSS = {
-      result:'lt-result', bonus:'lt-bonus', bet_locked:'lt-lock',
-      inactive:'lt-inactive', reinstate:'lt-reinstate',
-      adjustment_add:'lt-result', adjustment_deduct:'lt-inactive',
-      config_change:'lt-other', add_participant:'lt-other', add_bet:'lt-other'
-    };
-
-    const rows = log.map(r => {
-      const tcls = TYPE_CSS[r.type] || 'lt-other';
-      const ts   = r.timestamp ? new Date(r.timestamp).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
-      const chg  = r.amount_change ? `<span class="${r.amount_change>0?'win-c':'loss-c'} mono">${fmtDelta(r.amount_change)}</span>` : '';
-      return `<tr>
-        <td class="mono muted-c" style="font-size:11px;white-space:nowrap">${ts}</td>
-        <td><span class="log-type ${tcls}">${r.type}</span></td>
-        <td style="font-size:13px">${r.participant||'—'}</td>
-        <td class="mono muted-c">${r.week||'—'}</td>
-        <td style="font-size:12px;color:var(--muted)">${r.reference||'—'}</td>
-        <td>${chg}</td>
-        <td style="font-size:12px;color:var(--muted)">${r.notes||'—'}</td>
-      </tr>`;
-    }).join('');
-
-    wrap.innerHTML = `
-      <div class="log-table-wrap">
-        <table>
-          <thead><tr>
-            <th>Time</th><th>Type</th><th>Participant</th><th>Wk</th>
-            <th>Reference</th><th>Change</th><th>Notes</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-
-    // Cache log for export
-    state.adminLog = log;
-  } catch(e) {
-    wrap.innerHTML = `<div class="alert alert-err">Error loading log: ${e.message}</div>`;
-  }
-}
-
-// ================================================================
-// CSV EXPORT
-// ================================================================
-function exportCSV(type) {
-  let rows, filename;
-  if (type === 'money') {
-    const s = [...(state.data?.standings||[])].sort((a,b)=>b.balance-a.balance);
-    rows = [['Rank','Name','Balance','Correct','Incorrect','Accuracy','Heisman Score','Status'],
-      ...s.map((p,i)=>[i+1,p.name,p.balance,p.correctBets||0,p.incorrectBets||0,(p.accuracy||0)+'%',p.heismanScore||0,p.status])];
-    filename = 'cfb_money_race.csv';
-  } else if (type === 'log') {
-    const l = state.adminLog || [];
-    rows = [['Timestamp','Type','Participant','Week','Reference','Amount Change','Notes'],
-      ...l.map(r=>[r.timestamp,r.type,r.participant,r.week,r.reference,r.amount_change,r.notes||''])];
-    filename = 'cfb_admin_log.csv';
-  } else {
-    const h = state.data?.history||[];
-    rows = [['Week','Bet','Participant','Outcome','Change','Notes'],
-      ...h.map(r=>[r.week,r.bet_id,r.participant,r.outcome,r.amount_change,r.notes||''])];
-    filename = 'cfb_history.csv';
-  }
-  const csv  = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv'});
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-}
-
-// ================================================================
-// UTILITY
-// ================================================================
-function setMsg(id, msg, type) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const cls = type === 'ok' ? 'alert-ok' : type === 'info' ? 'alert-info' : 'alert-err';
-  el.innerHTML = `<div class="alert ${cls}">${msg}</div>`;
-}
-
-// ================================================================
-// INIT
-// ================================================================
-function init() {
-  document.getElementById('app').style.display = 'block';
-  loadData();
-}
-
-init();
+addEventListener('hashchange',go);
+loadData();
 </script>
 </body>
 </html>
