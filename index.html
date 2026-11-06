@@ -97,8 +97,8 @@ button.sm{padding:5px 10px;font-size:12px}
 <main id="app" aria-live="polite"></main>
 <script>
 // ── CONSTANTS ───────────────────────────────────────────────────
-const URL_='https://script.google.com/macros/s/AKfycbxigQl3OoFtn-R1tGEhV63aLOXYOJQHT5lnfo7DwveICDeUpuyPsESDK4mlIE3pNozzMg/exec';
-const AH='965e175b29f97ef4a17fb261820374ed512f21a501c73449e0127541db684a97';
+const URL_='https://script.google.com/macros/s/AKfycbw2JrGe-6rI3bUVuOzGJAUEViTKafYyoYeAY11ZJeTjEFDEakDJBceXGKWn-utGRNJlFg/exec';
+// Admin hash is verified server-side via GAS ping — no hard-coded constant needed.
 const PAGES=[['home','Home'],['stand','Standings'],['heis','Heisman'],['week','This Week'],
   ['catchup','Catch-Up'],['h2h','Head-to-Head'],['bets','Bets'],['proj','Projections'],
   ['charts','Charts'],['sports','Sports'],['hist','History'],['admin','Admin']];
@@ -166,10 +166,15 @@ function hideBan(){const b=document.getElementById('cache-banner');if(b)b.style.
 // ── ADMIN AUTH ───────────────────────────────────────────────────
 async function login(){
   const pw=qs('#pw')?.value;if(!pw)return;
-  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
-  const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
-  if(hash===AH){ADMIN=true;state.adminPw=pw;go();}
-  else setElH('#pe','Wrong passcode.');
+  setElH('#pe','Verifying…');
+  // Verify against GAS — it is the only authoritative source of the hash.
+  // This eliminates the AH constant that caused "Error: auth" when the two drifted.
+  try{
+    state.adminPw=pw;
+    const r=await apiPost('ping',{});
+    if(r&&r.ok){ADMIN=true;go();}
+    else{state.adminPw='';setElH('#pe','Wrong passcode.');}
+  }catch(e){state.adminPw='';setElH('#pe','Could not reach server: '+e.message);}
 }
 function logout(){ADMIN=false;state.adminPw='';go();}
 
@@ -204,11 +209,23 @@ function calc(){
 function projRows(d){const q=calc().map(p=>({...p,b:p.b+(d[p.id]||0)}));q.sort((a,b)=>b.b-a.b);q.forEach((p,i)=>{p.nr=i+1;});return q;}
 function parsePay(str,amt){
   if(!str)return amt;
-  const f=str.match(/\+?\$?([\d,]+)/);if(f)return parseInt(f[1].replace(/,/g,''));
+  // Check multiplier FIRST so "x1.5 money" doesn't get swallowed by the digit regex below
   const m=str.match(/x([\d.]+)/i);if(m)return Math.round(amt*(parseFloat(m[1])-1));
+  // Flat payout must start with + or $ to avoid false matches on bare digits (e.g. "x2 → 2")
+  const f=str.match(/(?:\+\$?|\$)([\d,]+)/);if(f)return parseInt(f[1].replace(/,/g,''));
   return amt;
 }
 function mkOpts(L,sel){return L.map(p=>`<option value="${esc(p.id)}"${p.id===sel?' selected':''}>${esc(p.name)}</option>`).join('');}
+// Pick the correct payout string by matching the winning team name inside it.
+// Falls back to index-based logic only if neither string contains the winner name.
+function pickPayout(winner,pa,pb){
+  if(!winner)return pa||pb;
+  const w=winner.toLowerCase();
+  if((pa||'').toLowerCase().includes(w))return pa;
+  if((pb||'').toLowerCase().includes(w))return pb;
+  // Fallback: original index-based behaviour
+  return pa;
+}
 
 // ── SVG LINE CHART ────────────────────────────────────────────────
 function lineChart(series,labels){
@@ -255,9 +272,15 @@ P.home=()=>{
   ${top5.length?`<div class="card"><h2>Balance History (Top 5)</h2>${lineChart(top5,weeks.map(w=>'Wk '+w))}</div>`:'<div class="card"><h2>Balance History</h2><p class="mu">No snapshots yet. Admin → Save Week Snapshot at the end of each week.</p></div>'}`;
 };
 
+function parseConfigDate(str){
+  // "2026-12-30 19:00:00" has no TZ marker so browsers disagree: Chrome=local, FF/Safari=UTC.
+  // Normalise to explicit ISO 8601 with no TZ so it's always parsed as local time.
+  if(!str)return new Date('');
+  return new Date(String(str).replace(' ','T'));
+}
 function startHCD(){
   const el=document.getElementById('hcd');if(!el)return;
-  const e=new Date(state.data?.config?.season_end||'');
+  const e=parseConfigDate(state.data?.config?.season_end);
   if(isNaN(e)){el.textContent='–';return;}
   const tick=()=>{const diff=e-Date.now();if(diff<=0){el.textContent='Ended';return;}const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000);el.textContent=`${d}d ${h}h`;setTimeout(tick,60000);};tick();
 }
@@ -265,7 +288,8 @@ function startHCD(){
 P.stand=()=>{
   const L=calc();if(!L.length)return noD();
   const fmap={b:(a,b)=>b.b-a.b,lo:(a,b)=>a.b-b.b,up:(a,b)=>b.d-a.d,dn:(a,b)=>a.d-b.d,imp:(a,b)=>b.imp-a.imp};
-  L.sort(fmap[sortK]||fmap.b);L.forEach((p,i)=>{p.rk=i+1;});
+  // Sort a copy so original .rk (balance rank from calc) is untouched for Prev# arrows
+  const SL=[...L].sort(fmap[sortK]||fmap.b);
   return`<div class="card"><h2>Money Standings</h2>
     <div class="f">
       <select onchange="sortK=this.value;go()">
@@ -277,10 +301,10 @@ P.stand=()=>{
       <button class="g sm" onclick="exportCSV()">↓ CSV</button>
     </div>
     <div class="tw"><table>
-      <tr><th>#</th><th>Name</th><th>Balance</th><th>Prev#</th><th>Change</th><th>%</th><th>W/L</th><th>Behind leader</th><th>Since start</th><th>Status</th></tr>
-      ${L.map(p=>`<tr>
-        <td><b>${p.rk}</b></td><td><b>${esc(p.name)}</b></td><td><b>${$$(p.b)}</b></td>
-        <td>${p.prk}${p.prk>p.rk?' <span class="gn">▲</span>':p.prk<p.rk?' <span class="rd">▼</span>':''}</td>
+      <tr><th>#</th><th>Name</th><th>Balance</th><th>Bal Rank</th><th>Change</th><th>%</th><th>W/L</th><th>Behind leader</th><th>Since start</th><th>Status</th></tr>
+      ${SL.map((p,i)=>`<tr>
+        <td><b>${i+1}</b></td><td><b>${esc(p.name)}</b></td><td><b>${$$(p.b)}</b></td>
+        <td>${p.rk}${p.prk>p.rk?' <span class="gn">▲</span>':p.prk<p.rk?' <span class="rd">▼</span>':''}</td>
         <td>${sg(p.d)}</td><td>${pc(p.pct)}</td>
         <td><span class="gn">${p.correctBets||0}W</span>/<span class="rd">${p.incorrectBets||0}L</span></td>
         <td class="mu">${p.behind?$$(p.behind):'–'}</td><td>${sg(p.imp)}</td>
@@ -313,7 +337,7 @@ P.heis=()=>{
 P.week=()=>{
   const bets=state.data?.currentBets||[];const cfg=state.data?.config||{};
   if(!bets.length)return noD();
-  if(_cd){clearInterval(_cd);_cd=null;}
+  // _cd is managed by the router (go()); do not clear it here or the timer freezes on re-render
   const TL={game:'GAME',prop:'PLAYER PROP',bonus:'BONUS BET',local:'LOCAL BET'};
   return`<div class="warn">All bets lock <b>Friday at ${cfg.week_lock_time||'7:00'} PM</b> · Week ${cfg.current_week||'?'}</div>
   <div class="bet-grid">${bets.map(bet=>{
@@ -412,10 +436,10 @@ P.bets=()=>{
       ${bets.map((b,i)=>`<option value="${i}"${i===bt.i?' selected':''}>${esc(b.title||b.sheetName||'Bet '+(i+1))}${b.isLocked?' 🔒':''}</option>`).join('')}
     </select></div>
     ${B.endsAt?`<p class="mu" style="font-size:12px">Ends: ${new Date(B.endsAt).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'})}</p>`:''}
-    <div class="f">${ks.map(k=>`<button class="${bt.w===k?'':'g'}" onclick="bt.w=${JSON.stringify(k)};go()">If ${esc(k)} wins</button>`).join('')}</div>
+    <div class="f">${ks.map(k=>`<button class="${bt.w===k?'':'g'}" data-pick="${esc(k)}" onclick="bt.w=this.dataset.pick;go()">If ${esc(k)} wins</button>`).join('')}</div>
   </div>`;
   if(!bt.w)return h;
-  const payWin=ks.indexOf(bt.w)===0?B.payoutA:B.payoutB;
+  const payWin=pickPayout(bt.w,B.payoutA,B.payoutB);
   const results=(B.bets||[]).map(b=>{const isW=b.pick===bt.w;return{...b,isW,change:isW?parsePay(payWin,b.amount):-(b.amount||0)};});
   const delta={};results.forEach(r=>{const p=L.find(x=>x.name.toLowerCase().trim()===r.participant.toLowerCase().trim());if(p)delta[p.id]=(delta[p.id]||0)+r.change;});
   const proj=projRows(delta);
@@ -600,7 +624,7 @@ P.admin=()=>{
   <div class="ag">
     <div class="ac"><h3>✅ RESOLVE BET</h3>
       <div class="fg"><label>Bet</label><select id="a-bs" onchange="loadBR()"><option value="">Choose bet…</option>
-        ${bets.map((b,i)=>`<option value="${i}">${esc(b.title||b.sheetName||'Bet '+(i+1))}</option>`).join('')}
+        ${bets.map((b,i)=>`<option value="${esc(b.sheetName||b.bet_id||String(i))}">${esc(b.title||b.sheetName||'Bet '+(i+1))}</option>`).join('')}
       </select></div>
       <div id="a-bp" style="font-size:12px;margin-bottom:8px"></div>
       <div class="fg"><label>Winner</label><select id="a-bw"><option value="">Select winner…</option></select></div>
@@ -735,7 +759,7 @@ const setElH=(sel,h)=>{const e=qs(sel);if(e)e.innerHTML=h;};
 function setMsg(id,msg,type){const el=document.getElementById(id);if(!el)return;const c=type==='ok'?'ok':type==='inf'?'inf':'err';el.innerHTML=`<div class="alert ${c}">${msg}</div>`;}
 
 function loadBR(){
-  const idx=qs('#a-bs')?.value;const bet=state.data?.currentBets?.[parseInt(idx)];
+  const key=qs('#a-bs')?.value;const bet=(state.data?.currentBets||[]).find(b=>(b.sheetName||b.bet_id||'')==key);
   const bp=document.getElementById('a-bp');const bw=qs('#a-bw');
   pendingResolve=null;const rb=qs('#a-rb');if(rb)rb.style.display='none';const rp=document.getElementById('a-rp');if(rp)rp.innerHTML='';
   if(!bet){if(bp)bp.innerHTML='';if(bw)bw.innerHTML='<option value="">Select winner…</option>';return;}
@@ -744,11 +768,11 @@ function loadBR(){
   if(bw)bw.innerHTML='<option value="">Select winner…</option>'+ks.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
 }
 function previewR(){
-  const idx=qs('#a-bs')?.value;const bet=state.data?.currentBets?.[parseInt(idx)];
+  const key=qs('#a-bs')?.value;const bet=(state.data?.currentBets||[]).find(b=>(b.sheetName||b.bet_id||'')==key);
   const winner=qs('#a-bw')?.value;const week=qs('#a-wk')?.value;
   if(!bet||!winner||!week){setMsg('a-rm','Select a bet, winner, and week number.','err');return;}
   const ks=[...new Set((bet.bets||[]).map(b=>b.pick).filter(Boolean))];
-  const payW=ks.indexOf(winner)===0?bet.payoutA:bet.payoutB;
+  const payW=pickPayout(winner,bet.payoutA,bet.payoutB);
   const results=(bet.bets||[]).map(b=>{const iw=b.pick===winner;return{participant:b.participant,outcome:iw?'win':'loss',amount_change:iw?parsePay(payW,b.amount):-(b.amount||0)};});
   pendingResolve={bet_id:bet.sheetName||bet.bet_id||bet.title,bet_title:bet.title,week:parseInt(week),results};
   const rp=document.getElementById('a-rp');
